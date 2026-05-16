@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول — نظام عيادة العظام</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 50%, #0f1f3d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative background circles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -180px;
+      right: -180px;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(26,111,206,.15);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -120px;
+      left: -120px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: rgba(14,196,162,.1);
+      pointer-events: none;
+    }
+
+    /* Floating cross pattern */
+    .bg-cross {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      opacity: .04;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,.5) 40px, rgba(255,255,255,.5) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,.5) 40px, rgba(255,255,255,.5) 41px);
+    }
+
+    .login-card {
+      background: rgba(255,255,255,.97);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.2);
+      width: 100%;
+      max-width: 440px;
+      padding: 48px 44px;
+      position: relative;
+      z-index: 10;
+      animation: fadeInUp .5s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+    .logo-icon-big {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #1a6fce, #0ec4a2);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(26,111,206,.4);
+    }
+    .login-card h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1a202c;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .login-card .subtitle {
+      font-size: 13px;
+      color: #718096;
+      text-align: center;
+    }
+
+    .form-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0;
+      color: #a0aec0;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .demo-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1a6fce, #0ec4a2);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all .2s ease;
+      box-shadow: 0 4px 20px rgba(26,111,206,.35);
+    }
+    .demo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(26,111,206,.45);
+    }
+    .demo-btn:active { transform: translateY(0); }
+    .demo-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .role-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .role-chip {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid #e2e8f0;
+      background: #f7f9fc;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all .18s ease;
+      font-family: 'Cairo', sans-serif;
+    }
+    .role-chip:hover { border-color: #1a6fce; color: #1a6fce; background: #e8f1fb; }
+    .role-chip.active { background: #1a6fce; border-color: #1a6fce; color: #fff; }
+
+    .demo-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #1e40af;
+      margin-top: 18px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .demo-note .note-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    .input-icon-wrap {
+      position: relative;
+    }
+    .input-icon-wrap .icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a0aec0;
+      font-size: 16px;
+      pointer-events: none;
+    }
+    .input-icon-wrap input {
+      width: 100%;
+      padding: 11px 42px 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #1a202c;
+      background: #f7f9fc;
+      transition: all .18s ease;
+      font-family: 'Cairo', sans-serif;
+    }
+    .input-icon-wrap input:focus {
+      outline: none;
+      border-color: #1a6fce;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(26,111,206,.12);
+    }
+
+    .login-btn-normal {
+      width: 100%;
+      padding: 12px;
+      background: #1a202c;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all .18s ease;
+    }
+    .login-btn-normal:hover { background: #2d3748; }
+
+    .version-tag {
+      position: fixed;
+      bottom: 16px;
+      right: 50%;
+      transform: translateX(50%);
+      font-size: 11px;
+      color: rgba(255,255,255,.35);
+      font-family: 'Cairo', sans-serif;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-cross"></div>
+
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-icon-big">🦴</div>
+      <h1>نظام عيادة العظام</h1>
+      <p class="subtitle">Ortho Clinic Management System</p>
+    </div>
+
+    <!-- Role Selector -->
+    <p style="font-size:12px;color:#718096;font-weight:600;margin-bottom:10px;">اختر الدور للعرض التجريبي:</p>
+    <div class="role-chips" id="roleChips">
+      <button class="role-chip active" data-role="admin">مدير النظام</button>
+      <button class="role-chip" data-role="doctor">طبيب</button>
+      <button class="role-chip" data-role="receptionist">استقبال</button>
+      <button class="role-chip" data-role="finance">حسابات</button>
+    </div>
+
+    <!-- Demo Login Button -->
+    <button class="demo-btn" id="demoLoginBtn" onclick="demoLogin()">
+      <span>🚀</span>
+      <span>دخول تجريبي فوري</span>
+    </button>
+
+    <!-- Divider -->
+    <div class="form-divider">أو سجّل دخولك بحسابك</div>
+
+    <!-- Email/Password (Visual Only) -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12.5px;font-weight:600;color:#4a5568;display:block;margin-bottom:6px;">البريد الإلكتروني</label>
+      <div class="input-icon-wrap">
+        <span class="icon">✉️</span>
+        <input type="email" placeholder="doctor@clinic.com" />
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12.5px;font-weight:600;color:#4a5568;display:block;margin-bottom:6px;">كلمة المرور</label>
+      <div class="input-icon-wrap">
+        <span class="icon">🔒</span>
+        <input type="password" placeholder="••••••••" />
+      </div>
+    </div>
+    <button class="login-btn-normal">
+      <span>تسجيل الدخول</span>
+    </button>
+
+    <!-- Demo Note -->
+    <div class="demo-note">
+      <span class="note-icon">ℹ️</span>
+      <div>
+        <strong>وضع العرض التجريبي:</strong>
+        استخدم زر "دخول تجريبي فوري" للوصول الفوري دون الحاجة لحساب.
+        يتم تسجيل الدخول تلقائياً عبر Firebase Anonymous Auth.
+      </div>
+    </div>
+  </div>
+
+  <p class="version-tag">نظام عيادة العظام — نسخة تجريبية v1.0</p>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // ============================================================
+    // FIREBASE CONFIG — Replace with your own Firebase project values
+    // ============================================================
+    const firebaseConfig = {
+      apiKey:            "YOUR_API_KEY",
+      authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId:         "YOUR_PROJECT_ID",
+      storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId:             "YOUR_APP_ID"
+    };
+    // ============================================================
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // If already logged in, redirect immediately
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const role = localStorage.getItem('demo_role') || 'admin';
+        console.log('Already logged in. Redirecting...');
+        window.location.href = 'dashboard.html';
+      }
+    });
+
+    // Expose demo login function to global scope
+    window.demoLogin = async function () {
+      const btn = document.getElementById('demoLoginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>جاري الدخول...</span>';
+
+      try {
+        const result = await signInAnonymously(auth);
+        const uid = result.user.uid;
+
+        // Persist demo session info
+        const selectedRole = document.querySelector('.role-chip.active')?.dataset.role || 'admin';
+        localStorage.setItem('demo_role',  selectedRole);
+        localStorage.setItem('demo_uid',   uid);
+        localStorage.setItem('demo_name',  getRoleName(selectedRole));
+
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.error('Login error:', err);
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀</span><span>دخول تجريبي فوري</span>';
+
+        // Show fallback (offline demo without Firebase)
+        if (confirm('لم يتم الاتصال بـ Firebase. هل تريد المتابعة في وضع العرض بدون اتصال؟')) {
+          localStorage.setItem('demo_role', 'admin');
+          localStorage.setItem('demo_name', 'د. أحمد المنصوري');
+          localStorage.setItem('demo_offline', 'true');
+          window.location.href = 'dashboard.html';
+        }
+      }
+    };
+
+    function getRoleName(role) {
+      const names = {
+        admin:       'مدير النظام',
+        doctor:      'د. أحمد المنصوري',
+        receptionist:'فاطمة إبراهيم',
+        finance:     'محمد السيد'
+      };
+      return names[role] || 'مستخدم';
+    }
+  </script>
+
+  <script>
+    // Role chip selection
+    document.querySelectorAll('.role-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>

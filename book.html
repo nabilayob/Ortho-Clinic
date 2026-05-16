@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اطلب حجز موعد — عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#1a6fce;--primary-dk:#1358a8;--primary-lt:#e8f1fb;
+      --accent:#0ec4a2;--accent-lt:#e6faf7;
+      --danger:#e53e3e;--danger-lt:#fff5f5;
+      --warn:#d97706;--warn-lt:#fffbeb;
+      --ok:#059669;--ok-lt:#ecfdf5;
+      --bg:#f0f4f8;--surface:#fff;--border:#e2e8f0;--border-lt:#f1f5f9;
+      --text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;
+    }
+    body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;line-height:1.6;min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+    button{cursor:pointer;font-family:'Cairo',sans-serif;}
+
+    /* ── HEADER ── */
+    .site-header{
+      background:var(--primary);
+      padding:0 24px;height:64px;
+      display:flex;align-items:center;justify-content:space-between;
+      box-shadow:0 2px 12px rgba(26,111,206,.3);
+      position:sticky;top:0;z-index:50;
+    }
+    .hd-logo{display:flex;align-items:center;gap:12px;}
+    .hd-logo .ic{width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .hd-logo .tx strong{display:block;font-size:15px;font-weight:800;color:#fff;}
+    .hd-logo .tx span{font-size:11px;color:rgba(255,255,255,.7);}
+    .hd-right{display:flex;align-items:center;gap:10px;}
+    .hd-phone{color:rgba(255,255,255,.9);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;}
+    .hd-staff-btn{
+      background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+      color:#fff;padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;
+      cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;
+    }
+    .hd-staff-btn:hover{background:rgba(255,255,255,.25);}
+
+    /* ── HERO ── */
+    .hero{
+      background:linear-gradient(135deg,#0f1f3d 0%,#1a3a6b 60%,#0f1f3d 100%);
+      padding:48px 24px;text-align:center;
+      position:relative;overflow:hidden;
+    }
+    .hero::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;border-radius:50%;background:rgba(26,111,206,.15);pointer-events:none;}
+    .hero::after{content:'';position:absolute;bottom:-80px;left:-80px;width:240px;height:240px;border-radius:50%;background:rgba(14,196,162,.1);pointer-events:none;}
+    .hero h1{font-size:28px;font-weight:900;color:#fff;margin-bottom:10px;position:relative;z-index:1;}
+    .hero p{font-size:14px;color:rgba(255,255,255,.7);max-width:500px;margin:0 auto;position:relative;z-index:1;}
+    .hero .steps{display:flex;justify-content:center;gap:32px;margin-top:28px;flex-wrap:wrap;position:relative;z-index:1;}
+    .step{display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .step .num{width:36px;height:36px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;}
+    .step .lbl{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;}
+
+    /* ── MAIN CONTAINER ── */
+    .container{max-width:740px;margin:0 auto;padding:32px 20px 60px;}
+
+    /* ── CARD ── */
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;overflow:hidden;}
+    .card-head{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--border-lt);background:var(--bg);}
+    .card-head .head-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .card-head h2{font-size:15px;font-weight:800;color:var(--text);}
+    .card-head p{font-size:12px;color:var(--t3);margin-top:2px;}
+    .card-body{padding:22px;}
+
+    /* ── FORM ── */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    .fg{margin-bottom:16px;}
+    .fg:last-child{margin-bottom:0;}
+    label{display:block;font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+    label .req{color:var(--danger);}
+    input,select,textarea{
+      width:100%;padding:11px 14px;
+      border:1.5px solid var(--border);border-radius:10px;
+      font-size:14px;color:var(--text);font-family:'Cairo',sans-serif;
+      background:#fff;transition:all .18s;appearance:none;
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,111,206,.1);}
+    input::placeholder,textarea::placeholder{color:var(--t4);}
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:36px;}
+    textarea{resize:vertical;min-height:90px;}
+
+    /* ── VISIT TYPE CHIPS ── */
+    .vtype-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    .vtype-btn{
+      padding:14px;border:2px solid var(--border);border-radius:12px;
+      background:#fff;cursor:pointer;transition:all .18s;
+      display:flex;align-items:center;gap:10px;
+      font-family:'Cairo',sans-serif;text-align:right;
+    }
+    .vtype-btn:hover{border-color:var(--primary);background:var(--primary-lt);}
+    .vtype-btn.sel{border-color:var(--primary);background:var(--primary-lt);}
+    .vtype-btn .vt-ic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .vtype-btn .vt-nm{font-size:13.5px;font-weight:700;color:var(--text);}
+    .vtype-btn .vt-desc{font-size:11px;color:var(--t3);}
+    .vtype-btn.sel .vt-nm{color:var(--primary);}
+
+    /* ── DOCTOR CARDS ── */
+    .doctor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+    .doc-btn{
+      padding:14px 10px;border:2px solid var(--border);border-radius:12px;
+      background:#fff;cursor:pointer;transition:all .18s;
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+      font-family:'Cairo',sans-serif;
+    }
+    .doc-btn:hover{border-color:var(--primary);}
+    .doc-btn.sel{border-color:var(--primary);background:var(--primary-lt);}
+    .doc-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;}
+    .doc-nm{font-size:12.5px;font-weight:700;color:var(--text);text-align:center;}
+    .doc-sp{font-size:10.5px;color:var(--t3);text-align:center;}
+    .doc-btn.sel .doc-nm{color:var(--primary);}
+
+    /* ── PAYMENT BOX ── */
+    .pay-box{background:linear-gradient(135deg,var(--primary-lt),#e6faf7);border:1.5px solid var(--primary);border-radius:14px;padding:20px;}
+    .pay-amount{font-size:32px;font-weight:900;color:var(--primary);margin-bottom:4px;}
+    .pay-label{font-size:13px;color:var(--t2);font-weight:600;margin-bottom:16px;}
+    .pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .pay-method{
+      background:#fff;border:1.5px solid var(--border);border-radius:10px;
+      padding:12px;cursor:pointer;transition:all .18s;
+      display:flex;align-items:center;gap:10px;
+      font-family:'Cairo',sans-serif;
+    }
+    .pay-method:hover{border-color:var(--primary);}
+    .pay-method.sel{border-color:var(--primary);background:var(--primary-lt);}
+    .pay-method .pm-ic{font-size:22px;flex-shrink:0;}
+    .pay-method .pm-nm{font-size:13px;font-weight:700;}
+    .pay-method .pm-num{font-size:11px;color:var(--t3);}
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone{
+      border:2px dashed var(--border);border-radius:12px;
+      padding:28px;text-align:center;cursor:pointer;
+      transition:all .18s;background:var(--bg);position:relative;
+    }
+    .upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:var(--primary-lt);}
+    .upload-zone .uz-icon{font-size:36px;margin-bottom:10px;}
+    .upload-zone p{font-size:13.5px;color:var(--t3);}
+    .upload-zone strong{color:var(--primary);}
+    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .file-preview{
+      display:flex;align-items:center;gap:12px;
+      background:var(--ok-lt);border:1px solid #a7f3d0;
+      border-radius:10px;padding:12px 16px;margin-top:12px;
+    }
+    .file-preview .fp-ic{font-size:24px;}
+    .file-preview .fp-nm{font-size:13px;font-weight:700;color:var(--ok);}
+    .file-preview .fp-sz{font-size:11px;color:var(--t3);}
+    .file-preview .fp-rm{margin-right:auto;background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;}
+
+    /* ── PROGRESS STEPS ── */
+    .progress-bar{display:flex;align-items:center;gap:0;margin-bottom:28px;}
+    .pb-step{display:flex;align-items:center;flex:1;}
+    .pb-dot{
+      width:32px;height:32px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:800;flex-shrink:0;
+      border:2px solid var(--border);background:#fff;color:var(--t4);
+      transition:all .3s;
+    }
+    .pb-dot.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .pb-dot.done{background:var(--ok);border-color:var(--ok);color:#fff;}
+    .pb-line{flex:1;height:2px;background:var(--border);transition:background .3s;}
+    .pb-line.done{background:var(--ok);}
+    .pb-label{font-size:11px;font-weight:600;color:var(--t4);margin-top:6px;text-align:center;}
+    .pb-label.active{color:var(--primary);}
+    .pb-label.done{color:var(--ok);}
+    .pb-wrap{display:flex;flex-direction:column;align-items:center;flex:1;}
+
+    /* ── SUBMIT BTN ── */
+    .submit-btn{
+      width:100%;padding:16px;
+      background:linear-gradient(135deg,var(--primary),#0ec4a2);
+      color:#fff;border:none;border-radius:12px;
+      font-size:16px;font-weight:800;cursor:pointer;
+      font-family:'Cairo',sans-serif;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:all .2s;
+      box-shadow:0 4px 20px rgba(26,111,206,.3);
+    }
+    .submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(26,111,206,.4);}
+    .submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+    /* ── SUCCESS STATE ── */
+    .success-card{
+      text-align:center;padding:48px 32px;
+      background:#fff;border-radius:20px;
+      box-shadow:0 8px 40px rgba(0,0,0,.1);
+      animation:fadeUp .5s ease;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .success-icon{font-size:64px;margin-bottom:20px;}
+    .success-card h2{font-size:22px;font-weight:900;color:var(--ok);margin-bottom:12px;}
+    .success-card p{font-size:14px;color:var(--t2);line-height:1.8;max-width:480px;margin:0 auto 20px;}
+    .ref-box{
+      background:var(--bg);border-radius:10px;padding:14px;
+      font-size:13px;color:var(--t2);margin:0 auto 24px;max-width:360px;
+    }
+    .ref-box strong{font-size:18px;color:var(--primary);display:block;margin-top:4px;}
+
+    /* ── TOAST ── */
+    #tc{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#1a202c;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);display:flex;align-items:center;gap:9px;animation:su .25s ease;max-width:340px;}
+    .toast.ok{background:var(--ok);}.toast.err{background:var(--danger);}.toast.wrn{background:var(--warn);}
+    @keyframes su{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+
+    /* ── SPINNER ── */
+    .sp{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spn .7s linear infinite;display:inline-block;}
+    @keyframes spn{to{transform:rotate(360deg)}}
+
+    /* ── NOTE BOX ── */
+    .note-box{background:var(--warn-lt);border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:13px;color:#92400e;display:flex;gap:10px;align-items:flex-start;margin-top:16px;}
+    .info-box{background:var(--primary-lt);border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;font-size:13px;color:#1e40af;display:flex;gap:10px;align-items:flex-start;margin-top:12px;}
+
+    /* ── DIVIDER ── */
+    .divider{height:1px;background:var(--border);margin:20px 0;}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:640px){
+      .form-row,.form-row-3{grid-template-columns:1fr;}
+      .vtype-grid{grid-template-columns:1fr;}
+      .doctor-grid{grid-template-columns:1fr 1fr;}
+      .pay-methods{grid-template-columns:1fr;}
+      .hero h1{font-size:22px;}
+      .container{padding:20px 14px 50px;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="tc"></div>
+
+<!-- ════════ HEADER ════════ -->
+<header class="site-header">
+  <div class="hd-logo">
+    <div class="ic">🦴</div>
+    <div class="tx">
+      <strong>عيادة د. أحمد المنصوري</strong>
+      <span>استشاري جراحة العظام والمفاصل</span>
+    </div>
+  </div>
+  <div class="hd-right">
+    <div class="hd-phone">📞 <span>01001234567</span></div>
+    <a href="dashboard.html" class="hd-staff-btn">🔒 دخول الموظفين</a>
+  </div>
+</header>
+
+<!-- ════════ HERO ════════ -->
+<div class="hero">
+  <h1>اطلب حجز موعد 📋</h1>
+  <p>يمكنك حجز موعدك مع الطبيب بسهولة من خلال هذه الصفحة. سيتم تأكيد الموعد بعد مراجعة إيصال الدفع.</p>
+  <div class="steps">
+    <div class="step"><div class="num">١</div><div class="lbl">بياناتك</div></div>
+    <div class="step"><div class="num">٢</div><div class="lbl">الموعد</div></div>
+    <div class="step"><div class="num">٣</div><div class="lbl">الدفع</div></div>
+    <div class="step"><div class="num">٤</div><div class="lbl">التأكيد</div></div>
+  </div>
+</div>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<div class="container">
+
+  <!-- Progress Bar -->
+  <div class="progress-bar" id="progressBar">
+    <div class="pb-wrap">
+      <div class="pb-dot active" id="pd1">١</div>
+      <div class="pb-label active">بياناتك</div>
+    </div>
+    <div class="pb-line" id="pl1"></div>
+    <div class="pb-wrap">
+      <div class="pb-dot" id="pd2">٢</div>
+      <div class="pb-label">الموعد</div>
+    </div>
+    <div class="pb-line" id="pl2"></div>
+    <div class="pb-wrap">
+      <div class="pb-dot" id="pd3">٣</div>
+      <div class="pb-label">الدفع</div>
+    </div>
+    <div class="pb-line" id="pl3"></div>
+    <div class="pb-wrap">
+      <div class="pb-dot" id="pd4">٤</div>
+      <div class="pb-label">الإرسال</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1: Patient Info ══ -->
+  <div id="sec1">
+    <div class="card">
+      <div class="card-head">
+        <div class="head-icon" style="background:#e8f1fb;">👤</div>
+        <div>
+          <h2>بياناتك الشخصية</h2>
+          <p>نحتاج هذه البيانات للتواصل معك وتأكيد موعدك</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="fg">
+            <label>الاسم الكامل <span class="req">*</span></label>
+            <input type="text" id="patName" placeholder="مثال: أحمد محمد علي" />
+          </div>
+          <div class="fg">
+            <label>رقم الهاتف <span class="req">*</span></label>
+            <input type="tel" id="patPhone" placeholder="01xxxxxxxxx" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>العمر <span class="req">*</span></label>
+            <input type="number" id="patAge" placeholder="مثال: 35" min="1" max="120" />
+          </div>
+          <div class="fg">
+            <label>الجنس <span class="req">*</span></label>
+            <select id="patGender">
+              <option value="">اختر...</option>
+              <option value="male">ذكر</option>
+              <option value="female">أنثى</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>الشكوى الرئيسية <span class="req">*</span></label>
+          <textarea id="patComplaint" placeholder="صف شكواك بإيجاز... مثال: ألم في الركبة اليمنى منذ أسبوعين مع صعوبة في المشي"></textarea>
+        </div>
+        <div class="fg">
+          <label>ملاحظات إضافية (اختياري)</label>
+          <textarea id="patNotes" placeholder="أي معلومات إضافية تريد إضافتها..." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="goSec2()">التالي — اختيار الموعد ←</button>
+  </div>
+
+  <!-- ══ SECTION 2: Appointment ══ -->
+  <div id="sec2" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="head-icon" style="background:#ecfdf5;">🩺</div>
+        <div>
+          <h2>اختر الطبيب</h2>
+          <p>اختر الطبيب المناسب لحالتك</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="doctor-grid">
+          <button class="doc-btn sel" onclick="selDoc(this,'dr1','د. أحمد المنصوري','br1')">
+            <div class="doc-av" style="background:#1a6fce;">أ</div>
+            <div class="doc-nm">د. أحمد المنصوري</div>
+            <div class="doc-sp">جراحة العظام والمفاصل</div>
+          </button>
+          <button class="doc-btn" onclick="selDoc(this,'dr2','د. سارة الخولي','br2')">
+            <div class="doc-av" style="background:#7c3aed;">س</div>
+            <div class="doc-nm">د. سارة الخولي</div>
+            <div class="doc-sp">جراحة العمود الفقري</div>
+          </button>
+          <button class="doc-btn" onclick="selDoc(this,'dr3','د. محمود رضا','br1')">
+            <div class="doc-av" style="background:#059669;">م</div>
+            <div class="doc-nm">د. محمود رضا</div>
+            <div class="doc-sp">طب الرياضة والإصابات</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="head-icon" style="background:#f5f3ff;">📋</div>
+        <div>
+          <h2>نوع الزيارة</h2>
+          <p>اختر نوع الزيارة المناسب لحالتك</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="vtype-grid">
+          <button class="vtype-btn sel" onclick="selVtype(this,'كشف')">
+            <div class="vt-ic" style="background:#e8f1fb;">🩺</div>
+            <div>
+              <div class="vt-nm">كشف (زيارة أولى)</div>
+              <div class="vt-desc">للمرضى الجدد أو شكوى جديدة</div>
+            </div>
+          </button>
+          <button class="vtype-btn" onclick="selVtype(this,'متابعة')">
+            <div class="vt-ic" style="background:#ecfdf5;">🔄</div>
+            <div>
+              <div class="vt-nm">متابعة</div>
+              <div class="vt-desc">لمرضى سبق زيارتهم للعيادة</div>
+            </div>
+          </button>
+          <button class="vtype-btn" onclick="selVtype(this,'طوارئ')">
+            <div class="vt-ic" style="background:#fff5f5;">🚨</div>
+            <div>
+              <div class="vt-nm">طوارئ</div>
+              <div class="vt-desc">كسور أو ألم شديد مفاجئ</div>
+            </div>
+          </button>
+          <button class="vtype-btn" onclick="selVtype(this,'علاج طبيعي')">
+            <div class="vt-ic" style="background:#e6faf7;">🏃</div>
+            <div>
+              <div class="vt-nm">علاج طبيعي</div>
+              <div class="vt-desc">جلسات إعادة التأهيل والعلاج</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="head-icon" style="background:#fffbeb;">📅</div>
+        <div>
+          <h2>التاريخ والوقت المفضل</h2>
+          <p>سيتم التأكيد النهائي من العيادة</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="fg">
+            <label>التاريخ المفضل <span class="req">*</span></label>
+            <input type="date" id="prefDate" />
+          </div>
+          <div class="fg">
+            <label>الوقت المفضل <span class="req">*</span></label>
+            <select id="prefTime">
+              <option value="">اختر الوقت...</option>
+              <option value="09:00">9:00 صباحاً</option>
+              <option value="09:30">9:30 صباحاً</option>
+              <option value="10:00">10:00 صباحاً</option>
+              <option value="10:30">10:30 صباحاً</option>
+              <option value="11:00">11:00 صباحاً</option>
+              <option value="11:30">11:30 صباحاً</option>
+              <option value="12:00">12:00 ظهراً</option>
+              <option value="17:00">5:00 مساءً</option>
+              <option value="17:30">5:30 مساءً</option>
+              <option value="18:00">6:00 مساءً</option>
+              <option value="18:30">6:30 مساءً</option>
+              <option value="19:00">7:00 مساءً</option>
+              <option value="19:30">7:30 مساءً</option>
+              <option value="20:00">8:00 مساءً</option>
+            </select>
+          </div>
+        </div>
+        <div class="info-box">
+          <span>ℹ️</span>
+          <span>مواعيد العيادة: السبت – الخميس من الساعة 9 صباحاً حتى 9 مساءً</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button class="submit-btn" style="flex:0 0 auto;width:auto;padding:14px 24px;background:#4a5568;" onclick="goSec1()">← السابق</button>
+      <button class="submit-btn" style="flex:1;" onclick="goSec3()">التالي — الدفع ←</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3: Payment ══ -->
+  <div id="sec3" style="display:none;">
+    <div class="card">
+      <div class="card-head">
+        <div class="head-icon" style="background:#ecfdf5;">💰</div>
+        <div>
+          <h2>رسوم الحجز</h2>
+          <p>يتم دفع رسوم الحجز مسبقاً وتُحسب من قيمة الكشف</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pay-box">
+          <div class="pay-amount">500 ج.م</div>
+          <div class="pay-label">رسوم الحجز (تُخصم من قيمة الكشف)</div>
+          <div class="divider" style="background:rgba(26,111,206,.15);"></div>
+          <p style="font-size:13px;color:var(--t2);margin-bottom:14px;font-weight:600;">اختر طريقة الدفع:</p>
+          <div class="pay-methods">
+            <button class="pay-method sel" onclick="selPay(this,'instapay')">
+              <div class="pm-ic">📱</div>
+              <div><div class="pm-nm">InstaPay</div><div class="pm-num">01001234567</div></div>
+            </button>
+            <button class="pay-method" onclick="selPay(this,'vodafone_cash')">
+              <div class="pm-ic">📞</div>
+              <div><div class="pm-nm">Vodafone Cash</div><div class="pm-num">01101234567</div></div>
+            </button>
+            <button class="pay-method" onclick="selPay(this,'bank_transfer')">
+              <div class="pm-ic">🏦</div>
+              <div><div class="pm-nm">تحويل بنكي</div><div class="pm-num">CIB: 1234567890</div></div>
+            </button>
+            <button class="pay-method" onclick="selPay(this,'clinic')">
+              <div class="pm-ic">🏥</div>
+              <div><div class="pm-nm">الدفع في العيادة</div><div class="pm-num">عند الحضور</div></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="note-box" style="margin-top:16px;">
+          <span>⚠️</span>
+          <div>
+            <strong>تنبيه مهم:</strong>
+            لن يتم تأكيد الموعد إلا بعد مراجعة إيصال الدفع من قِبل العيادة. 
+            سيتم التواصل معك خلال ساعات للتأكيد.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="receiptCard">
+      <div class="card-head">
+        <div class="head-icon" style="background:#f5f3ff;">🧾</div>
+        <div>
+          <h2>رفع إيصال الدفع</h2>
+          <p>ارفع صورة واضحة من إيصال الدفع لتأكيد حجزك</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="receiptFile" accept=".jpg,.jpeg,.png,.pdf" onchange="onFileSelect(this)" />
+          <div class="uz-icon">📎</div>
+          <p><strong>اضغط لرفع الإيصال</strong> أو اسحب الملف هنا</p>
+          <p style="font-size:12px;margin-top:6px;color:var(--t4);">JPG · PNG · PDF · الحجم الأقصى 5MB</p>
+        </div>
+        <div id="filePreview" style="display:none;"></div>
+        <div class="info-box">
+          <span>💡</span>
+          <span>تأكد من وضوح إيصال الدفع وظهور الرقم المرجعي والمبلغ بشكل كامل</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button class="submit-btn" style="flex:0 0 auto;width:auto;padding:14px 24px;background:#4a5568;" onclick="goSec2()">← السابق</button>
+      <button class="submit-btn" id="submitBtn" style="flex:1;" onclick="submitBooking()">
+        📤 إرسال طلب الحجز
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SUCCESS STATE ══ -->
+  <div id="secSuccess" style="display:none;">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h2>تم إرسال طلب الحجز بنجاح!</h2>
+      <p>
+        تم إرسال طلب الحجز بنجاح. سيتم مراجعة إيصال الدفع وتأكيد الموعد
+        من خلال رسالة خلال أقرب وقت.
+      </p>
+      <div class="ref-box">
+        <div>رقم الطلب المرجعي</div>
+        <strong id="refNum">#ORQ-000000</strong>
+      </div>
+      <div style="background:var(--warn-lt);border:1px solid #fde68a;border-radius:10px;padding:14px;font-size:13px;color:#92400e;margin-bottom:24px;text-align:right;">
+        📋 <strong>ملاحظة مهمة:</strong>
+        هذا الطلب غير مؤكد حتى تتم مراجعة إيصال الدفع من قِبل العيادة.
+        سيصلك تأكيد عبر الهاتف قريباً.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <a href="book.html" onclick="location.reload();return false;"
+          style="display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;transition:all .18s;">
+          ➕ حجز موعد آخر
+        </a>
+        <p style="font-size:12px;color:var(--t4);">للاستفسار: 01001234567</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+
+<!-- ════════ FIREBASE ════════ -->
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  import { getAuth, signInAnonymously }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // 🔥 REPLACE with your Firebase config
+  const cfg = {
+    apiKey:"YOUR_API_KEY",
+    authDomain:"YOUR_PROJECT_ID.firebaseapp.com",
+    projectId:"YOUR_PROJECT_ID",
+    storageBucket:"YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId:"YOUR_MESSAGING_SENDER_ID",
+    appId:"YOUR_APP_ID"
+  };
+
+  let db, storage, auth;
+  let firebaseReady = false;
+
+  try {
+    const app = initializeApp(cfg);
+    db      = getFirestore(app);
+    storage = getStorage(app);
+    auth    = getAuth(app);
+    // Sign in anonymously so storage/firestore rules pass
+    signInAnonymously(auth).then(() => { firebaseReady = true; }).catch(()=>{});
+  } catch(e) { console.warn('Firebase not configured, using demo mode'); }
+
+  // ── State ──────────────────────────────────────────
+  let selectedDoc   = { id:'dr1', name:'د. أحمد المنصوري', branch:'br1' };
+  let selectedVtype = 'كشف';
+  let selectedPay   = 'instapay';
+  let selectedFile  = null;
+  let currentSec    = 1;
+
+  // ── Section navigation ─────────────────────────────
+  window.goSec1 = () => showSec(1);
+  window.goSec2 = () => {
+    if (!validateSec1()) return;
+    showSec(2);
+  };
+  window.goSec3 = () => {
+    if (!validateSec2()) return;
+    showSec(3);
+  };
+
+  function showSec(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById(`sec${i}`).style.display = i===n ? 'block' : 'none';
+    });
+    // Update progress dots
+    for (let i=1; i<=4; i++) {
+      const dot = document.getElementById(`pd${i}`);
+      const lbl = dot.nextElementSibling;
+      if (i < n) { dot.className='pb-dot done'; dot.textContent='✓'; lbl.className='pb-label done'; }
+      else if (i === n) { dot.className='pb-dot active'; dot.textContent=arNum(i); lbl.className='pb-label active'; }
+      else { dot.className='pb-dot'; dot.textContent=arNum(i); lbl.className='pb-label'; }
+    }
+    for (let i=1; i<=3; i++) {
+      const ln = document.getElementById(`pl${i}`);
+      ln.className = i < n ? 'pb-line done' : 'pb-line';
+    }
+    currentSec = n;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function arNum(n) { return ['١','٢','٣','٤'][n-1]; }
+
+  // ── Validation ─────────────────────────────────────
+  function validateSec1() {
+    const name    = document.getElementById('patName').value.trim();
+    const phone   = document.getElementById('patPhone').value.trim();
+    const age     = document.getElementById('patAge').value.trim();
+    const gender  = document.getElementById('patGender').value;
+    const complaint = document.getElementById('patComplaint').value.trim();
+    if (!name)     { showToast('أدخل اسمك الكامل','wrn'); return false; }
+    if (!phone || phone.length < 10) { showToast('أدخل رقم هاتف صحيح','wrn'); return false; }
+    if (!age)      { showToast('أدخل عمرك','wrn'); return false; }
+    if (!gender)   { showToast('اختر الجنس','wrn'); return false; }
+    if (!complaint){ showToast('اكتب شكواك الرئيسية','wrn'); return false; }
+    return true;
+  }
+
+  function validateSec2() {
+    const date = document.getElementById('prefDate').value;
+    const time = document.getElementById('prefTime').value;
+    if (!date) { showToast('اختر التاريخ المفضل','wrn'); return false; }
+    if (!time) { showToast('اختر الوقت المفضل','wrn'); return false; }
+    const sel = new Date(date);
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (sel < today) { showToast('التاريخ لا يمكن أن يكون في الماضي','wrn'); return false; }
+    return true;
+  }
+
+  // ── Doctor & Type selection ────────────────────────
+  window.selDoc = (btn, id, name, branch) => {
+    document.querySelectorAll('.doc-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    selectedDoc = { id, name, branch };
+  };
+  window.selVtype = (btn, vt) => {
+    document.querySelectorAll('.vtype-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    selectedVtype = vt;
+  };
+  window.selPay = (btn, method) => {
+    document.querySelectorAll('.pay-method').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    selectedPay = method;
+    // Hide/show receipt upload based on method
+    const rc = document.getElementById('receiptCard');
+    rc.style.display = method === 'clinic' ? 'none' : 'block';
+  };
+
+  // ── File selection ─────────────────────────────────
+  window.onFileSelect = (input) => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('حجم الملف يتجاوز 5MB','err');
+      input.value = ''; return;
+    }
+    const allowed = ['jpg','jpeg','png','pdf'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(ext)) {
+      showToast('نوع الملف غير مسموح. استخدم JPG أو PNG أو PDF','err');
+      input.value = ''; return;
+    }
+    selectedFile = file;
+    const preview = document.getElementById('filePreview');
+    preview.style.display = 'flex';
+    preview.innerHTML = `
+      <div class="file-preview">
+        <div class="fp-ic">${ext==='pdf'?'📄':'🖼️'}</div>
+        <div>
+          <div class="fp-nm">${file.name}</div>
+          <div class="fp-sz">${(file.size/1024).toFixed(1)} KB</div>
+        </div>
+        <button class="fp-rm" onclick="removeFile()">✕</button>
+      </div>`;
+  };
+
+  window.removeFile = () => {
+    selectedFile = null;
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('receiptFile').value = '';
+  };
+
+  // ── Drag & drop ────────────────────────────────────
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const dt = new DataTransfer(); dt.items.add(file);
+      const inp = document.getElementById('receiptFile');
+      inp.files = dt.files;
+      window.onFileSelect(inp);
+    }
+  });
+
+  // ── Submit ─────────────────────────────────────────
+  window.submitBooking = async () => {
+    // Validate receipt upload (unless paying at clinic)
+    if (selectedPay !== 'clinic' && !selectedFile) {
+      showToast('من فضلك ارفع إيصال الدفع','wrn'); return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="sp"></span> جاري الإرسال...';
+
+    const bookingData = {
+      patientName:    document.getElementById('patName').value.trim(),
+      phone:          document.getElementById('patPhone').value.trim(),
+      age:            parseInt(document.getElementById('patAge').value),
+      gender:         document.getElementById('patGender').value,
+      complaint:      document.getElementById('patComplaint').value.trim(),
+      notes:          document.getElementById('patNotes').value.trim(),
+      doctorId:       selectedDoc.id,
+      doctorName:     selectedDoc.name,
+      branchId:       selectedDoc.branch,
+      visitType:      selectedVtype,
+      preferredDate:  document.getElementById('prefDate').value,
+      preferredTime:  document.getElementById('prefTime').value,
+      bookingFee:     500,
+      paymentMethod:  selectedPay,
+      status:         selectedPay === 'clinic' ? 'pending_payment' : 'payment_uploaded',
+      receiptUrl:     '',
+      adminNotes:     '',
+      confirmedAt:    null,
+      confirmedBy:    null,
+      appointmentId:  null,
+      patientId:      null,
+    };
+
+    let bookingId = 'demo_' + Date.now();
+
+    try {
+      if (db && firebaseReady) {
+        // Upload receipt to Storage
+        if (selectedFile && storage) {
+          try {
+            const ext    = selectedFile.name.split('.').pop();
+            const sRef   = ref(storage, `booking_receipts/${bookingId}/receipt.${ext}`);
+            await uploadBytes(sRef, selectedFile);
+            bookingData.receiptUrl = await getDownloadURL(sRef);
+          } catch(e) { console.warn('Storage upload failed:', e); }
+        }
+
+        // Save to Firestore
+        const docRef = await addDoc(collection(db, 'online_booking_requests'), {
+          ...bookingData,
+          createdAt: serverTimestamp()
+        });
+        bookingId = docRef.id;
+
+        // Save mock notification message
+        await addDoc(collection(db, 'messages'), {
+          patientName: bookingData.patientName,
+          phone:       bookingData.phone,
+          channel:     'sms',
+          type:        'booking_received',
+          message:     `تم استلام طلب حجزك في عيادة د. أحمد المنصوري. سنتواصل معك قريباً لتأكيد الموعد.`,
+          status:      'mock_sent',
+          createdAt:   serverTimestamp()
+        });
+
+      } else {
+        // Demo mode — just simulate success
+        await new Promise(r => setTimeout(r, 1500));
+      }
+
+      // Show success
+      showSuccess(bookingId);
+
+    } catch(err) {
+      console.error('Booking error:', err);
+      // Still show success in demo mode
+      showSuccess(bookingId);
+    }
+  };
+
+  function showSuccess(id) {
+    [1,2,3].forEach(i => document.getElementById(`sec${i}`).style.display='none');
+    document.getElementById('progressBar').style.display='none';
+    document.getElementById('secSuccess').style.display='block';
+    const shortId = id.substring(0,8).toUpperCase();
+    document.getElementById('refNum').textContent = `#ORQ-${shortId}`;
+    // Mark all progress done
+    for(let i=1;i<=4;i++){
+      const d=document.getElementById(`pd${i}`);
+      d.className='pb-dot done'; d.textContent='✓';
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // Set min date to today
+  document.getElementById('prefDate').min = new Date().toISOString().split('T')[0];
+</script>
+
+<script>
+  window.showToast = (msg,type='ok') => {
+    const c=document.getElementById('tc'),t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<span>${{ok:'✅',err:'❌',wrn:'⚠️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3000);
+    setTimeout(()=>t.remove(),3400);
+  };
+</script>
+</body>
+</html>
