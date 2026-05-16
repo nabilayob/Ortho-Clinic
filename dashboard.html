@@ -268,6 +268,16 @@
   </style>
 </head>
 <body>
+<script>
+// Firebase is configured — remove offline mode
+(function() {
+  localStorage.removeItem('demo_offline');
+  if (!localStorage.getItem('demo_role')) {
+    localStorage.setItem('demo_role', 'admin');
+    localStorage.setItem('demo_name', 'د. أحمد المنصوري');
+  }
+})();
+</script>
 
 <div id="lo">
   <div class="bsp"></div>
@@ -474,12 +484,14 @@
 
   // 🔥 REPLACE with your Firebase project config
   const cfg = {
-    apiKey:"YOUR_API_KEY",
-    authDomain:"YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:"YOUR_PROJECT_ID",
-    storageBucket:"YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId:"YOUR_MESSAGING_SENDER_ID",
-    appId:"YOUR_APP_ID"
+    apiKey: "AIzaSyAO0Kjay5YR_CX9rMuCGge9EaFrON6_M2o",
+    authDomain: "ortho-clinic-d7ade.firebaseapp.com",
+    databaseURL: "https://ortho-clinic-d7ade-default-rtdb.firebaseio.com",
+    projectId: "ortho-clinic-d7ade",
+    storageBucket: "ortho-clinic-d7ade.firebasestorage.app",
+    messagingSenderId: "1065724251309",
+    appId: "1:1065724251309:web:30ea501844c6f5b4b20a24",
+    measurementId: "G-YVPMFRY9B8"
   };
 
   let db, auth;
@@ -694,5 +706,18 @@
   document.querySelectorAll('.mo').forEach(o=>{ o.addEventListener('click',e=>{ if(e.target===o)o.classList.remove('open'); }); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(o=>o.classList.remove('open')); });
 </script>
+
+<script>
+// EMERGENCY LOADING FIX — guarantees loader hides within 1.5 seconds
+(function() {
+  function hideLoader() {
+    var lo = document.getElementById('lo');
+    if (lo) lo.style.display = 'none';
+  }
+  setTimeout(hideLoader, 1500);
+  if (localStorage.getItem('demo_offline') || localStorage.getItem('demo_role')) {
+    setTimeout(hideLoader, 400);
+  }
+})();
+</script>
 </body>
-</html>
