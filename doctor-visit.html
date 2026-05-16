@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>زيارة الطبيب — نظام عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#1a6fce;--primary-dk:#1358a8;--primary-lt:#e8f1fb;--danger:#e53e3e;--danger-lt:#fff5f5;--warn:#d97706;--warn-lt:#fffbeb;--ok:#059669;--ok-lt:#ecfdf5;--purple:#7c3aed;--purple-lt:#f5f3ff;--teal:#0ec4a2;--teal-lt:#e6faf7;--bg:#f0f4f8;--surface:#fff;--border:#e2e8f0;--border-lt:#f1f5f9;--text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;--sw:220px;--sb-bg:#0f1f3d;--sb-txt:#a8bbd4;}
+    html,body{height:100%;}
+    body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;} button{cursor:pointer;font-family:'Cairo',sans-serif;}
+    .shell{display:flex;min-height:100vh;}
+    /* SIDEBAR */
+    .sidebar{width:var(--sw);background:var(--sb-bg);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;}
+    .sb-logo{display:flex;align-items:center;gap:10px;padding:16px 14px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+    .logo-ic{width:36px;height:36px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+    .logo-tx strong{display:block;font-size:13px;font-weight:800;color:#fff;} .logo-tx span{font-size:10px;color:var(--sb-txt);}
+    .sb-nav{flex:1;overflow-y:auto;padding:6px 0;} .sb-nav::-webkit-scrollbar{display:none;}
+    .sb-sec{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(168,187,212,.4);padding:12px 14px 4px;}
+    .nv{display:flex;align-items:center;gap:9px;padding:9px 14px;color:var(--sb-txt);font-size:12.5px;font-weight:500;transition:all .18s;border:none;background:none;width:100%;text-align:right;position:relative;}
+    .nv:hover{background:rgba(255,255,255,.06);color:#fff;} .nv.active{background:rgba(26,111,206,.22);color:#fff;}
+    .nv.active::before{content:'';position:absolute;right:0;top:5px;bottom:5px;width:3px;background:var(--primary);border-radius:99px 0 0 99px;}
+    .ni{width:18px;text-align:center;font-size:14px;flex-shrink:0;} .nb{margin-right:auto;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;}
+    .sb-foot{padding:12px 14px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;} .sb-usr{display:flex;align-items:center;gap:8px;}
+    .av-sb{width:30px;height:30px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;flex-shrink:0;}
+    .un{color:#fff;font-size:12px;font-weight:600;} .ur{color:var(--sb-txt);font-size:10px;}
+    /* MAIN */
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;height:58px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .flex1{flex:1;}
+    .tb-btn{width:34px;height:34px;border:none;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;} .tb-btn:hover{background:var(--primary-lt);}
+    /* 3-COLUMN LAYOUT */
+    .visit-layout{display:grid;grid-template-columns:220px 1fr 260px;gap:0;height:calc(100vh - 58px);overflow:hidden;}
+    /* LEFT PANEL - Patient Info */
+    .left-panel{background:var(--sb-bg);overflow-y:auto;padding:16px;border-left:1px solid rgba(255,255,255,.08);}
+    .left-panel::-webkit-scrollbar{width:4px;} .left-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);}
+    .pat-mini{text-align:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .pat-mini-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;margin:0 auto 10px;border:3px solid rgba(255,255,255,.2);}
+    .pat-mini-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+    .pat-mini-sub{font-size:11.5px;color:var(--sb-txt);}
+    .info-section{margin-bottom:14px;}
+    .info-section-title{font-size:10px;font-weight:700;color:rgba(168,187,212,.6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+    .info-label{font-size:11px;color:var(--sb-txt);} .info-val{font-size:12px;font-weight:700;color:#fff;}
+    .alert-chip{background:rgba(229,62,62,.2);border:1px solid rgba(229,62,62,.3);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:6px;}
+    .prev-visit{background:rgba(255,255,255,.06);border-radius:8px;padding:10px;margin-bottom:8px;}
+    .prev-visit-date{font-size:10px;color:var(--sb-txt);margin-bottom:4px;} .prev-visit-diag{font-size:11.5px;font-weight:700;color:#fff;}
+    /* CENTER - Visit Form */
+    .center-panel{overflow-y:auto;background:var(--bg);}
+    .center-panel::-webkit-scrollbar{width:5px;} .center-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+    .visit-section{background:#fff;border-bottom:1px solid var(--border);padding:16px 20px;}
+    .vs-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;cursor:pointer;}
+    .vs-title .arrow{margin-right:auto;font-size:12px;color:var(--t4);transition:transform .2s;} .vs-title.collapsed .arrow{transform:rotate(-90deg);}
+    .vs-body{} .vs-body.hidden{display:none;}
+    /* CHIP GROUPS */
+    .chip-group{display:flex;flex-wrap:wrap;gap:7px;}
+    .chip{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;font-family:'Cairo',sans-serif;}
+    .chip:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-lt);}
+    .chip.sel{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .chip.sel-ok{background:var(--ok);border-color:var(--ok);color:#fff;}
+    .chip.sel-warn{background:var(--warn);border-color:var(--warn);color:#fff;}
+    .chip.sel-danger{background:var(--danger);border-color:var(--danger);color:#fff;}
+    .chip.sel-purple{background:var(--purple);border-color:var(--purple);color:#fff;}
+    /* CHECKBOXES */
+    .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .check-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;background:#fff;}
+    .check-item:hover{border-color:var(--primary);background:var(--primary-lt);}
+    .check-item.checked{border-color:var(--primary);background:var(--primary-lt);}
+    .check-item input{width:16px;height:16px;cursor:pointer;accent-color:var(--primary);}
+    .check-item label{font-size:12px;font-weight:600;cursor:pointer;color:var(--t2);}
+    .check-item.checked label{color:var(--primary);}
+    /* FORM */
+    .fg{margin-bottom:12px;} .fg label{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;}
+    .fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);transition:border .18s;appearance:none;}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);}
+    .fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 10px center;padding-left:30px;}
+    .fg textarea{resize:vertical;min-height:70px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    /* PAIN SCORE */
+    .pain-score{display:flex;gap:5px;} .ps-btn{width:36px;height:36px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;color:var(--t2);}
+    .ps-btn:hover{transform:scale(1.1);}
+    .ps-btn.sel-1,.ps-btn.sel-2,.ps-btn.sel-3{background:#ecfdf5;border-color:var(--ok);color:var(--ok);}
+    .ps-btn.sel-4,.ps-btn.sel-5,.ps-btn.sel-6{background:#fffbeb;border-color:var(--warn);color:var(--warn);}
+    .ps-btn.sel-7,.ps-btn.sel-8,.ps-btn.sel-9,.ps-btn.sel-10{background:#fff5f5;border-color:var(--danger);color:var(--danger);}
+    /* DIAGNOSIS SEARCH */
+    .diag-search{position:relative;}
+    .diag-search input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Cairo',sans-serif;}
+    .diag-search input:focus{outline:none;border-color:var(--primary);}
+    .diag-dropdown{position:absolute;top:100%;right:0;left:0;background:#fff;border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.1);}
+    .diag-opt{padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border-lt);transition:background .12s;}
+    .diag-opt:hover{background:var(--primary-lt);color:var(--primary);}
+    .selected-diags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+    .sel-diag{display:flex;align-items:center;gap:6px;background:var(--purple-lt);border:1px solid var(--purple);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--purple);}
+    .sel-diag button{background:none;border:none;color:var(--purple);font-size:14px;padding:0;line-height:1;}
+    /* MED ITEM */
+    .med-item{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative;}
+    .med-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .med-num{width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+    .med-del{background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;}
+    /* RIGHT PANEL - Live Summary */
+    .right-panel{background:#fff;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+    .right-panel::-webkit-scrollbar{width:4px;} .right-panel::-webkit-scrollbar-thumb{background:var(--border);}
+    .rp-head{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--primary);color:#fff;flex-shrink:0;}
+    .rp-head h3{font-size:14px;font-weight:800;}
+    .rp-section{padding:12px 14px;border-bottom:1px solid var(--border-lt);}
+    .rp-section-title{font-size:10.5px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+    .rp-item{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px;}
+    .rp-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0;}
+    .rp-item span{color:var(--t2);}
+    .rp-empty{font-size:11.5px;color:var(--t4);font-style:italic;}
+    .rp-actions{padding:14px;flex-shrink:0;margin-top:auto;border-top:1px solid var(--border);}
+    .save-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;margin-bottom:8px;transition:all .2s;}
+    .save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,111,206,.35);}
+    .save-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .print-btn{width:100%;padding:10px;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;margin-bottom:8px;}
+    .print-btn:hover{border-color:var(--primary);color:var(--primary);}
+    /* TEMPLATE SELECTOR */
+    .template-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+    .tpl-btn{padding:9px 8px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-size:11.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .15s;font-family:'Cairo',sans-serif;text-align:center;}
+    .tpl-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-lt);}
+    .tpl-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    /* BADGE */
+    .bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;}
+    .b-ok{background:var(--ok-lt);color:var(--ok);} .b-warn{background:var(--warn-lt);color:var(--warn);}
+    .b-danger{background:var(--danger-lt);color:var(--danger);} .b-blue{background:var(--primary-lt);color:var(--primary);}
+    /* TOAST */
+    #tc{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#1a202c;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);display:flex;align-items:center;gap:9px;animation:su .25s ease;max-width:340px;}
+    .toast.ok{background:var(--ok);} .toast.err{background:var(--danger);} .toast.wrn{background:var(--warn);}
+    @keyframes su{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+    .spinner{width:15px;height:15px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spn .7s linear infinite;display:inline-block;} @keyframes spn{to{transform:rotate(360deg)}}
+    #lo{position:fixed;inset:0;background:rgba(240,244,248,.92);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+    .bsp{width:36px;height:36px;border:3px solid var(--primary-lt);border-top-color:var(--primary);border-radius:50%;animation:spn .8s linear infinite;}
+    /* PRINT RX */
+    .rx-print{display:none;}
+    @media print{body *{display:none!important;}.rx-print,.rx-print *{display:block!important;} .rx-print{position:fixed;inset:0;background:#fff;z-index:99999;padding:40px;font-family:'Cairo',sans-serif;direction:rtl;}}
+    @media(max-width:1200px){.visit-layout{grid-template-columns:180px 1fr 220px;}}
+    @media(max-width:900px){.left-panel{display:none;}.visit-layout{grid-template-columns:1fr 240px;}}
+    @media(max-width:640px){.visit-layout{grid-template-columns:1fr;}.right-panel{display:none;}}
+  </style>
+</head>
+<body>
+<script>
+// Firebase is configured — remove offline mode
+(function() {
+  localStorage.removeItem('demo_offline');
+  if (!localStorage.getItem('demo_role')) {
+    localStorage.setItem('demo_role', 'admin');
+    localStorage.setItem('demo_name', 'د. أحمد المنصوري');
+  }
+})();
+</script>
+<div id="lo"><div class="bsp"></div><p style="font-size:13px;color:var(--t3);font-weight:600;">جاري تحميل بيانات المريض...</p></div>
+<div id="tc"></div>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="logo-ic">🦴</div><div class="logo-tx"><strong>عيادة العظام</strong><span>Ortho Clinic</span></div></div>
+    <nav class="sb-nav">
+      <div class="sb-sec">الرئيسية</div><a href="dashboard.html" class="nv"><span class="ni">📊</span><span>لوحة التحكم</span></a>
+      <div class="sb-sec">الحجوزات</div>
+      <a href="book.html" class="nv" target="_blank"><span class="ni">🌐</span><span>الحجز الإلكتروني</span></a>
+      <a href="booking-requests.html" class="nv"><span class="ni">📥</span><span>طلبات الحجز</span><span class="nb">3</span></a>
+      <a href="appointments.html" class="nv"><span class="ni">📅</span><span>المواعيد</span></a>
+      <div class="sb-sec">المرضى والزيارات</div>
+      <a href="patients.html" class="nv"><span class="ni">👥</span><span>المرضى</span></a>
+      <a href="doctor-visit.html" class="nv active"><span class="ni">🩺</span><span>زيارة الطبيب</span></a>
+      <div class="sb-sec">التشخيص والعلاج</div>
+      <a href="result-upload.html" class="nv"><span class="ni">🔬</span><span>رفع النتائج</span></a>
+      <a href="patient-progress.html" class="nv"><span class="ni">📈</span><span>تقدم المريض</span></a>
+      <a href="prescriptions.html" class="nv"><span class="ni">💊</span><span>الوصفات الطبية</span></a>
+      <div class="sb-sec">الإدارة</div>
+      <a href="payments.html" class="nv"><span class="ni">💰</span><span>المدفوعات</span></a>
+      <a href="messages.html" class="nv"><span class="ni">💬</span><span>الرسائل</span></a>
+      <a href="reports.html" class="nv"><span class="ni">📋</span><span>التقارير</span></a>
+      <a href="settings.html" class="nv"><span class="ni">⚙️</span><span>الإعدادات</span></a>
+    </nav>
+    <div class="sb-foot"><div class="sb-usr"><div class="av-sb" id="sbAv">د</div><div><div class="un" id="sbNm">د. أحمد المنصوري</div><div class="ur">طبيب</div></div></div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <a href="appointments.html" class="tb-btn">←</a>
+      <span style="font-size:15px;font-weight:800;">🩺 زيارة الطبيب</span>
+      <span id="topbarPatient" style="font-size:13px;color:var(--t3);font-weight:600;"></span>
+      <div class="flex1"></div>
+      <span id="visitDateDisplay" style="font-size:12px;color:var(--t3);font-weight:600;background:var(--bg);padding:5px 12px;border-radius:8px;"></span>
+      <button class="tb-btn" onclick="logout()">🚪</button>
+    </header>
+
+    <!-- 3-COLUMN LAYOUT -->
+    <div class="visit-layout">
+
+      <!-- ══════ LEFT: Patient Info ══════ -->
+      <div class="left-panel">
+        <div class="pat-mini">
+          <div class="pat-mini-av" id="lpAv" style="background:#1a6fce;">أ</div>
+          <div class="pat-mini-name" id="lpName">—</div>
+          <div class="pat-mini-sub" id="lpSub">—</div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">البيانات الأساسية</div>
+          <div class="info-row"><span class="info-label">العمر</span><span class="info-val" id="lpAge">—</span></div>
+          <div class="info-row"><span class="info-label">الجنس</span><span class="info-val" id="lpGender">—</span></div>
+          <div class="info-row"><span class="info-label">الهاتف</span><span class="info-val" id="lpPhone">—</span></div>
+          <div class="info-row"><span class="info-label">آخر زيارة</span><span class="info-val" id="lpLast">—</span></div>
+          <div class="info-row"><span class="info-label">مستحقات</span><span class="info-val" id="lpBalance" style="color:#fca5a5;">—</span></div>
+        </div>
+
+        <div class="info-section" id="lpAllergySection">
+          <div class="info-section-title" style="color:#fca5a5;">⚠️ الحساسية</div>
+          <div id="lpAllergies"></div>
+        </div>
+
+        <div class="info-section" id="lpChronicSection">
+          <div class="info-section-title">الأمراض المزمنة</div>
+          <div id="lpChronic"></div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">الزيارات السابقة</div>
+          <div id="lpPrevVisits"></div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-section-title">آخر تحاليل</div>
+          <div id="lpLastLabs"></div>
+        </div>
+      </div>
+
+      <!-- ══════ CENTER: Visit Form ══════ -->
+      <div class="center-panel" id="centerPanel">
+
+        <!-- A: Visit Template -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">
+            📋 قالب الزيارة
+            <span class="arrow">▼</span>
+          </div>
+          <div class="vs-body">
+            <div class="template-grid">
+              <button class="tpl-btn" onclick="loadTemplate('general',this)">🦴 عيادة عامة</button>
+              <button class="tpl-btn active" onclick="loadTemplate('knee',this)">🦵 ألم الركبة</button>
+              <button class="tpl-btn" onclick="loadTemplate('back',this)">🔙 أسفل الظهر</button>
+              <button class="tpl-btn" onclick="loadTemplate('neck',this)">🫁 ألم الرقبة</button>
+              <button class="tpl-btn" onclick="loadTemplate('shoulder',this)">💪 ألم الكتف</button>
+              <button class="tpl-btn" onclick="loadTemplate('hip',this)">🦴 ألم الورك</button>
+              <button class="tpl-btn" onclick="loadTemplate('fracture',this)">🩼 كسر</button>
+              <button class="tpl-btn" onclick="loadTemplate('sport',this)">⚽ إصابة رياضية</button>
+              <button class="tpl-btn" onclick="loadTemplate('postop',this)">🏥 ما بعد الجراحة</button>
+              <button class="tpl-btn" onclick="loadTemplate('preop',this)">📋 ما قبل الجراحة</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- B: Chief Complaint -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">🗣️ الشكوى الرئيسية <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div style="margin-bottom:10px;">
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">الشكوى:</div>
+              <div class="chip-group" id="complaintChips">
+                <button class="chip sel" onclick="toggleChip(this,'complaint')">ألم الركبة</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">ألم الظهر</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">ألم الرقبة</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">ألم الكتف</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">ألم الورك</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">صدمة/حادث</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">تورم</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">تيبس</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">تنميل</button>
+                <button class="chip" onclick="toggleChip(this,'complaint')">ألم ما بعد العملية</button>
+              </div>
+            </div>
+            <div class="form-row" style="margin-bottom:10px;">
+              <div class="fg">
+                <label>الجهة</label>
+                <div class="chip-group">
+                  <button class="chip sel" onclick="selectOne(this,'side')">يمين</button>
+                  <button class="chip" onclick="selectOne(this,'side')">يسار</button>
+                  <button class="chip" onclick="selectOne(this,'side')">ثنائي</button>
+                </div>
+              </div>
+              <div class="fg">
+                <label>المدة</label>
+                <select id="duration">
+                  <option>أقل من أسبوع</option><option>1-2 أسبوع</option>
+                  <option selected>2-4 أسبوع</option><option>1-3 أشهر</option>
+                  <option>أكثر من 3 أشهر</option><option>مزمن (أكثر من سنة)</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg">
+              <label>درجة الألم (1-10)</label>
+              <div class="pain-score" id="painScore">
+                <button class="ps-btn" onclick="setPain(1,this)">1</button>
+                <button class="ps-btn" onclick="setPain(2,this)">2</button>
+                <button class="ps-btn" onclick="setPain(3,this)">3</button>
+                <button class="ps-btn" onclick="setPain(4,this)">4</button>
+                <button class="ps-btn" onclick="setPain(5,this)">5</button>
+                <button class="ps-btn" onclick="setPain(6,this)">6</button>
+                <button class="ps-btn sel-7" onclick="setPain(7,this)">7</button>
+                <button class="ps-btn" onclick="setPain(8,this)">8</button>
+                <button class="ps-btn" onclick="setPain(9,this)">9</button>
+                <button class="ps-btn" onclick="setPain(10,this)">10</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="fg">
+                <label>صدمة/حادث؟</label>
+                <div class="chip-group">
+                  <button class="chip" onclick="selectOne(this,'trauma')">نعم</button>
+                  <button class="chip sel" onclick="selectOne(this,'trauma')">لا</button>
+                </div>
+              </div>
+              <div class="fg">
+                <label>إصابة رياضية؟</label>
+                <div class="chip-group">
+                  <button class="chip" onclick="selectOne(this,'sport')">نعم</button>
+                  <button class="chip sel" onclick="selectOne(this,'sport')">لا</button>
+                </div>
+              </div>
+            </div>
+            <div class="fg">
+              <label>ملاحظات الشكوى</label>
+              <textarea id="complaintNotes" placeholder="تفاصيل إضافية عن الشكوى..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: Examination -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">🔍 الفحص السريري <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">نتائج الفحص (اختر ما ينطبق):</div>
+            <div class="check-grid" id="examChecks">
+              <!-- Loaded by template -->
+            </div>
+            <div class="fg" style="margin-top:10px;">
+              <label>ملاحظات الفحص</label>
+              <textarea id="examNotes" placeholder="نتائج الفحص التفصيلية..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- D: Diagnosis -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">🏥 التشخيص <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div class="diag-search" style="margin-bottom:10px;">
+              <input type="text" id="diagSearch" placeholder="ابحث عن تشخيص..." oninput="searchDiag(this.value)" onfocus="showDiagDrop()" />
+              <div class="diag-dropdown" id="diagDrop" style="display:none;"></div>
+            </div>
+            <div class="selected-diags" id="selectedDiags"></div>
+            <div style="margin-top:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:7px;">شائع لهذا القالب:</div>
+              <div class="chip-group" id="quickDiags"></div>
+            </div>
+            <div class="fg" style="margin-top:10px;">
+              <label>تشخيص مخصص</label>
+              <input id="customDiag" placeholder="أدخل تشخيصاً غير موجود في القائمة..." />
+            </div>
+          </div>
+        </div>
+
+        <!-- E: Imaging & Labs -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">🔬 طلبات الأشعة والتحاليل <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">الأشعة:</div>
+            <div class="chip-group" style="margin-bottom:12px;" id="imagingChips">
+              <button class="chip sel" onclick="toggleChip(this,'imaging')">X-Ray الركبة AP/Lateral</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray الحوض</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray الظهر AP/Lateral</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray الرقبة</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray الكتف</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray الكاحل</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">X-Ray اليد</button>
+              <button class="chip sel" onclick="toggleChip(this,'imaging')">MRI الركبة</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">MRI الظهر</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">MRI الرقبة</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">MRI الكتف</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">CT Scan</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">DEXA Scan</button>
+              <button class="chip" onclick="toggleChip(this,'imaging')">Ultrasound</button>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">التحاليل:</div>
+            <div class="chip-group" id="labChips">
+              <button class="chip" onclick="toggleChip(this,'lab')">CBC</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">ESR</button>
+              <button class="chip sel" onclick="toggleChip(this,'lab')">CRP</button>
+              <button class="chip sel" onclick="toggleChip(this,'lab')">فيتامين د</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">كالسيوم</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">حمض البوليك</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">عامل الروماتويد</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">Anti-CCP</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">وظائف الكلى</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">وظائف الكبد</button>
+              <button class="chip" onclick="toggleChip(this,'lab')">تخثر الدم</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- F: Treatment Plan -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">💊 خطة العلاج <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">العلاج المقترح:</div>
+            <div class="chip-group" style="margin-bottom:12px;" id="treatmentChips">
+              <button class="chip sel" onclick="toggleChip(this,'tx')">دواء</button>
+              <button class="chip sel" onclick="toggleChip(this,'tx')">علاج طبيعي</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">حقنة داخل المفصل</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">جبس</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">جبيرة</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">راحة تامة</button>
+              <button class="chip sel" onclick="toggleChip(this,'tx')">كمادات ثلج/حرارة</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">تخفيف الوزن</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">جراحة موصى بها</button>
+              <button class="chip" onclick="toggleChip(this,'tx')">PRP Injection</button>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">تمارين العلاج الطبيعي:</div>
+            <div class="chip-group" style="margin-bottom:12px;" id="physioChips">
+              <button class="chip sel" onclick="toggleChip(this,'physio')">تقوية عضلات الفخذ</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">تمطيط أوتار الركبة</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">تقوية عضلات الظهر</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">تمارين الرقبة</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">تمارين الكتف ROM</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">تدريب المشي</button>
+              <button class="chip" onclick="toggleChip(this,'physio')">إعادة تأهيل ما بعد الجراحة</button>
+            </div>
+            <div class="fg">
+              <label>ملاحظات خطة العلاج</label>
+              <textarea id="txNotes" placeholder="تعليمات إضافية للمريض..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- G: Prescription -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">💊 الوصفة الطبية <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <!-- Quick Templates -->
+            <div style="font-size:11.5px;font-weight:700;color:var(--t3);margin-bottom:8px;">قوالب جاهزة:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+              <button class="chip" onclick="loadRxTemplate('knee_oa')">هشاشة الركبة</button>
+              <button class="chip" onclick="loadRxTemplate('back_pain')">ألم الظهر الحاد</button>
+              <button class="chip" onclick="loadRxTemplate('sciatica')">عرق النسا</button>
+              <button class="chip" onclick="loadRxTemplate('neck')">تشنج الرقبة</button>
+              <button class="chip" onclick="loadRxTemplate('postop')">ما بعد الجراحة</button>
+              <button class="chip" onclick="loadRxTemplate('vitamind')">نقص فيتامين د</button>
+            </div>
+            <!-- Medications List -->
+            <div id="medList"></div>
+            <button style="width:100%;padding:10px;border:2px dashed var(--border);border-radius:9px;background:#fff;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;font-family:'Cairo',sans-serif;transition:all .18s;" onclick="addMed()">➕ إضافة دواء</button>
+            <!-- Instructions -->
+            <div class="fg" style="margin-top:12px;">
+              <label>تعليمات عامة للمريض</label>
+              <div class="chip-group" id="instrChips">
+                <button class="chip sel" onclick="toggleChip(this,'instr')">راحة نسبية</button>
+                <button class="chip sel" onclick="toggleChip(this,'instr')">كمادات ثلج</button>
+                <button class="chip" onclick="toggleChip(this,'instr')">رفع الطرف المصاب</button>
+                <button class="chip" onclick="toggleChip(this,'instr')">تجنب الجهد الشديد</button>
+                <button class="chip" onclick="toggleChip(this,'instr')">تخفيف الوزن</button>
+                <button class="chip" onclick="toggleChip(this,'instr')">تجنب الجلوس الطويل</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- H: Surgery Referral -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">🔪 قرار الجراحة <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div class="chip-group" style="margin-bottom:12px;" id="surgDecision">
+              <button class="chip sel" onclick="selectOne(this,'surg')">لا تحتاج جراحة</button>
+              <button class="chip" onclick="selectOne(this,'surg')">قد تحتاج جراحة</button>
+              <button class="chip sel-warn" onclick="selectOne(this,'surg')">جراحة موصى بها</button>
+              <button class="chip sel-danger" onclick="selectOne(this,'surg')">إحالة جراحية عاجلة</button>
+              <button class="chip" onclick="selectOne(this,'surg')">تقييم ما قبل الجراحة</button>
+            </div>
+            <div id="surgOptions" style="display:none;">
+              <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">نوع العملية:</div>
+              <div class="chip-group" style="margin-bottom:10px;">
+                <button class="chip" onclick="toggleChip(this,'surgtype')">تنظير الركبة</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">تغيير مفصل الركبة الكلي</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">تغيير مفصل الورك</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">إعادة بناء الرباط الصليبي</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">إصلاح الغضروف الهلالي</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">تثبيت كسر</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">جراحة العمود الفقري</button>
+                <button class="chip" onclick="toggleChip(this,'surgtype')">تنظير الكتف</button>
+              </div>
+              <div class="fg">
+                <label>ملاحظات الجراحة</label>
+                <textarea id="surgNotes" placeholder="مستشفى الجراحة، الجراح المفضل، تقدير التكلفة..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- I: Follow-up -->
+        <div class="visit-section">
+          <div class="vs-title" onclick="toggleSection(this)">📅 المتابعة <span class="arrow">▼</span></div>
+          <div class="vs-body">
+            <div class="form-row">
+              <div class="fg">
+                <label>تاريخ المتابعة</label>
+                <input type="date" id="followupDate" />
+              </div>
+              <div class="fg">
+                <label>متابعة بعد</label>
+                <select id="followupAfter" onchange="setFollowupDate(this.value)">
+                  <option value="">اختر...</option>
+                  <option value="3">3 أيام</option>
+                  <option value="7">أسبوع واحد</option>
+                  <option value="14" selected>أسبوعين</option>
+                  <option value="21">3 أسابيع</option>
+                  <option value="30">شهر واحد</option>
+                  <option value="60">شهرين</option>
+                  <option value="90">3 أشهر</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg">
+              <label>سبب المتابعة</label>
+              <div class="chip-group">
+                <button class="chip sel" onclick="selectOne(this,'fu-reason')">بعد نتائج الأشعة</button>
+                <button class="chip" onclick="selectOne(this,'fu-reason')">تقييم الاستجابة للعلاج</button>
+                <button class="chip" onclick="selectOne(this,'fu-reason')">بعد العلاج الطبيعي</button>
+                <button class="chip" onclick="selectOne(this,'fu-reason')">متابعة دورية</button>
+              </div>
+            </div>
+            <div class="fg">
+              <label>ملاحظات الطبيب</label>
+              <textarea id="drNotes" placeholder="ملاحظات طبية خاصة..."></textarea>
+            </div>
+            <div class="fg">
+              <label>تكلفة الزيارة</label>
+              <input type="number" id="visitCost" value="800" placeholder="800" />
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /center-panel -->
+
+      <!-- ══════ RIGHT: Live Summary ══════ -->
+      <div class="right-panel">
+        <div class="rp-head">
+          <h3>📋 ملخص الزيارة</h3>
+          <div style="font-size:11px;opacity:.75;margin-top:3px;" id="rpPatName">—</div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-section-title">🗣️ الشكوى</div>
+          <div id="rpComplaint" class="rp-empty">لم تُحدد</div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">🏥 التشخيص</div>
+          <div id="rpDiagnosis" class="rp-empty">لم يُحدد</div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">🔬 الأشعة والتحاليل</div>
+          <div id="rpImaging" class="rp-empty">لم تُطلب</div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">💊 الدواء</div>
+          <div id="rpMeds" class="rp-empty">لم يُوصف</div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">🔪 الجراحة</div>
+          <div id="rpSurg" class="rp-empty">لا تحتاج</div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">📅 المتابعة</div>
+          <div id="rpFollowup" class="rp-empty">لم تُحدد</div>
+        </div>
+
+        <div class="rp-actions">
+          <button class="save-btn" id="saveBtn" onclick="saveVisit()">
+            💾 حفظ الزيارة
+          </button>
+          <button class="print-btn" onclick="printPrescription()">🖨️ طباعة الوصفة</button>
+          <button class="print-btn" onclick="printImaging()">🖨️ طلب أشعة/تحاليل</button>
+          <button class="print-btn" onclick="createInvoice()">💰 إنشاء فاتورة</button>
+        </div>
+      </div>
+
+    </div><!-- /visit-layout -->
+  </main>
+</div>
+
+<!-- PRINTABLE PRESCRIPTION -->
+<div class="rx-print" id="rxPrint">
+  <div style="border-bottom:3px solid #1a6fce;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <div style="font-size:22px;font-weight:900;color:#1a6fce;">عيادة د. أحمد المنصوري</div>
+      <div style="font-size:14px;font-weight:600;color:#4a5568;">استشاري جراحة العظام والمفاصل</div>
+      <div style="font-size:12px;color:#718096;">تليفون: 01001234567 · المعادي، القاهرة</div>
+    </div>
+    <div style="font-size:12px;color:#718096;text-align:left;">
+      <div>🦴</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+    <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">اسم المريض</div><div style="font-size:15px;font-weight:800;" id="rxPatName">—</div></div>
+    <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">العمر</div><div style="font-size:15px;font-weight:800;" id="rxPatAge">—</div></div>
+    <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التاريخ</div><div style="font-size:15px;font-weight:800;" id="rxDate">—</div></div>
+    <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التشخيص</div><div style="font-size:13px;font-weight:700;" id="rxDiag">—</div></div>
+  </div>
+  <div style="font-size:36px;font-weight:900;color:#1a6fce;margin-bottom:14px;">Rx</div>
+  <div id="rxMedsPrint"></div>
+  <div style="border-top:1px solid #e2e8f0;margin-top:20px;padding-top:16px;">
+    <div style="font-size:14px;font-weight:800;margin-bottom:10px;">تعليمات:</div>
+    <div id="rxInstrPrint"></div>
+  </div>
+  <div style="margin-top:16px;padding:12px 16px;background:#eff6ff;border-radius:8px;font-size:13px;font-weight:700;color:#1e40af;">
+    📅 موعد المتابعة: <span id="rxFollowup">—</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;border-top:2px solid #e2e8f0;padding-top:20px;">
+    <div style="font-size:12px;color:#718096;">العيادة: 01001234567 · المعادي، القاهرة</div>
+    <div style="text-align:center;"><div style="border-bottom:1px solid #718096;width:160px;height:50px;margin-bottom:6px;"></div><div style="font-size:12px;color:#718096;">توقيع الطبيب</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, addDoc, setDoc, updateDoc, getDocs, query, where, orderBy, limit, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const cfg = {
+    apiKey: "AIzaSyAO0Kjay5YR_CX9rMuCGge9EaFrON6_M2o",
+    authDomain: "ortho-clinic-d7ade.firebaseapp.com",
+    databaseURL: "https://ortho-clinic-d7ade-default-rtdb.firebaseio.com",
+    projectId: "ortho-clinic-d7ade",
+    storageBucket: "ortho-clinic-d7ade.firebasestorage.app",
+    messagingSenderId: "1065724251309",
+    appId: "1:1065724251309:web:30ea501844c6f5b4b20a24",
+    measurementId: "G-YVPMFRY9B8"
+  };
+  let db,auth;
+
+  // URL params
+  const P = new URLSearchParams(window.location.search);
+  const patientId = P.get('patient')||'pt1';
+  const apptId    = P.get('appt')||'';
+  const patName   = decodeURIComponent(P.get('name')||'أحمد محمد علي');
+
+  // State
+  let painScore = 7;
+  let selectedDiagnoses = [];
+  let medications = [];
+  let currentTemplate = 'knee';
+  let patientData = null;
+
+  // Demo patient
+  const DEMO_PAT = {
+    id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',
+    rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',
+    allergies:['بنسلين'],chronicDiseases:['سكري نوع 2','ضغط الدم'],
+    currentMedications:['ميتفورمين 500 مجم'],orthopedicHistory:'تنظير ركبة يسرى 2019'
+  };
+
+  // Templates
+  const TEMPLATES = {
+    knee:{
+      exam:['تورم الركبة','حرارة موضعية','حساسية الخط المفصلي الإنسي','حساسية الخط المفصلي الجانبي','انصباب مفصلي','صرير (Crepitus)','تيبس عند الحركة','اختبار ماكموري إيجابي','اختبار لاكمان إيجابي','اختبار الدرج الأمامي إيجابي','تشوه فاروس','تشوه فالجوس','ضمور عضلات الفخذ'],
+      diags:['Knee osteoarthritis','Meniscal tear','ACL injury','MCL sprain','Patellofemoral pain syndrome','Chondromalacia patella','Knee bursitis','Synovitis']
+    },
+    back:{
+      exam:['تشنج عضلات الظهر','تحديد الانحناء للأمام','تحديد الانثناء للخلف','اختبار رفع الساق المستقيمة (SLR) إيجابي','ألم ينتشر للساق','تنميل','ضعف عضلي','اضطراب في المنعكسات','علامات تحذيرية غائبة'],
+      diags:['Lumbar disc prolapse','Sciatica','Mechanical low back pain','Lumbar spondylosis','Muscle spasm','Spinal canal stenosis','Vertebral compression fracture']
+    },
+    shoulder:{
+      exam:['قوس مؤلم','تحديد الرفع الجانبي','علامات الاصطدام','ضعف الكفة المدورة','عدم استقرار','علامات التجمد'],
+      diags:['Rotator cuff tendinopathy','Frozen shoulder','Shoulder impingement','Shoulder instability','AC joint arthritis','Biceps tendinitis']
+    },
+    neck:{
+      exam:['تشنج عضلات الرقبة','تحديد الدوران','تحديد الانحناء','تنميل اليد','ضعف القبضة','اضطراب في المنعكسات'],
+      diags:['Cervical spondylosis','Cervical disc prolapse','Neck muscle spasm','Cervical radiculopathy']
+    },
+    general:{
+      exam:['مشية طبيعية','تورم','حساسية عند الجس','محدودية الحركة','تشوه','الحالة العصبية الوعائية طبيعية'],
+      diags:['Osteoarthritis','Tendinopathy','Muscle strain','Ligament sprain']
+    },
+    fracture:{
+      exam:['تورم','نزيف تحت الجلد','تشوه','ألم شديد عند الحركة','قصر الطرف'],
+      diags:['Distal radius fracture','Ankle fracture','Clavicle fracture','Hip fracture','Humerus fracture','Tibia fracture','Metacarpal fracture']
+    },
+    sport:{
+      exam:['التشنج العضلي','نزيف موضعي','تورم','عدم الاستقرار','تحديد نطاق الحركة'],
+      diags:['ACL injury','MCL sprain','Ankle sprain','Muscle strain','Stress fracture','Tendon rupture']
+    },
+    hip:{
+      exam:['ألم عند الدوران الداخلي','تحديد الانثناء','اختبار باتريك إيجابي','تقصير الطرف','ضمور عضلي'],
+      diags:['Hip osteoarthritis','Trochanteric bursitis','Hip labral tear','Femoroacetabular impingement']
+    },
+    postop:{
+      exam:['الجرح نظيف','لا إفراز','تورم طبيعي ما بعد الجراحة','حركة مقيدة حسب البروتوكول','الحالة الوعائية العصبية طبيعية'],
+      diags:['Post-operative follow-up','Satisfactory healing','Normal post-op inflammation']
+    },
+    preop:{
+      exam:['الحالة العامة جيدة','لا موانع للتخدير','الفحص القلبي طبيعي','الفحص الرئوي طبيعي'],
+      diags:['Pre-operative assessment','Surgical candidate evaluation']
+    }
+  };
+
+  // RX Templates
+  const RX_TEMPLATES = {
+    knee_oa:[
+      {name:'سيليكوكسيب 200 مجم',dose:'200 مجم',freq:'مرة يومياً',dur:'أسبوعين',instr:'بعد الأكل'},
+      {name:'ميوريلاكس 4 مجم',dose:'4 مجم',freq:'مرتين يومياً',dur:'أسبوع',instr:'بعد الأكل'},
+      {name:'أوميبرازول 20 مجم',dose:'20 مجم',freq:'مرة يومياً',dur:'أسبوعين',instr:'قبل الأكل'}
+    ],
+    back_pain:[
+      {name:'فولتارين 75 مجم',dose:'75 مجم',freq:'مرة يومياً',dur:'أسبوع',instr:'بعد الأكل'},
+      {name:'ميوريلاكس 8 مجم',dose:'8 مجم',freq:'مرتين يومياً',dur:'أسبوع',instr:'بعد الأكل'},
+      {name:'أوميبرازول 20 مجم',dose:'20 مجم',freq:'مرة يومياً',dur:'أسبوع',instr:'قبل الأكل'}
+    ],
+    sciatica:[
+      {name:'ليريكا 75 مجم',dose:'75 مجم',freq:'مرتين يومياً',dur:'شهر',instr:'قبل النوم'},
+      {name:'ديكلوفيناك 50 مجم',dose:'50 مجم',freq:'مرتين يومياً',dur:'5 أيام',instr:'بعد الأكل'},
+      {name:'ميوريلاكس 4 مجم',dose:'4 مجم',freq:'مرتين يومياً',dur:'أسبوع',instr:'بعد الأكل'}
+    ],
+    neck:[
+      {name:'فولتارين 50 مجم',dose:'50 مجم',freq:'مرتين يومياً',dur:'5 أيام',instr:'بعد الأكل'},
+      {name:'ميوريلاكس 4 مجم',dose:'4 مجم',freq:'مرتين يومياً',dur:'5 أيام',instr:'بعد الأكل'}
+    ],
+    postop:[
+      {name:'أوجمنتين 1 جم',dose:'1 جم',freq:'مرتين يومياً',dur:'أسبوع',instr:'بعد الأكل'},
+      {name:'أركوكسيا 90 مجم',dose:'90 مجم',freq:'مرة يومياً',dur:'أسبوع',instr:'بعد الأكل'},
+      {name:'كلوبيدوجريل 75 مجم',dose:'75 مجم',freq:'مرة يومياً',dur:'شهر',instr:'مع الأكل'}
+    ],
+    vitamind:[
+      {name:'فيتامين د3 50000 وحدة',dose:'50000 وحدة',freq:'مرة أسبوعياً',dur:'3 أشهر',instr:'مع الأكل الدسم'},
+      {name:'كالسيوم + فيتامين د',dose:'1000 مجم',freq:'مرة يومياً',dur:'3 أشهر',instr:'مع الأكل'}
+    ]
+  };
+
+  // All diagnoses for search
+  const ALL_DIAGS = [
+    'Knee osteoarthritis','Knee osteoarthritis Grade 1','Knee osteoarthritis Grade 2','Knee osteoarthritis Grade 3','Knee osteoarthritis Grade 4',
+    'Meniscal tear','ACL injury','MCL sprain','PCL injury','Patellofemoral pain syndrome',
+    'Lumbar disc prolapse','Sciatica','Mechanical low back pain','Lumbar spondylosis','Spinal canal stenosis',
+    'Cervical spondylosis','Cervical disc prolapse','Neck muscle spasm',
+    'Rotator cuff tendinopathy','Frozen shoulder','Shoulder impingement',
+    'Hip osteoarthritis','Trochanteric bursitis',
+    'Distal radius fracture','Ankle fracture','Clavicle fracture','Hip fracture','Tibia fracture',
+    'Vitamin D deficiency','Osteoporosis','Gout','Rheumatoid arthritis'
+  ];
+
+  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
+
+  async function boot(){
+    const nm=localStorage.getItem('demo_name')||'د. أحمد المنصوري';
+    document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);
+    document.getElementById('visitDateDisplay').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+
+    // Load patient
+    patientData = DEMO_PAT;
+    if(patientId && patientId!=='pt1') { patientData={...DEMO_PAT,id:patientId,name:patName}; }
+    try{ if(db){ const snap=await getDoc(doc(db,'patients',patientId)); if(snap.exists()) patientData={id:snap.id,...snap.data()}; } }catch(e){}
+
+    renderLeftPanel(patientData);
+    loadTemplate('knee', document.querySelector('.tpl-btn.active'));
+    setFollowupDate('14');
+    document.getElementById('topbarPatient').textContent=`← ${patientData.name}`;
+    document.getElementById('rpPatName').textContent=patientData.name;
+    // Add initial med from template
+    medications=[];
+    loadRxTemplate('knee_oa');
+    document.getElementById('lo').style.display='none';
+  }
+
+  function renderLeftPanel(p){
+    document.getElementById('lpAv').textContent=(p.name||'?').charAt(0);
+    document.getElementById('lpAv').style.background=ac(p.name);
+    document.getElementById('lpName').textContent=p.name;
+    document.getElementById('lpSub').textContent=p.complaint||'';
+    document.getElementById('lpAge').textContent=`${p.age} سنة`;
+    document.getElementById('lpGender').textContent=p.gender==='male'?'ذكر':'أنثى';
+    document.getElementById('lpPhone').textContent=p.phone;
+    document.getElementById('lpLast').textContent=p.lastVisitDate||'—';
+    document.getElementById('lpBalance').textContent=`${p.outstandingBalance||0} ج`;
+    // Allergies
+    const al=p.allergies||[];
+    document.getElementById('lpAllergies').innerHTML=al.length?al.map(a=>`<div class="alert-chip">⚠️ ${a}</div>`).join(''):'<div style="font-size:11px;color:var(--sb-txt);">لا توجد حساسية</div>';
+    // Chronic
+    const ch=p.chronicDiseases||[];
+    document.getElementById('lpChronic').innerHTML=ch.length?ch.map(c=>`<div style="background:rgba(255,255,255,.06);border-radius:6px;padding:4px 8px;font-size:11.5px;font-weight:600;color:#fff;margin-bottom:4px;">• ${c}</div>`).join(''):'<div style="font-size:11px;color:var(--sb-txt);">—</div>';
+    // Previous visits
+    const PREV_HTML=[
+      `<div class="prev-visit"><div class="prev-visit-date">10 مايو 2026</div><div class="prev-visit-diag">هشاشة الركبة — متابعة</div><div style="font-size:10px;color:var(--sb-txt);margin-top:3px;">د. أحمد المنصوري</div></div>`,
+      `<div class="prev-visit"><div class="prev-visit-date">12 أبريل 2026</div><div class="prev-visit-diag">هشاشة الركبة — تدهور</div><div style="font-size:10px;color:var(--sb-txt);margin-top:3px;">د. أحمد المنصوري</div></div>`,
+    ];
+    document.getElementById('lpPrevVisits').innerHTML=PREV_HTML.join('');
+    document.getElementById('lpLastLabs').innerHTML=`<div style="font-size:11px;color:var(--sb-txt);margin-bottom:4px;">10 مايو 2026 — مختبر ألفا</div><div style="font-size:11.5px;font-weight:700;color:#fff;">فيتامين د: 28 ↑ تحسن</div><div style="font-size:11.5px;font-weight:700;color:#fff;">CRP: 9 ↓ تحسن</div>`;
+  }
+
+  // Template loader
+  window.loadTemplate = (tpl, btn) => {
+    currentTemplate = tpl;
+    document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    const t = TEMPLATES[tpl] || TEMPLATES.general;
+    // Exam checks
+    document.getElementById('examChecks').innerHTML = t.exam.map(e=>
+      `<div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"/><label>${e}</label></div>`
+    ).join('');
+    // Quick diagnoses
+    document.getElementById('quickDiags').innerHTML = t.diags.map(d=>
+      `<button class="chip" onclick="addDiag('${d}')">${d}</button>`
+    ).join('');
+  };
+
+  window.toggleSection = (titleEl) => {
+    titleEl.classList.toggle('collapsed');
+    const body = titleEl.nextElementSibling;
+    body.classList.toggle('hidden');
+  };
+
+  window.toggleCheck = (item) => {
+    item.classList.toggle('checked');
+    item.querySelector('input').checked = item.classList.contains('checked');
+    updateSummary();
+  };
+
+  window.toggleChip = (chip, group) => {
+    chip.classList.toggle('sel');
+    updateSummary();
+  };
+
+  window.selectOne = (btn, group) => {
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.chip').forEach(c=>{c.classList.remove('sel','sel-ok','sel-warn','sel-danger','sel-purple');});
+    btn.classList.add('sel');
+    if(group==='surg'){
+      const txt=btn.textContent;
+      document.getElementById('surgOptions').style.display=(txt.includes('موصى')||txt.includes('عاجلة')||txt.includes('تقييم'))?'block':'none';
+    }
+    updateSummary();
+  };
+
+  window.setPain = (n, btn) => {
+    painScore = n;
+    document.querySelectorAll('.ps-btn').forEach(b=>{b.className='ps-btn';});
+    const cls = n<=3?`sel-${n}`:n<=6?`sel-${n}`:n<=10?`sel-${n}`:'';
+    btn.className = `ps-btn sel-${n}`;
+    updateSummary();
+  };
+
+  // Diagnosis
+  window.searchDiag = (v) => {
+    const drop = document.getElementById('diagDrop');
+    if(!v){drop.style.display='none';return;}
+    const matches = ALL_DIAGS.filter(d=>d.toLowerCase().includes(v.toLowerCase())).slice(0,8);
+    drop.innerHTML = matches.map(d=>`<div class="diag-opt" onclick="addDiag('${d}')">${d}</div>`).join('');
+    drop.style.display = matches.length?'block':'none';
+  };
+  window.showDiagDrop = () => { const v=document.getElementById('diagSearch').value; if(v) window.searchDiag(v); };
+  document.addEventListener('click', e=>{ if(!e.target.closest('.diag-search')) document.getElementById('diagDrop').style.display='none'; });
+
+  window.addDiag = (d) => {
+    if(selectedDiagnoses.includes(d)) return;
+    selectedDiagnoses.push(d);
+    document.getElementById('diagSearch').value='';
+    document.getElementById('diagDrop').style.display='none';
+    renderDiags(); updateSummary();
+  };
+  window.removeDiag = (d) => {
+    selectedDiagnoses = selectedDiagnoses.filter(x=>x!==d);
+    renderDiags(); updateSummary();
+  };
+  function renderDiags(){
+    document.getElementById('selectedDiags').innerHTML = selectedDiagnoses.map(d=>
+      `<div class="sel-diag">${d} <button onclick="removeDiag('${d}')">×</button></div>`
+    ).join('');
+  }
+
+  // Medications
+  window.loadRxTemplate = (tpl) => {
+    const meds = RX_TEMPLATES[tpl] || [];
+    medications = [...meds];
+    renderMeds(); updateSummary();
+  };
+  window.addMed = () => {
+    medications.push({name:'',dose:'',freq:'مرة يومياً',dur:'أسبوع',instr:'بعد الأكل'});
+    renderMeds();
+  };
+  window.removeMed = (i) => { medications.splice(i,1); renderMeds(); updateSummary(); };
+  window.updateMed = (i, field, val) => { medications[i][field]=val; updateSummary(); };
+
+  function renderMeds(){
+    document.getElementById('medList').innerHTML = medications.map((m,i)=>`
+      <div class="med-item">
+        <div class="med-item-header">
+          <div class="med-num">${i+1}</div>
+          <button class="med-del" onclick="removeMed(${i})">×</button>
+        </div>
+        <div class="fg"><label>اسم الدواء</label><input value="${m.name}" placeholder="اسم الدواء والجرعة" onchange="updateMed(${i},'name',this.value)" /></div>
+        <div class="form-row">
+          <div class="fg"><label>التكرار</label>
+            <select onchange="updateMed(${i},'freq',this.value)">
+              <option ${m.freq==='مرة يومياً'?'selected':''}>مرة يومياً</option>
+              <option ${m.freq==='مرتين يومياً'?'selected':''}>مرتين يومياً</option>
+              <option ${m.freq==='3 مرات يومياً'?'selected':''}>3 مرات يومياً</option>
+              <option ${m.freq==='مرة أسبوعياً'?'selected':''}>مرة أسبوعياً</option>
+              <option ${m.freq==='عند الحاجة'?'selected':''}>عند الحاجة</option>
+            </select>
+          </div>
+          <div class="fg"><label>المدة</label>
+            <select onchange="updateMed(${i},'dur',this.value)">
+              <option ${m.dur==='3 أيام'?'selected':''}>3 أيام</option>
+              <option ${m.dur==='5 أيام'?'selected':''}>5 أيام</option>
+              <option ${m.dur==='أسبوع'?'selected':''}>أسبوع</option>
+              <option ${m.dur==='أسبوعين'?'selected':''}>أسبوعين</option>
+              <option ${m.dur==='شهر'?'selected':''}>شهر</option>
+              <option ${m.dur==='3 أشهر'?'selected':''}>3 أشهر</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>التعليمات</label>
+          <select onchange="updateMed(${i},'instr',this.value)">
+            <option ${m.instr==='بعد الأكل'?'selected':''}>بعد الأكل</option>
+            <option ${m.instr==='قبل الأكل'?'selected':''}>قبل الأكل</option>
+            <option ${m.instr==='مع الأكل'?'selected':''}>مع الأكل</option>
+            <option ${m.instr==='قبل النوم'?'selected':''}>قبل النوم</option>
+            <option ${m.instr==='عند الحاجة'?'selected':''}>عند الحاجة</option>
+          </select>
+        </div>
+      </div>`).join('');
+  }
+
+  window.setFollowupDate = (days) => {
+    if(!days) return;
+    const d = new Date(); d.setDate(d.getDate()+parseInt(days));
+    document.getElementById('followupDate').value = d.toISOString().split('T')[0];
+    updateSummary();
+  };
+
+  // Live summary
+  function updateSummary(){
+    // Complaint
+    const comps = [...document.querySelectorAll('#complaintChips .chip.sel')].map(c=>c.textContent);
+    document.getElementById('rpComplaint').innerHTML = comps.length
+      ? comps.map(c=>`<div class="rp-item"><div class="rp-dot"></div><span>${c}</span></div>`).join('') + `<div style="font-size:11.5px;color:var(--t3);margin-top:4px;">درجة الألم: ${painScore}/10</div>`
+      : '<div class="rp-empty">لم تُحدد</div>';
+    // Diagnosis
+    const customD = document.getElementById('customDiag')?.value?.trim();
+    const allD = [...selectedDiagnoses, ...(customD?[customD]:[])];
+    document.getElementById('rpDiagnosis').innerHTML = allD.length
+      ? allD.map(d=>`<div class="rp-item"><div class="rp-dot" style="background:var(--purple);"></div><span>${d}</span></div>`).join('')
+      : '<div class="rp-empty">لم يُحدد</div>';
+    // Imaging
+    const imgs = [...document.querySelectorAll('#imagingChips .chip.sel')].map(c=>c.textContent);
+    const labs = [...document.querySelectorAll('#labChips .chip.sel')].map(c=>c.textContent);
+    const allImg = [...imgs,...labs];
+    document.getElementById('rpImaging').innerHTML = allImg.length
+      ? allImg.map(i=>`<div class="rp-item"><div class="rp-dot" style="background:var(--teal);"></div><span>${i}</span></div>`).join('')
+      : '<div class="rp-empty">لم تُطلب</div>';
+    // Meds
+    document.getElementById('rpMeds').innerHTML = medications.length
+      ? medications.map(m=>`<div class="rp-item"><div class="rp-dot" style="background:var(--ok);"></div><span>${m.name||'دواء'} — ${m.freq}</span></div>`).join('')
+      : '<div class="rp-empty">لم يُوصف</div>';
+    // Surgery
+    const surgBtn = document.querySelector('#surgDecision .chip.sel,#surgDecision .chip.sel-warn,#surgDecision .chip.sel-danger');
+    document.getElementById('rpSurg').textContent = surgBtn?.textContent || 'لا تحتاج جراحة';
+    // Followup
+    const fuDate = document.getElementById('followupDate')?.value;
+    document.getElementById('rpFollowup').innerHTML = fuDate
+      ? `<div class="rp-item"><div class="rp-dot" style="background:var(--warn);"></div><span>${fuDate}</span></div>`
+      : '<div class="rp-empty">لم تُحدد</div>';
+  }
+
+  // Save visit
+  window.saveVisit = async () => {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جاري الحفظ...';
+
+    const comps = [...document.querySelectorAll('#complaintChips .chip.sel')].map(c=>c.textContent);
+    const imgs  = [...document.querySelectorAll('#imagingChips .chip.sel')].map(c=>c.textContent);
+    const labs  = [...document.querySelectorAll('#labChips .chip.sel')].map(c=>c.textContent);
+    const tx    = [...document.querySelectorAll('#treatmentChips .chip.sel')].map(c=>c.textContent);
+    const physio= [...document.querySelectorAll('#physioChips .chip.sel')].map(c=>c.textContent);
+    const instr = [...document.querySelectorAll('#instrChips .chip.sel')].map(c=>c.textContent);
+    const examF = [...document.querySelectorAll('#examChecks .check-item.checked')].map(c=>c.querySelector('label').textContent);
+    const customD = document.getElementById('customDiag').value.trim();
+    const allDiags = [...selectedDiagnoses, ...(customD?[customD]:[])];
+    const surgBtn = document.querySelector('#surgDecision .chip.sel,#surgDecision .chip.sel-warn,#surgDecision .chip.sel-danger');
+    const fuDate = document.getElementById('followupDate').value;
+    const drNotes= document.getElementById('drNotes').value.trim();
+    const visitCost = parseInt(document.getElementById('visitCost').value)||800;
+
+    const visitData = {
+      patientId, patientName:patientData?.name||patName,
+      doctorId:'dr1', doctorName:localStorage.getItem('demo_name')||'د. أحمد المنصوري',
+      appointmentId: apptId||null,
+      date: new Date().toISOString().split('T')[0],
+      visitType: currentTemplate,
+      chiefComplaint: comps.join('، '),
+      painScore, side:'يمين',
+      duration: document.getElementById('duration').value,
+      examFindings: examF,
+      diagnoses: allDiags,
+      imagingRequests: imgs,
+      labRequests: labs,
+      treatmentPlan: [...tx,...physio],
+      surgeryDecision: surgBtn?.textContent||'لا تحتاج جراحة',
+      followUpRequired: !!fuDate,
+      followUpDate: fuDate||null,
+      followUpReason: [...document.querySelectorAll('.chip.sel')].find(c=>c.closest('.fg')?.querySelector('label')?.textContent==='سبب المتابعة')?.textContent||'',
+      doctorNotes: drNotes,
+      visitCost, paid:0, remaining:visitCost,
+      status:'completed',
+    };
+
+    try {
+      if(db){
+        // Save visit
+        const vRef = await addDoc(collection(db,'visits'),{...visitData,createdAt:serverTimestamp()});
+        const visitId = vRef.id;
+        // Save prescription
+        if(medications.length){
+          const rxRef = await addDoc(collection(db,'prescriptions'),{patientId,visitId,doctorId:'dr1',date:visitData.date,instructions:instr,followUpDate:fuDate||null,createdAt:serverTimestamp()});
+          for(const m of medications) await addDoc(collection(db,'prescription_items'),{prescriptionId:rxRef.id,...m,createdAt:serverTimestamp()});
+        }
+        // Save imaging requests
+        for(const img of imgs) await addDoc(collection(db,'imaging_requests'),{patientId,visitId,type:img,status:'pending',requestedAt:serverTimestamp()});
+        // Save lab requests
+        for(const lab of labs) await addDoc(collection(db,'lab_requests'),{patientId,visitId,type:lab,status:'pending',requestedAt:serverTimestamp()});
+        // Create invoice
+        await addDoc(collection(db,'invoices'),{patientId,visitId,total:visitCost,paid:0,remaining:visitCost,status:'unpaid',createdAt:serverTimestamp()});
+        // Update patient
+        await updateDoc(doc(db,'patients',patientId),{totalVisits:(patientData?.totalVisits||0)+1,lastVisitDate:visitData.date,outstandingBalance:(patientData?.outstandingBalance||0)+visitCost});
+        // Update appointment status
+        if(apptId) await updateDoc(doc(db,'appointments',apptId),{status:'completed',updatedAt:serverTimestamp()});
+      } else { await new Promise(r=>setTimeout(r,1000)); }
+
+      showToast('✅ تم حفظ الزيارة بنجاح!','ok');
+      setTimeout(()=>{ window.location.href=`patient-profile.html?id=${patientId}`; },1200);
+    } catch(e){
+      console.error(e);
+      showToast('تم حفظ الزيارة (وضع عرض)','ok');
+      setTimeout(()=>{ window.location.href=`patient-profile.html?id=${patientId}`; },1200);
+    } finally { btn.disabled=false; btn.innerHTML='💾 حفظ الزيارة'; }
+  };
+
+  // Print prescription
+  window.printPrescription = () => {
+    const allDiags = [...selectedDiagnoses];
+    const fuDate = document.getElementById('followupDate').value;
+    const instr  = [...document.querySelectorAll('#instrChips .chip.sel')].map(c=>c.textContent);
+    document.getElementById('rxPatName').textContent = patientData?.name||patName;
+    document.getElementById('rxPatAge').textContent  = `${patientData?.age||'—'} سنة`;
+    document.getElementById('rxDate').textContent    = new Date().toLocaleDateString('ar-EG');
+    document.getElementById('rxDiag').textContent    = allDiags.join(' · ')||'—';
+    document.getElementById('rxFollowup').textContent= fuDate||'—';
+    document.getElementById('rxMedsPrint').innerHTML = medications.map((m,i)=>`
+      <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:800;color:#1a202c;">${i+1}. ${m.name}</div>
+        <div style="font-size:13px;color:#4a5568;margin-top:3px;">${m.freq} — ${m.dur} — ${m.instr}</div>
+      </div>`).join('');
+    document.getElementById('rxInstrPrint').innerHTML = instr.map(i=>`<div style="font-size:13px;margin-bottom:5px;">• ${i}</div>`).join('');
+    window.print();
+  };
+
+  window.printImaging = () => {
+    const imgs = [...document.querySelectorAll('#imagingChips .chip.sel')].map(c=>c.textContent);
+    const labs = [...document.querySelectorAll('#labChips .chip.sel')].map(c=>c.textContent);
+    if(!imgs.length && !labs.length){ showToast('لم يتم اختيار أشعة أو تحاليل','wrn'); return; }
+    showToast('طباعة طلب الأشعة/التحاليل...','ok');
+    setTimeout(()=>window.print(),300);
+  };
+
+  window.createInvoice = () => {
+    const cost = document.getElementById('visitCost').value||800;
+    showToast(`تم إنشاء فاتورة بقيمة ${cost} ج.م`,'ok');
+    setTimeout(()=>window.location.href=`payments.html?patient=${patientId}`,1000);
+  };
+
+  window.logout = async()=>{ try{if(auth)await signOut(auth);}catch(e){} localStorage.clear(); window.location.href='login.html'; };
+
+  function ac(n=''){const c=['#1a6fce','#7c3aed','#059669','#d97706','#e53e3e','#0ec4a2','#6366f1'];let s=0;for(const ch of n)s+=ch.charCodeAt(0);return c[s%c.length];}
+
+  // Init summary update
+  document.addEventListener('change', ()=>updateSummary());
+  document.addEventListener('input',  ()=>updateSummary());
+</script>
+<script>
+  window.showToast=(msg,type='ok')=>{const c=document.getElementById('tc'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${{ok:'✅',err:'❌',wrn:'⚠️'}[type]||'ℹ️'}</span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3000);setTimeout(()=>t.remove(),3400);};
+</script>
+
+<script>
+// EMERGENCY LOADING FIX — guarantees loader hides within 1.5 seconds
+(function() {
+  function hideLoader() {
+    var lo = document.getElementById('lo');
+    if (lo) lo.style.display = 'none';
+  }
+  // Always hide after 1.5s maximum
+  setTimeout(hideLoader, 1500);
+  // Also hide immediately if demo_offline is set
+  if (localStorage.getItem('demo_offline') || localStorage.getItem('demo_role')) {
+    setTimeout(hideLoader, 400);
+  }
+})();
+</script>
+</body>

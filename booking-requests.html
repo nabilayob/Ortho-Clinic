@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طلبات الحجز الإلكتروني — نظام عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --primary:#1a6fce;--primary-dk:#1358a8;--primary-lt:#e8f1fb;
+      --accent:#0ec4a2;--accent-lt:#e6faf7;
+      --danger:#e53e3e;--danger-lt:#fff5f5;
+      --warn:#d97706;--warn-lt:#fffbeb;
+      --ok:#059669;--ok-lt:#ecfdf5;
+      --purple:#7c3aed;--purple-lt:#f5f3ff;
+      --bg:#f0f4f8;--surface:#fff;--border:#e2e8f0;--border-lt:#f1f5f9;
+      --text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;
+      --sw:240px;--sb-bg:#0f1f3d;--sb-txt:#a8bbd4;
+    }
+    html,body{height:100%;}
+    body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    button{cursor:pointer;font-family:'Cairo',sans-serif;}
+
+    /* LAYOUT */
+    .shell{display:flex;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sw);background:var(--sb-bg);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;}
+    .sb-logo{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+    .logo-ic{width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .logo-tx strong{display:block;font-size:14px;font-weight:800;color:#fff;}
+    .logo-tx span{font-size:11px;color:var(--sb-txt);}
+    .sb-nav{flex:1;overflow-y:auto;padding:8px 0;}
+    .sb-nav::-webkit-scrollbar{display:none;}
+    .sb-sec{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(168,187,212,.4);padding:14px 18px 5px;}
+    .nv{display:flex;align-items:center;gap:11px;padding:10px 18px;color:var(--sb-txt);font-size:13px;font-weight:500;transition:all .18s;border:none;background:none;width:100%;text-align:right;position:relative;}
+    .nv:hover{background:rgba(255,255,255,.06);color:#fff;}
+    .nv.active{background:rgba(26,111,206,.22);color:#fff;}
+    .nv.active::before{content:'';position:absolute;right:0;top:6px;bottom:6px;width:3px;background:var(--primary);border-radius:99px 0 0 99px;}
+    .ni{width:20px;text-align:center;font-size:15px;flex-shrink:0;}
+    .nb{margin-right:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;}
+    .sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+    .sb-usr{display:flex;align-items:center;gap:10px;}
+    .av{width:34px;height:34px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;}
+    .un{color:#fff;font-size:13px;font-weight:600;}
+    .ur{color:var(--sb-txt);font-size:11px;}
+
+    /* MAIN */
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+    /* TOPBAR */
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:62px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .tb-title{font-size:17px;font-weight:800;}
+    .sp{flex:1;}
+    .srch{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 14px 8px 36px;font-size:13px;font-family:'Cairo',sans-serif;width:230px;color:var(--text);}
+    .srch:focus{outline:none;border-color:var(--primary);}
+    .sw2{position:relative;}
+    .sw2 .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;}
+    .tb-btn{width:36px;height:36px;border:none;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--t2);cursor:pointer;}
+    .tb-btn:hover{background:var(--primary-lt);}
+
+    /* PAGE */
+    .pg{padding:24px;flex:1;}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .ph h1{font-size:22px;font-weight:800;}
+    .ph p{font-size:13px;color:var(--t3);margin-top:3px;}
+
+    /* FILTER BAR */
+    .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+    .filter-btn{padding:7px 16px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:6px;}
+    .filter-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .filter-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .filter-btn .cnt{background:rgba(255,255,255,.3);color:#fff;font-size:10px;padding:1px 6px;border-radius:99px;}
+    .filter-btn:not(.active) .cnt{background:var(--primary-lt);color:var(--primary);}
+
+    /* STATS STRIP */
+    .stats-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+    .ssc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .ssc-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .ssc-v{font-size:22px;font-weight:900;}
+    .ssc-l{font-size:11.5px;color:var(--t3);font-weight:600;}
+
+    /* REQUEST CARD */
+    .req-card{
+      background:#fff;border:1px solid var(--border);border-radius:14px;
+      box-shadow:0 1px 4px rgba(0,0,0,.05);
+      margin-bottom:14px;overflow:hidden;
+      transition:box-shadow .18s;
+    }
+    .req-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08);}
+    .req-card.new-req{border-right:4px solid var(--warn);}
+    .req-card.confirmed-req{border-right:4px solid var(--ok);}
+    .req-card.rejected-req{border-right:4px solid var(--danger);}
+
+    .req-head{
+      display:flex;align-items:center;gap:14px;
+      padding:16px 18px;cursor:pointer;
+      transition:background .15s;
+    }
+    .req-head:hover{background:var(--bg);}
+    .req-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+    .req-info{flex:1;min-width:0;}
+    .req-name{font-size:14.5px;font-weight:800;}
+    .req-meta{font-size:12px;color:var(--t3);margin-top:3px;display:flex;flex-wrap:wrap;gap:10px;}
+    .req-meta span{display:flex;align-items:center;gap:4px;}
+    .req-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+    .req-date{font-size:11.5px;color:var(--t4);}
+    .expand-ic{font-size:14px;color:var(--t4);transition:transform .2s;}
+    .req-card.expanded .expand-ic{transform:rotate(180deg);}
+
+    /* REQUEST DETAIL */
+    .req-detail{
+      border-top:1px solid var(--border-lt);
+      padding:0;max-height:0;overflow:hidden;
+      transition:max-height .35s ease,padding .35s ease;
+    }
+    .req-card.expanded .req-detail{max-height:1000px;padding:18px;}
+
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+    .detail-item{background:var(--bg);border-radius:8px;padding:10px 14px;}
+    .detail-item label{font-size:11px;font-weight:700;color:var(--t4);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+    .detail-item span{font-size:13.5px;font-weight:600;color:var(--text);}
+
+    .receipt-preview{
+      background:var(--bg);border:1px solid var(--border);border-radius:10px;
+      padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:16px;
+    }
+    .rp-icon{font-size:28px;}
+    .rp-info{flex:1;}
+    .rp-label{font-size:12px;font-weight:700;color:var(--t3);}
+    .rp-link{font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;}
+    .rp-link:hover{text-decoration:underline;}
+    .rp-status{display:flex;align-items:center;gap:6px;margin-top:4px;}
+
+    .admin-note{margin-bottom:14px;}
+    .admin-note label{font-size:12.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px;}
+    .admin-note textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Cairo',sans-serif;resize:vertical;min-height:70px;transition:border .18s;}
+    .admin-note textarea:focus{outline:none;border-color:var(--primary);}
+
+    /* ACTION BUTTONS */
+    .req-actions{display:flex;flex-wrap:wrap;gap:10px;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;white-space:nowrap;}
+    .btn-confirm{background:var(--ok);color:#fff;}
+    .btn-confirm:hover{background:#047857;transform:translateY(-1px);}
+    .btn-reject{background:var(--danger);color:#fff;}
+    .btn-reject:hover{background:#c53030;transform:translateY(-1px);}
+    .btn-reschedule{background:var(--warn);color:#fff;}
+    .btn-reschedule:hover{background:#b45309;transform:translateY(-1px);}
+    .btn-unclear{background:var(--purple);color:#fff;}
+    .btn-unclear:hover{background:#6d28d9;transform:translateY(-1px);}
+    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--t2);}
+    .btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-lt);}
+    .btn-sm{padding:6px 12px;font-size:12px;}
+    .btn-ghost{background:transparent;color:var(--t3);padding:7px 12px;}
+    .btn-ghost:hover{background:var(--bg);color:var(--text);}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-primary:hover{background:var(--primary-dk);}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+
+    /* BADGE */
+    .bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+    .bdg::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+    .b-pay{background:#fffbeb;color:#d97706;}
+    .b-rcpt{background:#f5f3ff;color:#7c3aed;}
+    .b-rev{background:#e0f2fe;color:#0369a1;}
+    .b-conf{background:#ecfdf5;color:#059669;}
+    .b-rej{background:#fff5f5;color:#e53e3e;}
+    .b-gray{background:#f3f4f6;color:#6b7280;}
+
+    /* MODAL */
+    .mo{position:fixed;inset:0;background:rgba(15,31,61,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .mo.open{opacity:1;pointer-events:all;}
+    .md{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .2s;}
+    .mo.open .md{transform:none;}
+    .mh{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+    .mh h3{font-size:16px;font-weight:800;}
+    .mc{width:30px;height:30px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+    .mb{padding:22px;}
+    .mf{display:flex;gap:10px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--border);}
+
+    /* FORM */
+    .fg{margin-bottom:16px;}
+    .fg label{display:block;font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+    .fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Cairo',sans-serif;color:var(--text);transition:border .18s;}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);}
+    .fg textarea{resize:vertical;min-height:80px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:36px;appearance:none;}
+
+    /* ALERT */
+    .alert{display:flex;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid;font-size:13px;margin-bottom:14px;}
+    .a-ok{background:var(--ok-lt);border-color:#a7f3d0;color:#065f46;}
+    .a-warn{background:var(--warn-lt);border-color:#fde68a;color:#92400e;}
+    .a-info{background:var(--primary-lt);border-color:#bfdbfe;color:#1e40af;}
+
+    /* EMPTY STATE */
+    .empty{text-align:center;padding:60px 20px;color:var(--t4);}
+    .empty .ei{font-size:48px;margin-bottom:14px;}
+    .empty h3{font-size:16px;font-weight:700;color:var(--t3);margin-bottom:6px;}
+    .empty p{font-size:13px;}
+
+    /* TOAST */
+    #tc{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#1a202c;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);display:flex;align-items:center;gap:9px;animation:su .25s ease;max-width:340px;}
+    .toast.ok{background:var(--ok);}.toast.err{background:var(--danger);}.toast.wrn{background:var(--warn);}
+    @keyframes su{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+
+    /* SPINNER */
+    .spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spn .7s linear infinite;display:inline-block;}
+    @keyframes spn{to{transform:rotate(360deg)}}
+
+    /* LOADING */
+    #lo{position:fixed;inset:0;background:rgba(240,244,248,.92);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+    .bsp{width:40px;height:40px;border:3.5px solid var(--primary-lt);border-top-color:var(--primary);border-radius:50%;animation:spn .8s linear infinite;}
+
+    /* SUCCESS BADGE */
+    .confirmed-stamp{
+      background:var(--ok-lt);border:1px solid #a7f3d0;
+      border-radius:10px;padding:12px 16px;
+      display:flex;align-items:center;gap:10px;
+      font-size:13px;font-weight:600;color:var(--ok);
+    }
+
+    @media(max-width:1024px){
+      .sidebar{width:62px;}
+      .logo-tx,.nv span:not(.ni),.sb-sec,.nb,.un,.ur{display:none;}
+      .sb-logo{justify-content:center;padding:14px;}
+      .nv{justify-content:center;padding:12px;}
+      .sb-usr{justify-content:center;}
+      .main{margin-right:62px;}
+      .stats-strip{grid-template-columns:repeat(3,1fr);}
+    }
+    @media(max-width:640px){
+      .pg{padding:14px;}
+      .stats-strip{grid-template-columns:1fr 1fr;}
+      .detail-grid{grid-template-columns:1fr;}
+      .req-actions{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+<script>
+// Firebase is configured — remove offline mode
+(function() {
+  // demo_offline check removed
+  if (!localStorage.getItem('demo_role')) {
+    localStorage.setItem('demo_role', 'admin');
+    localStorage.setItem('demo_name', 'د. أحمد المنصوري');
+  }
+})();
+</script>
+
+<div id="lo"><div class="bsp"></div><p style="font-size:13px;color:var(--t3);font-weight:600;">جاري التحميل...</p></div>
+<div id="tc"></div>
+
+<div class="shell">
+  <!-- ════════ SIDEBAR ════════ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="logo-ic">🦴</div>
+      <div class="logo-tx"><strong>عيادة العظام</strong><span>Ortho Clinic</span></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">الرئيسية</div>
+      <a href="dashboard.html" class="nv"><span class="ni">📊</span><span>لوحة التحكم</span></a>
+      <div class="sb-sec">الحجوزات</div>
+      <a href="book.html" class="nv" target="_blank"><span class="ni">🌐</span><span>الحجز الإلكتروني</span></a>
+      <a href="booking-requests.html" class="nv active"><span class="ni">📥</span><span>طلبات الحجز</span><span class="nb" id="sbBadge">0</span></a>
+      <a href="appointments.html" class="nv"><span class="ni">📅</span><span>المواعيد</span></a>
+      <div class="sb-sec">المرضى والزيارات</div>
+      <a href="patients.html" class="nv"><span class="ni">👥</span><span>المرضى</span></a>
+      <a href="doctor-visit.html" class="nv"><span class="ni">🩺</span><span>زيارة الطبيب</span></a>
+      <div class="sb-sec">التشخيص والعلاج</div>
+      <a href="result-upload.html" class="nv"><span class="ni">🔬</span><span>رفع النتائج</span></a>
+      <a href="patient-progress.html" class="nv"><span class="ni">📈</span><span>تقدم المريض</span></a>
+      <a href="prescriptions.html" class="nv"><span class="ni">💊</span><span>الوصفات الطبية</span></a>
+      <div class="sb-sec">الإدارة</div>
+      <a href="payments.html" class="nv"><span class="ni">💰</span><span>المدفوعات</span></a>
+      <a href="messages.html" class="nv"><span class="ni">💬</span><span>الرسائل</span></a>
+      <a href="reports.html" class="nv"><span class="ni">📋</span><span>التقارير</span></a>
+      <a href="settings.html" class="nv"><span class="ni">⚙️</span><span>الإعدادات</span></a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-usr">
+        <div class="av" id="sbAv">م</div>
+        <div><div class="un" id="sbNm">مدير النظام</div><div class="ur" id="sbRl">Admin</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════ MAIN ════════ -->
+  <main class="main">
+    <header class="topbar">
+      <span class="tb-title">طلبات الحجز الإلكتروني</span>
+      <div class="sp"></div>
+      <div class="sw2">
+        <span class="si">🔍</span>
+        <input class="srch" id="searchInput" placeholder="ابحث باسم المريض أو الهاتف..." oninput="filterRequests()" />
+      </div>
+      <button class="tb-btn" onclick="loadRequests()">🔄</button>
+      <button class="tb-btn" onclick="logout()">🚪</button>
+    </header>
+
+    <div class="pg">
+      <!-- Page Header -->
+      <div class="ph">
+        <div>
+          <h1>📥 طلبات الحجز الإلكتروني</h1>
+          <p>مراجعة وتأكيد طلبات الحجز من الموقع الإلكتروني</p>
+        </div>
+        <a href="book.html" target="_blank" class="btn btn-primary">🌐 فتح صفحة الحجز</a>
+      </div>
+
+      <!-- Stats Strip -->
+      <div class="stats-strip">
+        <div class="ssc"><div class="ssc-ic" style="background:#fffbeb;">📋</div><div><div class="ssc-v" id="st-total">0</div><div class="ssc-l">إجمالي الطلبات</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#f5f3ff;">📎</div><div><div class="ssc-v" id="st-rcpt">0</div><div class="ssc-l">إيصال مرفق</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#fffbeb;">⏳</div><div><div class="ssc-v" id="st-pend">0</div><div class="ssc-l">بانتظار الدفع</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#ecfdf5;">✅</div><div><div class="ssc-v" id="st-conf">0</div><div class="ssc-l">مؤكدة</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#fff5f5;">❌</div><div><div class="ssc-v" id="st-rej">0</div><div class="ssc-l">مرفوضة</div></div></div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all',this)">الكل <span class="cnt" id="cnt-all">0</span></button>
+        <button class="filter-btn" onclick="setFilter('payment_uploaded',this)">إيصال مرفق 📎 <span class="cnt" id="cnt-pu">0</span></button>
+        <button class="filter-btn" onclick="setFilter('pending_payment',this)">بانتظار الدفع ⏳ <span class="cnt" id="cnt-pp">0</span></button>
+        <button class="filter-btn" onclick="setFilter('payment_under_review',this)">قيد المراجعة 🔍 <span class="cnt" id="cnt-pr">0</span></button>
+        <button class="filter-btn" onclick="setFilter('confirmed',this)">مؤكدة ✅ <span class="cnt" id="cnt-co">0</span></button>
+        <button class="filter-btn" onclick="setFilter('rejected',this)">مرفوضة ❌ <span class="cnt" id="cnt-re">0</span></button>
+      </div>
+
+      <!-- Requests List -->
+      <div id="requestsList"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ════════ CONFIRM MODAL ════════ -->
+<div class="mo" id="confirmMo">
+  <div class="md">
+    <div class="mh">
+      <h3>✅ تأكيد الحجز وإنشاء الموعد</h3>
+      <button class="mc" onclick="closeModal('confirmMo')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="alert a-info"><span>ℹ️</span>سيتم إنشاء: بيانات المريض + الموعد + سجل الدفع + رسالة تأكيد تلقائياً.</div>
+
+      <div id="confirmSummary" style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;"></div>
+
+      <div class="fg">
+        <label>تاريخ الموعد المؤكد <span style="color:var(--danger);">*</span></label>
+        <input type="date" id="confDate" />
+      </div>
+      <div class="fg">
+        <label>وقت الموعد المؤكد <span style="color:var(--danger);">*</span></label>
+        <select id="confTime">
+          <option value="">اختر الوقت...</option>
+          <option value="09:00">9:00 صباحاً</option>
+          <option value="09:30">9:30 صباحاً</option>
+          <option value="10:00">10:00 صباحاً</option>
+          <option value="10:30">10:30 صباحاً</option>
+          <option value="11:00">11:00 صباحاً</option>
+          <option value="11:30">11:30 صباحاً</option>
+          <option value="12:00">12:00 ظهراً</option>
+          <option value="17:00">5:00 مساءً</option>
+          <option value="17:30">5:30 مساءً</option>
+          <option value="18:00">6:00 مساءً</option>
+          <option value="18:30">6:30 مساءً</option>
+          <option value="19:00">7:00 مساءً</option>
+          <option value="19:30">7:30 مساءً</option>
+          <option value="20:00">8:00 مساءً</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>ملاحظات الاستقبال (اختياري)</label>
+        <textarea id="confNote" placeholder="أي تعليمات للمريض..."></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="closeModal('confirmMo')">إلغاء</button>
+      <button class="btn btn-confirm" id="confBtn" onclick="doConfirm()">✅ تأكيد الحجز وإنشاء الموعد</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ REJECT MODAL ════════ -->
+<div class="mo" id="rejectMo">
+  <div class="md" style="max-width:440px;">
+    <div class="mh">
+      <h3>❌ رفض الطلب</h3>
+      <button class="mc" onclick="closeModal('rejectMo')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="alert a-warn"><span>⚠️</span>سيتم إرسال رسالة للمريض بسبب الرفض.</div>
+      <div class="fg">
+        <label>سبب الرفض <span style="color:var(--danger);">*</span></label>
+        <select id="rejReason">
+          <option value="">اختر السبب...</option>
+          <option value="unclear_receipt">الإيصال غير واضح</option>
+          <option value="wrong_amount">المبلغ غير صحيح</option>
+          <option value="no_slots">لا تتوفر مواعيد في التاريخ المطلوب</option>
+          <option value="missing_info">بيانات ناقصة</option>
+          <option value="other">سبب آخر</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>رسالة للمريض</label>
+        <textarea id="rejNote" placeholder="اكتب رسالة توضيحية للمريض..."></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="closeModal('rejectMo')">إلغاء</button>
+      <button class="btn btn-reject" id="rejBtn" onclick="doReject()">❌ رفض الطلب</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ RESCHEDULE MODAL ════════ -->
+<div class="mo" id="rescheduleMo">
+  <div class="md" style="max-width:420px;">
+    <div class="mh">
+      <h3>📅 تعديل الموعد المقترح</h3>
+      <button class="mc" onclick="closeModal('rescheduleMo')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="fg">
+        <label>التاريخ البديل</label>
+        <input type="date" id="rescDate" />
+      </div>
+      <div class="fg">
+        <label>الوقت البديل</label>
+        <select id="rescTime">
+          <option value="09:00">9:00 صباحاً</option>
+          <option value="10:00">10:00 صباحاً</option>
+          <option value="11:00">11:00 صباحاً</option>
+          <option value="17:00">5:00 مساءً</option>
+          <option value="18:00">6:00 مساءً</option>
+          <option value="19:00">7:00 مساءً</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>سبب التعديل</label>
+        <textarea id="rescNote" placeholder="أخبر المريض بسبب التعديل..."></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="closeModal('rescheduleMo')">إلغاء</button>
+      <button class="btn btn-reschedule" onclick="doReschedule()">📅 إرسال الموعد البديل</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════ FIREBASE + LOGIC ════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import {
+    getFirestore, collection, doc, addDoc, setDoc, updateDoc,
+    getDocs, query, orderBy, serverTimestamp, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // 🔥 REPLACE with your Firebase config
+  const cfg = {
+    apiKey: "AIzaSyAO0Kjay5YR_CX9rMuCGge9EaFrON6_M2o",
+    authDomain: "ortho-clinic-d7ade.firebaseapp.com",
+    databaseURL: "https://ortho-clinic-d7ade-default-rtdb.firebaseio.com",
+    projectId: "ortho-clinic-d7ade",
+    storageBucket: "ortho-clinic-d7ade.firebasestorage.app",
+    messagingSenderId: "1065724251309",
+    appId: "1:1065724251309:web:30ea501844c6f5b4b20a24",
+    measurementId: "G-YVPMFRY9B8"
+  };
+
+  let db, auth;
+  let allRequests = [];
+  let currentFilter = 'all';
+  let activeReqId   = null;
+
+  // Demo data fallback
+  const DEMO_REQUESTS = [
+    { id:'obr1', patientName:'يوسف مصطفى كمال', phone:'01778901234', age:35, gender:'male',   doctorId:'dr1', doctorName:'د. أحمد المنصوري', branchId:'br1', visitType:'كشف',    complaint:'ألم شديد في الركبة اليمنى منذ أسبوعين مع صعوبة في الصعود للسلم', preferredDate:'2026-05-20', preferredTime:'10:00', bookingFee:500, paymentMethod:'instapay',      receiptUrl:'demo', status:'payment_uploaded',  adminNotes:'', createdAt:{ seconds: Date.now()/1000 - 3600 } },
+    { id:'obr2', patientName:'منى طارق سليم',   phone:'01889012345', age:42, gender:'female', doctorId:'dr2', doctorName:'د. سارة الخولي',   branchId:'br2', visitType:'متابعة', complaint:'متابعة بعد عملية العمود الفقري منذ شهر', preferredDate:'2026-05-21', preferredTime:'11:30', bookingFee:500, paymentMethod:'vodafone_cash', receiptUrl:'',     status:'pending_payment',   adminNotes:'', createdAt:{ seconds: Date.now()/1000 - 7200 } },
+    { id:'obr3', patientName:'سامي وليد رشاد',  phone:'01990123456', age:28, gender:'male',   doctorId:'dr3', doctorName:'د. محمود رضا',     branchId:'br1', visitType:'كشف',    complaint:'كسر في عظمة الترقوة بعد حادث رياضي', preferredDate:'2026-05-22', preferredTime:'09:00', bookingFee:500, paymentMethod:'bank_transfer', receiptUrl:'demo', status:'payment_uploaded',  adminNotes:'', createdAt:{ seconds: Date.now()/1000 - 86400 } },
+    { id:'obr4', patientName:'لمياء إبراهيم',   phone:'01556789012', age:55, gender:'female', doctorId:'dr1', doctorName:'د. أحمد المنصوري', branchId:'br1', visitType:'متابعة', complaint:'متابعة حالة هشاشة العظام', preferredDate:'2026-05-18', preferredTime:'17:00', bookingFee:500, paymentMethod:'instapay',      receiptUrl:'demo', status:'confirmed',         adminNotes:'تم التأكيد', confirmedAt:new Date().toISOString(), appointmentId:'ap_demo', createdAt:{ seconds: Date.now()/1000 - 172800 } },
+    { id:'obr5', patientName:'حازم السعيد',     phone:'01223456789', age:19, gender:'male',   doctorId:'dr3', doctorName:'د. محمود رضا',     branchId:'br2', visitType:'طوارئ',  complaint:'إصابة في الكاحل أثناء المباراة', preferredDate:'2026-05-16', preferredTime:'18:00', bookingFee:500, paymentMethod:'clinic',        receiptUrl:'',     status:'rejected',          adminNotes:'لا يوجد موعد طوارئ في هذا التوقيت', createdAt:{ seconds: Date.now()/1000 - 259200 } },
+  ];
+
+  // Init Firebase
+  try {
+    const app = initializeApp(cfg);
+    auth = getAuth(app);
+    db   = getFirestore(app);
+    onAuthStateChanged(auth, u => {
+      if (!u && !localStorage.getItem('demo_offline')) { window.location.href='login.html'; return; }
+      boot();
+    });
+  } catch(e) { boot(); }
+
+  async function boot() {
+    // Sidebar user info
+    const nm = localStorage.getItem('demo_name') || 'مدير النظام';
+    const rl = localStorage.getItem('demo_role') || 'admin';
+    document.getElementById('sbNm').textContent  = nm;
+    document.getElementById('sbAv').textContent  = nm.charAt(0);
+    document.getElementById('sbRl').textContent  = roleAr(rl);
+    await loadRequests();
+    document.getElementById('lo').style.display = 'none';
+  }
+
+  window.loadRequests = async function() {
+    try {
+      if (db) {
+        const snap = await getDocs(query(collection(db,'online_booking_requests'), orderBy('createdAt','desc')));
+        allRequests = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+        if (allRequests.length === 0) allRequests = DEMO_REQUESTS;
+      } else {
+        allRequests = DEMO_REQUESTS;
+      }
+    } catch(e) {
+      allRequests = DEMO_REQUESTS;
+    }
+    updateStats();
+    renderRequests();
+  };
+
+  function updateStats() {
+    const total = allRequests.length;
+    const rcpt  = allRequests.filter(r=>r.status==='payment_uploaded').length;
+    const pend  = allRequests.filter(r=>r.status==='pending_payment').length;
+    const conf  = allRequests.filter(r=>r.status==='confirmed').length;
+    const rej   = allRequests.filter(r=>r.status==='rejected').length;
+    const rev   = allRequests.filter(r=>r.status==='payment_under_review').length;
+
+    document.getElementById('st-total').textContent = total;
+    document.getElementById('st-rcpt').textContent  = rcpt;
+    document.getElementById('st-pend').textContent  = pend;
+    document.getElementById('st-conf').textContent  = conf;
+    document.getElementById('st-rej').textContent   = rej;
+    document.getElementById('cnt-all').textContent  = total;
+    document.getElementById('cnt-pu').textContent   = rcpt;
+    document.getElementById('cnt-pp').textContent   = pend;
+    document.getElementById('cnt-pr').textContent   = rev;
+    document.getElementById('cnt-co').textContent   = conf;
+    document.getElementById('cnt-re').textContent   = rej;
+
+    const pending = rcpt + pend + rev;
+    const sbBadge = document.getElementById('sbBadge');
+    sbBadge.textContent = pending;
+    sbBadge.style.display = pending > 0 ? 'inline' : 'none';
+  }
+
+  function renderRequests() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let list = allRequests.filter(r => {
+      if (currentFilter !== 'all' && r.status !== currentFilter) return false;
+      if (search) {
+        return (r.patientName||'').toLowerCase().includes(search) ||
+               (r.phone||'').includes(search);
+      }
+      return true;
+    });
+
+    const container = document.getElementById('requestsList');
+    if (!list.length) {
+      container.innerHTML = `<div class="empty"><div class="ei">📭</div><h3>لا توجد طلبات</h3><p>لا يوجد طلبات بهذا الفلتر</p></div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(r => {
+      const cardClass = r.status==='confirmed' ? 'confirmed-req' : r.status==='rejected' ? 'rejected-req' : 'new-req';
+      const ts = r.createdAt?.seconds ? new Date(r.createdAt.seconds*1000) : new Date();
+      const relTime = relativeTime(ts);
+
+      return `
+      <div class="req-card ${cardClass}" id="card_${r.id}">
+        <div class="req-head" onclick="toggleCard('${r.id}')">
+          <div class="req-av" style="background:${ac(r.patientName)}">${(r.patientName||'?').charAt(0)}</div>
+          <div class="req-info">
+            <div class="req-name">${r.patientName}</div>
+            <div class="req-meta">
+              <span>📞 ${r.phone}</span>
+              <span>🩺 ${r.visitType}</span>
+              <span>👨‍⚕️ ${r.doctorName||'—'}</span>
+              <span>📅 ${r.preferredDate} ${r.preferredTime}</span>
+              <span>${payMethodAr(r.paymentMethod)}</span>
+            </div>
+          </div>
+          <div class="req-right">
+            <span class="bdg ${statusBdg(r.status)}">${statusAr(r.status)}</span>
+            <span class="req-date">${relTime}</span>
+            <span class="expand-ic">▼</span>
+          </div>
+        </div>
+
+        <div class="req-detail">
+          <!-- Detail Grid -->
+          <div class="detail-grid">
+            <div class="detail-item"><label>الاسم الكامل</label><span>${r.patientName}</span></div>
+            <div class="detail-item"><label>رقم الهاتف</label><span>${r.phone}</span></div>
+            <div class="detail-item"><label>العمر</label><span>${r.age} سنة</span></div>
+            <div class="detail-item"><label>الجنس</label><span>${r.gender==='male'?'ذكر':'أنثى'}</span></div>
+            <div class="detail-item"><label>الطبيب</label><span>${r.doctorName||'—'}</span></div>
+            <div class="detail-item"><label>نوع الزيارة</label><span>${r.visitType}</span></div>
+            <div class="detail-item"><label>التاريخ المفضل</label><span>${r.preferredDate}</span></div>
+            <div class="detail-item"><label>الوقت المفضل</label><span>${r.preferredTime}</span></div>
+            <div class="detail-item"><label>رسوم الحجز</label><span>${r.bookingFee||500} ج.م</span></div>
+            <div class="detail-item"><label>طريقة الدفع</label><span>${payMethodAr(r.paymentMethod)}</span></div>
+          </div>
+
+          <!-- Complaint -->
+          <div style="background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+            <label style="font-size:11px;font-weight:700;color:var(--t4);display:block;margin-bottom:4px;text-transform:uppercase;">الشكوى الرئيسية</label>
+            <span style="font-size:13.5px;">${r.complaint||'—'}</span>
+          </div>
+
+          <!-- Receipt -->
+          ${r.receiptUrl ? `
+          <div class="receipt-preview">
+            <div class="rp-icon">🧾</div>
+            <div class="rp-info">
+              <div class="rp-label">إيصال الدفع</div>
+              ${r.receiptUrl === 'demo'
+                ? `<div class="rp-link">📎 إيصال مرفق (وضع عرض)</div>`
+                : `<a href="${r.receiptUrl}" target="_blank" class="rp-link">🔗 عرض الإيصال</a>`}
+              <div class="rp-status"><span class="bdg b-rcpt">إيصال مرفق</span></div>
+            </div>
+            ${r.status==='payment_uploaded'?`<button class="btn btn-sm btn-unclear" onclick="markUnderReview('${r.id}',event)">🔍 بدء المراجعة</button>`:''}
+          </div>` : `
+          <div class="receipt-preview" style="border:1.5px dashed var(--warn);">
+            <div class="rp-icon">⏳</div>
+            <div class="rp-info">
+              <div class="rp-label">لم يُرفع إيصال الدفع بعد</div>
+              <div class="rp-status"><span class="bdg b-pay">بانتظار الدفع</span></div>
+            </div>
+          </div>`}
+
+          <!-- Confirmed info -->
+          ${r.status==='confirmed' ? `
+          <div class="confirmed-stamp">
+            ✅ تم تأكيد الحجز
+            ${r.appointmentId ? `· موعد: <strong>${r.confirmedAt ? new Date(r.confirmedAt).toLocaleDateString('ar-EG') : '—'}</strong>` : ''}
+            <a href="appointments.html" style="margin-right:auto;font-size:12px;font-weight:700;color:var(--primary);">← عرض الموعد</a>
+          </div>` : ''}
+
+          <!-- Rejected info -->
+          ${r.status==='rejected' ? `
+          <div style="background:var(--danger-lt);border:1px solid #fecaca;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--danger);">
+            ❌ تم رفض الطلب — ${r.adminNotes||'لم يُذكر سبب'}
+          </div>` : ''}
+
+          <!-- Admin Note -->
+          ${r.status!=='confirmed' && r.status!=='rejected' ? `
+          <div class="admin-note">
+            <label>ملاحظات الاستقبال</label>
+            <textarea id="note_${r.id}" placeholder="أضف ملاحظة...">${r.adminNotes||''}</textarea>
+          </div>` : ''}
+
+          <!-- Action Buttons -->
+          <div class="req-actions">
+            ${r.status !== 'confirmed' && r.status !== 'rejected' ? `
+              <button class="btn btn-confirm"    onclick="openConfirm('${r.id}')">✅ تأكيد الحجز</button>
+              <button class="btn btn-reject"     onclick="openReject('${r.id}')">❌ رفض</button>
+              <button class="btn btn-reschedule" onclick="openReschedule('${r.id}')">📅 موعد بديل</button>
+              <button class="btn btn-unclear"    onclick="sendUnclear('${r.id}')">🖼️ الإيصال غير واضح</button>
+              <button class="btn btn-outline"    onclick="saveNote('${r.id}')">💾 حفظ الملاحظة</button>
+            ` : ''}
+            <a href="patient-profile.html?id=${r.patientId||''}" class="btn btn-outline">👤 ملف المريض</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Toggle expand ─────────────────────────────────────
+  window.toggleCard = (id) => {
+    const card = document.getElementById(`card_${id}`);
+    card.classList.toggle('expanded');
+  };
+
+  // ── Filter ────────────────────────────────────────────
+  window.setFilter = (filter, btn) => {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRequests();
+  };
+  window.filterRequests = () => renderRequests();
+
+  // ── Mark under review ─────────────────────────────────
+  window.markUnderReview = async (id, e) => {
+    e.stopPropagation();
+    await updateRequest(id, { status:'payment_under_review' });
+    showToast('تم وضع الطلب قيد المراجعة','ok');
+  };
+
+  // ── Confirm flow ──────────────────────────────────────
+  window.openConfirm = (id) => {
+    activeReqId = id;
+    const req = allRequests.find(r=>r.id===id);
+    if (!req) return;
+    document.getElementById('confDate').value = req.preferredDate || '';
+    document.getElementById('confTime').value = req.preferredTime || '';
+    document.getElementById('confNote').value = '';
+    document.getElementById('confirmSummary').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+        <div><strong>المريض:</strong> ${req.patientName}</div>
+        <div><strong>الهاتف:</strong> ${req.phone}</div>
+        <div><strong>الطبيب:</strong> ${req.doctorName||'—'}</div>
+        <div><strong>نوع الزيارة:</strong> ${req.visitType}</div>
+        <div><strong>رسوم الحجز:</strong> ${req.bookingFee||500} ج.م</div>
+        <div><strong>الدفع:</strong> ${payMethodAr(req.paymentMethod)}</div>
+      </div>`;
+    openModal('confirmMo');
+  };
+
+  window.doConfirm = async () => {
+    const date = document.getElementById('confDate').value;
+    const time = document.getElementById('confTime').value;
+    const note = document.getElementById('confNote').value.trim();
+    if (!date || !time) { showToast('اختر التاريخ والوقت','wrn'); return; }
+
+    const btn = document.getElementById('confBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جاري...';
+
+    const req = allRequests.find(r=>r.id===activeReqId);
+    if (!req) return;
+
+    let patientId   = req.patientId   || 'pt_' + Date.now();
+    let appointmentId = 'ap_' + Date.now();
+
+    try {
+      if (db) {
+        // 1. Create/update patient
+        await setDoc(doc(db,'patients',patientId), {
+          name:         req.patientName,
+          phone:        req.phone,
+          age:          req.age || 0,
+          gender:       req.gender || '',
+          complaint:    req.complaint || '',
+          rank:         'new_patient',
+          outstandingBalance: req.bookingFee || 500,
+          totalVisits:  0,
+          lastVisitDate: date,
+          allergies:    [],
+          chronicDiseases: [],
+          source:       'online_booking',
+          createdAt:    serverTimestamp()
+        }, { merge: true });
+
+        // 2. Create appointment
+        await setDoc(doc(db,'appointments',appointmentId), {
+          patientId,
+          patientName:  req.patientName,
+          phone:        req.phone,
+          doctorId:     req.doctorId || 'dr1',
+          doctorName:   req.doctorName || '',
+          branchId:     req.branchId || 'br1',
+          date,
+          time,
+          visitType:    req.visitType,
+          status:       'confirmed',
+          source:       'online',
+          notes:        note,
+          bookingRequestId: activeReqId,
+          createdAt:    serverTimestamp()
+        });
+
+        // 3. Create payment record (booking fee)
+        await addDoc(collection(db,'payments'), {
+          patientId,
+          invoiceId:    null,
+          amount:       req.bookingFee || 500,
+          method:       req.paymentMethod,
+          paymentDate:  date,
+          proofUrl:     req.receiptUrl || '',
+          notes:        'رسوم حجز إلكتروني',
+          createdAt:    serverTimestamp()
+        });
+
+        // 4. Save receipt as attachment
+        if (req.receiptUrl) {
+          await addDoc(collection(db,'attachments'), {
+            patientId,
+            type:        'payment_receipt',
+            fileUrl:     req.receiptUrl,
+            uploadedAt:  serverTimestamp(),
+            source:      'online_booking'
+          });
+        }
+
+        // 5. Update booking request
+        await updateDoc(doc(db,'online_booking_requests',activeReqId), {
+          status:       'confirmed',
+          patientId,
+          appointmentId,
+          confirmedAt:  new Date().toISOString(),
+          confirmedBy:  localStorage.getItem('demo_name') || 'Staff',
+          adminNotes:   note,
+          updatedAt:    serverTimestamp()
+        });
+
+        // 6. Save mock confirmation message
+        await addDoc(collection(db,'messages'), {
+          patientId,
+          patientName:  req.patientName,
+          phone:        req.phone,
+          channel:      'sms',
+          type:         'appointment_confirmation',
+          message:      `تم تأكيد حجزك في عيادة د. أحمد المنصوري مع ${req.doctorName||'الطبيب'} يوم ${date} الساعة ${time}. برجاء الحضور قبل الموعد بـ 10 دقائق.`,
+          status:       'mock_sent',
+          createdAt:    serverTimestamp()
+        });
+
+      } else {
+        // Demo mode
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
+      // Update local state
+      const idx = allRequests.findIndex(r=>r.id===activeReqId);
+      if (idx > -1) {
+        allRequests[idx].status        = 'confirmed';
+        allRequests[idx].patientId     = patientId;
+        allRequests[idx].appointmentId = appointmentId;
+        allRequests[idx].confirmedAt   = new Date().toISOString();
+        allRequests[idx].adminNotes    = note;
+      }
+
+      closeModal('confirmMo');
+      showToast(`✅ تم تأكيد الحجز وإنشاء الموعد ليوم ${date}!`, 'ok');
+      updateStats();
+      renderRequests();
+
+    } catch(err) {
+      console.error(err);
+      // Demo success even on error
+      const idx = allRequests.findIndex(r=>r.id===activeReqId);
+      if (idx > -1) { allRequests[idx].status='confirmed'; allRequests[idx].confirmedAt=new Date().toISOString(); }
+      closeModal('confirmMo');
+      showToast(`✅ تم تأكيد الحجز! (وضع عرض)`, 'ok');
+      updateStats(); renderRequests();
+    } finally {
+      btn.disabled=false; btn.innerHTML='✅ تأكيد الحجز وإنشاء الموعد';
+    }
+  };
+
+  // ── Reject flow ───────────────────────────────────────
+  window.openReject = (id) => {
+    activeReqId = id;
+    document.getElementById('rejReason').value = '';
+    document.getElementById('rejNote').value   = '';
+    openModal('rejectMo');
+  };
+
+  window.doReject = async () => {
+    const reason = document.getElementById('rejReason').value;
+    const note   = document.getElementById('rejNote').value.trim();
+    if (!reason) { showToast('اختر سبب الرفض','wrn'); return; }
+
+    const btn = document.getElementById('rejBtn');
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جاري...';
+
+    const req = allRequests.find(r=>r.id===activeReqId);
+    const rejMsg = note || `عذراً، لم نتمكن من تأكيد حجزك. السبب: ${reasonAr(reason)}. للاستفسار: 01001234567`;
+
+    try {
+      if (db) {
+        await updateDoc(doc(db,'online_booking_requests',activeReqId), {
+          status:     'rejected',
+          adminNotes: `${reasonAr(reason)}${note ? ' — ' + note : ''}`,
+          updatedAt:  serverTimestamp()
+        });
+        // Save mock rejection message
+        if (req) {
+          await addDoc(collection(db,'messages'), {
+            patientName: req.patientName, phone: req.phone,
+            channel:'sms', type:'booking_rejected',
+            message: rejMsg, status:'mock_sent', createdAt:serverTimestamp()
+          });
+        }
+      } else { await new Promise(r=>setTimeout(r,600)); }
+
+      const idx = allRequests.findIndex(r=>r.id===activeReqId);
+      if (idx>-1) { allRequests[idx].status='rejected'; allRequests[idx].adminNotes=`${reasonAr(reason)}`; }
+      closeModal('rejectMo');
+      showToast('تم رفض الطلب وإرسال رسالة للمريض','wrn');
+      updateStats(); renderRequests();
+    } catch(err) {
+      const idx = allRequests.findIndex(r=>r.id===activeReqId);
+      if (idx>-1) { allRequests[idx].status='rejected'; }
+      closeModal('rejectMo');
+      showToast('تم رفض الطلب (وضع عرض)','wrn');
+      updateStats(); renderRequests();
+    } finally { btn.disabled=false; btn.innerHTML='❌ رفض الطلب'; }
+  };
+
+  // ── Reschedule ────────────────────────────────────────
+  window.openReschedule = (id) => {
+    activeReqId = id;
+    const req = allRequests.find(r=>r.id===id);
+    document.getElementById('rescDate').value = req?.preferredDate || '';
+    document.getElementById('rescNote').value = '';
+    openModal('rescheduleMo');
+  };
+
+  window.doReschedule = async () => {
+    const date = document.getElementById('rescDate').value;
+    const time = document.getElementById('rescTime').value;
+    const note = document.getElementById('rescNote').value.trim();
+    if (!date) { showToast('اختر التاريخ البديل','wrn'); return; }
+
+    const req = allRequests.find(r=>r.id===activeReqId);
+    try {
+      if (db && req) {
+        await updateDoc(doc(db,'online_booking_requests',activeReqId),{
+          preferredDate: date, preferredTime: time,
+          adminNotes: `موعد بديل مقترح: ${date} ${time}${note?' — '+note:''}`,
+          updatedAt: serverTimestamp()
+        });
+        await addDoc(collection(db,'messages'),{
+          patientName:req.patientName, phone:req.phone,
+          channel:'sms', type:'reschedule_proposal',
+          message:`نقترح عليك موعداً بديلاً يوم ${date} الساعة ${time}${note?'. '+note:''}. للتأكيد تواصل معنا: 01001234567`,
+          status:'mock_sent', createdAt:serverTimestamp()
+        });
+      } else { await new Promise(r=>setTimeout(r,600)); }
+
+      const idx = allRequests.findIndex(r=>r.id===activeReqId);
+      if (idx>-1) { allRequests[idx].preferredDate=date; allRequests[idx].preferredTime=time; }
+      closeModal('rescheduleMo');
+      showToast(`تم إرسال موعد بديل: ${date} ${time}`,'ok');
+      renderRequests();
+    } catch(e) {
+      closeModal('rescheduleMo');
+      showToast(`تم اقتراح الموعد البديل (وضع عرض)`,'ok');
+      renderRequests();
+    }
+  };
+
+  // ── Unclear receipt ────────────────────────────────────
+  window.sendUnclear = async (id) => {
+    const req = allRequests.find(r=>r.id===id);
+    if (!req) return;
+    try {
+      if (db) {
+        await addDoc(collection(db,'messages'),{
+          patientName:req.patientName, phone:req.phone,
+          channel:'sms', type:'unclear_receipt',
+          message:`لم نتمكن من تأكيد الحجز لأن صورة إيصال الدفع غير واضحة. برجاء إعادة إرسال صورة أوضح أو التواصل مع العيادة على 01001234567.`,
+          status:'mock_sent', createdAt:serverTimestamp()
+        });
+        await updateDoc(doc(db,'online_booking_requests',id),{adminNotes:'طُلب إيصال أوضح',updatedAt:serverTimestamp()});
+      } else { await new Promise(r=>setTimeout(r,400)); }
+      showToast('تم إرسال رسالة لطلب إيصال أوضح 📲','ok');
+    } catch(e) { showToast('تم إرسال الرسالة (وضع عرض)','ok'); }
+  };
+
+  // ── Save note ─────────────────────────────────────────
+  window.saveNote = async (id) => {
+    const note = document.getElementById(`note_${id}`)?.value?.trim() || '';
+    await updateRequest(id, { adminNotes: note });
+    showToast('تم حفظ الملاحظة ✓','ok');
+  };
+
+  // ── Update request helper ─────────────────────────────
+  async function updateRequest(id, data) {
+    try {
+      if (db) await updateDoc(doc(db,'online_booking_requests',id), { ...data, updatedAt:serverTimestamp() });
+    } catch(e) {}
+    const idx = allRequests.findIndex(r=>r.id===id);
+    if (idx>-1) Object.assign(allRequests[idx], data);
+    updateStats(); renderRequests();
+  }
+
+  // ── Logout ────────────────────────────────────────────
+  window.logout = async () => {
+    try{if(auth) await signOut(auth);}catch(e){}
+    localStorage.clear(); window.location.href='login.html';
+  };
+
+  // ── Helpers ───────────────────────────────────────────
+  function statusAr(s){return{payment_uploaded:'إيصال مرفق',pending_payment:'بانتظار الدفع',payment_under_review:'قيد المراجعة',confirmed:'مؤكد',rejected:'مرفوض',cancelled:'ملغي'}[s]||s;}
+  function statusBdg(s){return{payment_uploaded:'b-rcpt',pending_payment:'b-pay',payment_under_review:'b-rev',confirmed:'b-conf',rejected:'b-rej',cancelled:'b-gray'}[s]||'b-gray';}
+  function payMethodAr(m){return{instapay:'📱 InstaPay',vodafone_cash:'📞 Vodafone Cash',bank_transfer:'🏦 تحويل بنكي',clinic:'🏥 الدفع في العيادة'}[m]||m||'—';}
+  function reasonAr(r){return{unclear_receipt:'إيصال غير واضح',wrong_amount:'مبلغ غير صحيح',no_slots:'لا توجد مواعيد',missing_info:'بيانات ناقصة',other:'سبب آخر'}[r]||r;}
+  function roleAr(r){return{admin:'مدير النظام',doctor:'طبيب',receptionist:'استقبال',finance:'حسابات'}[r]||r;}
+  function ac(n=''){const c=['#1a6fce','#7c3aed','#059669','#d97706','#e53e3e','#0ec4a2','#6366f1'];let s=0;for(const ch of n)s+=ch.charCodeAt(0);return c[s%c.length];}
+  function relativeTime(d){
+    const diff=Date.now()-d.getTime();
+    const m=Math.floor(diff/60000);
+    if(m<1) return 'الآن';
+    if(m<60) return `منذ ${m} دقيقة`;
+    const h=Math.floor(m/60);
+    if(h<24) return `منذ ${h} ساعة`;
+    const days=Math.floor(h/24);
+    return `منذ ${days} يوم`;
+  }
+</script>
+
+<script>
+  window.showToast = (msg,type='ok') => {
+    const c=document.getElementById('tc'),t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<span>${{ok:'✅',err:'❌',wrn:'⚠️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3200);
+    setTimeout(()=>t.remove(),3600);
+  };
+  window.openModal  = id => document.getElementById(id)?.classList.add('open');
+  window.closeModal = id => document.getElementById(id)?.classList.remove('open');
+  document.querySelectorAll('.mo').forEach(o=>{
+    o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.mo.open').forEach(o=>o.classList.remove('open')); });
+</script>
+
+<script>
+// EMERGENCY LOADING FIX — guarantees loader hides within 1.5 seconds
+(function() {
+  function hideLoader() {
+    var lo = document.getElementById('lo');
+    if (lo) lo.style.display = 'none';
+  }
+  setTimeout(hideLoader, 1500);
+  if (localStorage.getItem('demo_offline') || localStorage.getItem('demo_role')) {
+    setTimeout(hideLoader, 400);
+  }
+})();
+</script>
+</body>
