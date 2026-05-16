@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الإعدادات — نظام عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#1a6fce;--primary-lt:#e8f1fb;--danger:#e53e3e;--ok:#059669;--ok-lt:#ecfdf5;--bg:#f0f4f8;--border:#e2e8f0;--border-lt:#f1f5f9;--text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;--sw:240px;--sb-bg:#0f1f3d;--sb-txt:#a8bbd4;}
+    html,body{height:100%;} body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;} button{cursor:pointer;font-family:'Cairo',sans-serif;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sw);background:var(--sb-bg);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;}
+    .sb-logo{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+    .logo-ic{width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .logo-tx strong{display:block;font-size:14px;font-weight:800;color:#fff;} .logo-tx span{font-size:11px;color:var(--sb-txt);}
+    .sb-nav{flex:1;overflow-y:auto;padding:8px 0;} .sb-nav::-webkit-scrollbar{display:none;}
+    .sb-sec{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(168,187,212,.4);padding:14px 18px 5px;}
+    .nv{display:flex;align-items:center;gap:11px;padding:10px 18px;color:var(--sb-txt);font-size:13px;font-weight:500;transition:all .18s;border:none;background:none;width:100%;text-align:right;position:relative;}
+    .nv:hover{background:rgba(255,255,255,.06);color:#fff;} .nv.active{background:rgba(26,111,206,.22);color:#fff;}
+    .nv.active::before{content:'';position:absolute;right:0;top:6px;bottom:6px;width:3px;background:var(--primary);border-radius:99px 0 0 99px;}
+    .ni{width:20px;text-align:center;font-size:15px;} .nb{margin-right:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;}
+    .sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);}
+    .sb-usr{display:flex;align-items:center;gap:10px;}
+    .av-sb{width:34px;height:34px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;}
+    .un{color:#fff;font-size:13px;font-weight:600;} .ur{color:var(--sb-txt);font-size:11px;}
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;}
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:62px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .tb-title{font-size:17px;font-weight:800;} .flex1{flex:1;}
+    .tb-btn{width:36px;height:36px;border:none;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
+    .pg{padding:24px;flex:1;}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .ph h1{font-size:22px;font-weight:800;}
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:20px;}
+    .settings-nav{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;height:fit-content;}
+    .sn-item{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--t2);border-bottom:1px solid var(--border-lt);transition:all .15s;}
+    .sn-item:last-child{border-bottom:none;} .sn-item:hover{background:var(--bg);color:var(--primary);}
+    .sn-item.active{background:var(--primary-lt);color:var(--primary);font-weight:800;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;margin-bottom:14px;}
+    .ch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border-lt);}
+    .ch h2{font-size:14.5px;font-weight:800;} .cb{padding:18px;}
+    .fg{margin-bottom:14px;} .fg label{display:block;font-size:13px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+    .fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Cairo',sans-serif;color:var(--text);transition:border .18s;appearance:none;}
+    .fg input:focus,.fg select:focus{outline:none;border-color:var(--primary);}
+    .fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:36px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;}
+    .btn-p{background:var(--primary);color:#fff;} .btn-p:hover{background:#1358a8;}
+    .btn-ok{background:var(--ok);color:#fff;}
+    .btn-danger{background:var(--danger);color:#fff;}
+    .btn-o{background:transparent;border:1.5px solid var(--border);color:var(--t2);}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-lt);}
+    .info-row:last-child{border-bottom:none;}
+    .info-label{font-size:13px;font-weight:600;color:var(--t2);} .info-val{font-size:13.5px;font-weight:700;}
+    .fire-status{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--ok-lt);border:1px solid #a7f3d0;border-radius:10px;font-size:13px;font-weight:700;color:var(--ok);margin-bottom:12px;}
+    .fire-status.offline{background:#fff5f5;border-color:#fecaca;color:var(--danger);}
+    #tc{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#1a202c;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;animation:su .25s ease;max-width:340px;}
+    .toast.ok{background:var(--ok);}
+    @keyframes su{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes spn{to{transform:rotate(360deg)}}
+    #lo{position:fixed;inset:0;background:rgba(240,244,248,.92);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+    .bsp{width:40px;height:40px;border:3.5px solid var(--primary-lt);border-top-color:var(--primary);border-radius:50%;animation:spn .8s linear infinite;}
+    @media(max-width:1024px){.sidebar{width:62px;}.logo-tx,.nv span:not(.ni),.sb-sec,.nb,.un,.ur{display:none;}.sb-logo{justify-content:center;padding:14px;}.nv{justify-content:center;padding:12px;}.sb-usr{justify-content:center;}.main{margin-right:62px;}.layout{grid-template-columns:1fr;}}
+    @media(max-width:640px){.pg{padding:14px;}.form-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div id="lo"><div class="bsp"></div><p style="font-size:13px;color:var(--t3);font-weight:600;">جاري التحميل...</p></div>
+<div id="tc"></div>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="logo-ic">🦴</div><div class="logo-tx"><strong>عيادة العظام</strong><span>Ortho Clinic</span></div></div>
+    <nav class="sb-nav">
+      <div class="sb-sec">الرئيسية</div><a href="dashboard.html" class="nv"><span class="ni">📊</span><span>لوحة التحكم</span></a>
+      <div class="sb-sec">الحجوزات</div>
+      <a href="book.html" class="nv" target="_blank"><span class="ni">🌐</span><span>الحجز الإلكتروني</span></a>
+      <a href="booking-requests.html" class="nv"><span class="ni">📥</span><span>طلبات الحجز</span><span class="nb">3</span></a>
+      <a href="appointments.html" class="nv"><span class="ni">📅</span><span>المواعيد</span></a>
+      <div class="sb-sec">المرضى والزيارات</div>
+      <a href="patients.html" class="nv"><span class="ni">👥</span><span>المرضى</span></a>
+      <a href="doctor-visit.html" class="nv"><span class="ni">🩺</span><span>زيارة الطبيب</span></a>
+      <div class="sb-sec">التشخيص والعلاج</div>
+      <a href="result-upload.html" class="nv"><span class="ni">🔬</span><span>رفع النتائج</span></a>
+      <a href="patient-progress.html" class="nv"><span class="ni">📈</span><span>تقدم المريض</span></a>
+      <a href="prescriptions.html" class="nv"><span class="ni">💊</span><span>الوصفات الطبية</span></a>
+      <div class="sb-sec">الإدارة</div>
+      <a href="payments.html" class="nv"><span class="ni">💰</span><span>المدفوعات</span></a>
+      <a href="messages.html" class="nv"><span class="ni">💬</span><span>الرسائل</span></a>
+      <a href="reports.html" class="nv"><span class="ni">📋</span><span>التقارير</span></a>
+      <a href="settings.html" class="nv active"><span class="ni">⚙️</span><span>الإعدادات</span></a>
+    </nav>
+    <div class="sb-foot"><div class="sb-usr"><div class="av-sb" id="sbAv">م</div><div><div class="un" id="sbNm">مدير النظام</div><div class="ur" id="sbRl">Admin</div></div></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><span class="tb-title">الإعدادات</span><div class="flex1"></div><button class="tb-btn" onclick="logout()">🚪</button></header>
+    <div class="pg">
+      <div class="ph"><h1>⚙️ إعدادات النظام</h1></div>
+      <div class="layout">
+        <!-- Settings Nav -->
+        <div class="settings-nav">
+          <div class="sn-item active" onclick="showSection('clinic',this)"><span>🏥</span> معلومات العيادة</div>
+          <div class="sn-item" onclick="showSection('doctors',this)"><span>👨‍⚕️</span> الأطباء</div>
+          <div class="sn-item" onclick="showSection('branches',this)"><span>🏢</span> الفروع</div>
+          <div class="sn-item" onclick="showSection('payment_methods',this)"><span>💳</span> طرق الدفع</div>
+          <div class="sn-item" onclick="showSection('firebase',this)"><span>🔥</span> Firebase</div>
+          <div class="sn-item" onclick="showSection('roles',this)"><span>👥</span> الصلاحيات</div>
+          <div class="sn-item" onclick="showSection('seed',this)"><span>🌱</span> البيانات التجريبية</div>
+        </div>
+        <!-- Settings Content -->
+        <div>
+          <!-- Clinic Info -->
+          <div id="sec-clinic">
+            <div class="card">
+              <div class="ch"><h2>🏥 معلومات العيادة</h2><button class="btn btn-p" onclick="showToast('تم حفظ بيانات العيادة ✓','ok')">💾 حفظ</button></div>
+              <div class="cb">
+                <div class="form-row">
+                  <div class="fg"><label>اسم العيادة</label><input value="عيادة د. أحمد المنصوري للعظام" /></div>
+                  <div class="fg"><label>التخصص</label><input value="جراحة العظام والمفاصل" /></div>
+                </div>
+                <div class="form-row">
+                  <div class="fg"><label>رقم الهاتف</label><input value="01001234567" /></div>
+                  <div class="fg"><label>البريد الإلكتروني</label><input value="clinic@ortho.com" /></div>
+                </div>
+                <div class="fg"><label>العنوان</label><input value="شارع النصر، المعادي، القاهرة" /></div>
+                <div class="form-row">
+                  <div class="fg"><label>رسوم الكشف</label><input type="number" value="800" /></div>
+                  <div class="fg"><label>رسوم الحجز الإلكتروني</label><input type="number" value="500" /></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Doctors -->
+          <div id="sec-doctors" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>👨‍⚕️ الأطباء</h2><button class="btn btn-p" onclick="showToast('تم الحفظ ✓','ok')">➕ إضافة طبيب</button></div>
+              <div class="cb">
+                <div class="info-row"><div><div class="info-label">د. أحمد المنصوري</div><div style="font-size:12px;color:var(--t3);">جراحة العظام والمفاصل · dr1</div></div><span style="background:var(--ok-lt);color:var(--ok);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">نشط</span></div>
+                <div class="info-row"><div><div class="info-label">د. سارة الخولي</div><div style="font-size:12px;color:var(--t3);">جراحة العمود الفقري · dr2</div></div><span style="background:var(--ok-lt);color:var(--ok);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">نشط</span></div>
+                <div class="info-row"><div><div class="info-label">د. محمود رضا</div><div style="font-size:12px;color:var(--t3);">طب الرياضة والإصابات · dr3</div></div><span style="background:var(--ok-lt);color:var(--ok);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">نشط</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Branches -->
+          <div id="sec-branches" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>🏢 الفروع</h2></div>
+              <div class="cb">
+                <div class="info-row"><div><div class="info-label">الفرع الرئيسي - المعادي</div><div style="font-size:12px;color:var(--t3);">شارع النصر، المعادي</div></div><span style="background:var(--ok-lt);color:var(--ok);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">نشط</span></div>
+                <div class="info-row"><div><div class="info-label">فرع مدينة نصر</div><div style="font-size:12px;color:var(--t3);">شارع عباس العقاد</div></div><span style="background:var(--ok-lt);color:var(--ok);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">نشط</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Payment Methods -->
+          <div id="sec-payment_methods" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>💳 طرق الدفع</h2><button class="btn btn-p" onclick="showToast('تم الحفظ ✓','ok')">💾 حفظ</button></div>
+              <div class="cb">
+                <div class="info-row"><span class="info-label">📱 InstaPay</span><input style="width:180px;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Cairo',sans-serif;" value="01001234567" /></div>
+                <div class="info-row"><span class="info-label">📞 Vodafone Cash</span><input style="width:180px;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Cairo',sans-serif;" value="01101234567" /></div>
+                <div class="info-row"><span class="info-label">🏦 رقم حساب بنكي</span><input style="width:180px;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Cairo',sans-serif;" value="1234567890" /></div>
+                <div class="info-row"><span class="info-label">💵 نقدي</span><span style="color:var(--ok);font-weight:700;">✅ مفعّل</span></div>
+                <div class="info-row"><span class="info-label">💳 بطاقة</span><span style="color:var(--ok);font-weight:700;">✅ مفعّل</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Firebase -->
+          <div id="sec-firebase" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>🔥 إعداد Firebase</h2></div>
+              <div class="cb">
+                <div class="fire-status offline" id="fireStatus">⚪ وضع العرض — Firebase غير متصل</div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;font-size:13px;color:#92400e;margin-bottom:16px;">
+                  ⚠️ لتفعيل Firebase: افتح كل ملف HTML واستبدل <code>YOUR_API_KEY</code> و <code>YOUR_PROJECT_ID</code> ببيانات مشروعك من Firebase Console.
+                </div>
+                <div class="fg"><label>API Key</label><input placeholder="YOUR_API_KEY" /></div>
+                <div class="fg"><label>Project ID</label><input placeholder="YOUR_PROJECT_ID" /></div>
+                <div class="fg"><label>App ID</label><input placeholder="YOUR_APP_ID" /></div>
+                <button class="btn btn-ok" onclick="showToast('قم بتحديث ملفات HTML يدوياً','wrn')">💾 تطبيق الإعدادات</button>
+                <div style="margin-top:16px;padding:14px;background:var(--bg);border-radius:10px;font-size:12.5px;color:var(--t2);">
+                  <div style="font-weight:800;margin-bottom:8px;">قواعد Firestore (للتجربة فقط):</div>
+                  <pre style="background:#1a202c;color:#a8bbd4;padding:12px;border-radius:8px;font-size:11.5px;overflow-x:auto;">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+                  <div style="color:var(--danger);font-weight:700;margin-top:8px;">⚠️ هذه القواعد للتجربة فقط. لا تستخدمها في الإنتاج.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Roles -->
+          <div id="sec-roles" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>👥 الأدوار والصلاحيات</h2></div>
+              <div class="cb">
+                <div class="info-row"><div><div class="info-label">مدير النظام (Admin)</div><div style="font-size:12px;color:var(--t3);">وصول كامل لجميع الصفحات</div></div></div>
+                <div class="info-row"><div><div class="info-label">طبيب (Doctor)</div><div style="font-size:12px;color:var(--t3);">المرضى، الزيارات، الوصفات، الأشعة، التقدم</div></div></div>
+                <div class="info-row"><div><div class="info-label">استقبال (Receptionist)</div><div style="font-size:12px;color:var(--t3);">المواعيد، طلبات الحجز، تسجيل المرضى</div></div></div>
+                <div class="info-row"><div><div class="info-label">حسابات (Finance)</div><div style="font-size:12px;color:var(--t3);">الفواتير، المدفوعات، التقارير المالية</div></div></div>
+                <div class="info-row"><div><div class="info-label">مريض (Patient)</div><div style="font-size:12px;color:var(--t3);">الحجز الإلكتروني فقط (مستقبلي)</div></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Seed Data -->
+          <div id="sec-seed" style="display:none;">
+            <div class="card">
+              <div class="ch"><h2>🌱 البيانات التجريبية</h2></div>
+              <div class="cb">
+                <p style="font-size:13.5px;color:var(--t2);margin-bottom:16px;line-height:1.8;">زرع بيانات تجريبية واقعية في Firebase Firestore لاختبار النظام قبل الإطلاق الفعلي.</p>
+                <button class="btn btn-p" style="margin-bottom:10px;" onclick="window.location.href='dashboard.html'">🌱 زرع البيانات من لوحة التحكم</button>
+                <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--danger);">
+                  ⚠️ تحذير: زرع البيانات سيضيف سجلات جديدة في قاعدة البيانات. لا يمكن التراجع عن ذلك بسهولة.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+window.showSection=(sec,btn)=>{
+  document.querySelectorAll('[id^=sec-]').forEach(s=>s.style.display='none');
+  document.getElementById('sec-'+sec).style.display='block';
+  document.querySelectorAll('.sn-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.logout=()=>{localStorage.clear();window.location.href='login.html';};
+window.showToast=(msg,type='ok')=>{const c=document.getElementById('tc'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>✅</span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3000);setTimeout(()=>t.remove(),3400);};
+const nm=localStorage.getItem('demo_name')||'مدير النظام';
+document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);
+document.getElementById('sbRl').textContent={admin:'مدير النظام',doctor:'طبيب',receptionist:'استقبال',finance:'حسابات'}[localStorage.getItem('demo_role')||'admin']||'Admin';
+document.getElementById('lo').style.display='none';
+</script>
+</body>
+</html>

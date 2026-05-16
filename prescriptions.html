@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الوصفات الطبية — نظام عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#1a6fce;--primary-dk:#1358a8;--primary-lt:#e8f1fb;--danger:#e53e3e;--danger-lt:#fff5f5;--warn:#d97706;--warn-lt:#fffbeb;--ok:#059669;--ok-lt:#ecfdf5;--purple:#7c3aed;--purple-lt:#f5f3ff;--bg:#f0f4f8;--surface:#fff;--border:#e2e8f0;--border-lt:#f1f5f9;--text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;--sw:240px;--sb-bg:#0f1f3d;--sb-txt:#a8bbd4;}
+    html,body{height:100%;}
+    body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;} button{cursor:pointer;font-family:'Cairo',sans-serif;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sw);background:var(--sb-bg);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;}
+    .sb-logo{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+    .logo-ic{width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .logo-tx strong{display:block;font-size:14px;font-weight:800;color:#fff;} .logo-tx span{font-size:11px;color:var(--sb-txt);}
+    .sb-nav{flex:1;overflow-y:auto;padding:8px 0;} .sb-nav::-webkit-scrollbar{display:none;}
+    .sb-sec{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(168,187,212,.4);padding:14px 18px 5px;}
+    .nv{display:flex;align-items:center;gap:11px;padding:10px 18px;color:var(--sb-txt);font-size:13px;font-weight:500;transition:all .18s;border:none;background:none;width:100%;text-align:right;position:relative;}
+    .nv:hover{background:rgba(255,255,255,.06);color:#fff;} .nv.active{background:rgba(26,111,206,.22);color:#fff;}
+    .nv.active::before{content:'';position:absolute;right:0;top:6px;bottom:6px;width:3px;background:var(--primary);border-radius:99px 0 0 99px;}
+    .ni{width:20px;text-align:center;font-size:15px;flex-shrink:0;} .nb{margin-right:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;}
+    .sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;} .sb-usr{display:flex;align-items:center;gap:10px;}
+    .av-sb{width:34px;height:34px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;}
+    .un{color:#fff;font-size:13px;font-weight:600;} .ur{color:var(--sb-txt);font-size:11px;}
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:62px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:90;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .tb-title{font-size:17px;font-weight:800;} .flex1{flex:1;}
+    .srch-wrap{position:relative;} .srch-wrap .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;}
+    .srch{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 14px 8px 36px;font-size:13px;font-family:'Cairo',sans-serif;width:220px;color:var(--text);}
+    .srch:focus{outline:none;border-color:var(--primary);}
+    .tb-btn{width:36px;height:36px;border:none;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
+    .pg{padding:24px;flex:1;}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .ph h1{font-size:22px;font-weight:800;} .ph p{font-size:13px;color:var(--t3);margin-top:3px;}
+    /* STATS */
+    .ssg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+    .ssc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+    .ssc-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .ssc-v{font-size:22px;font-weight:900;} .ssc-l{font-size:11.5px;color:var(--t3);font-weight:600;}
+    /* FILTER */
+    .filter-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+    .fb{padding:7px 14px;border-radius:99px;border:1.5px solid var(--border);background:#fff;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;}
+    .fb:hover{border-color:var(--primary);color:var(--primary);} .fb.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    /* RX CARD */
+    .rx-card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:14px;overflow:hidden;transition:all .18s;}
+    .rx-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);}
+    .rx-head{display:flex;align-items:center;gap:14px;padding:16px 20px;}
+    .rx-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+    .rx-info{flex:1;}
+    .rx-patient{font-size:14.5px;font-weight:800;}
+    .rx-meta{font-size:12px;color:var(--t3);margin-top:3px;display:flex;gap:14px;flex-wrap:wrap;}
+    .rx-actions{display:flex;gap:8px;flex-shrink:0;}
+    .rx-body{padding:0 20px 16px;border-top:1px solid var(--border-lt);}
+    .med-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-lt);}
+    .med-row:last-child{border-bottom:none;}
+    .med-num2{width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+    .med-name{font-size:13.5px;font-weight:700;} .med-detail{font-size:12px;color:var(--t3);}
+    .instr-box{background:var(--ok-lt);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--ok);font-weight:600;margin-top:10px;}
+    .followup-box{background:var(--primary-lt);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--primary);font-weight:600;margin-top:8px;}
+    /* BADGE */
+    .bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;}
+    .bdg::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+    .b-ok{background:var(--ok-lt);color:var(--ok);} .b-blue{background:var(--primary-lt);color:var(--primary);} .b-gray{background:#f3f4f6;color:#6b7280;}
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;white-space:nowrap;}
+    .btn-p{background:var(--primary);color:#fff;} .btn-p:hover{background:var(--primary-dk);}
+    .btn-o{background:transparent;border:1.5px solid var(--border);color:var(--t2);} .btn-o:hover{border-color:var(--primary);color:var(--primary);}
+    .btn-ghost{background:transparent;color:var(--t3);padding:7px 12px;} .btn-ghost:hover{background:var(--bg);}
+    .btn-sm{padding:5px 11px;font-size:12px;}
+    /* PRINT */
+    .rx-print-page{display:none;}
+    @media print{body *{display:none!important;} .rx-print-page,.rx-print-page *{display:block!important;} .rx-print-page{position:fixed;inset:0;background:#fff;z-index:99999;padding:40px;font-family:'Cairo',sans-serif;direction:rtl;font-size:14px;}}
+    /* EMPTY */
+    .empty{text-align:center;padding:60px 20px;color:var(--t4);}
+    .empty .ei{font-size:48px;margin-bottom:12px;} .empty h3{font-size:16px;font-weight:700;color:var(--t3);}
+    /* TOAST */
+    #tc{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#1a202c;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);display:flex;align-items:center;gap:9px;animation:su .25s ease;max-width:340px;}
+    .toast.ok{background:var(--ok);} .toast.err{background:var(--danger);} .toast.wrn{background:var(--warn);}
+    @keyframes su{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+    #lo{position:fixed;inset:0;background:rgba(240,244,248,.92);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+    .bsp{width:40px;height:40px;border:3.5px solid var(--primary-lt);border-top-color:var(--primary);border-radius:50%;animation:spn .8s linear infinite;}
+    @keyframes spn{to{transform:rotate(360deg)}}
+    @media(max-width:1024px){.sidebar{width:62px;}.logo-tx,.nv span:not(.ni),.sb-sec,.nb,.un,.ur{display:none;}.sb-logo{justify-content:center;padding:14px;}.nv{justify-content:center;padding:12px;}.sb-usr{justify-content:center;}.main{margin-right:62px;}.ssg{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:640px){.pg{padding:14px;}.ssg{grid-template-columns:repeat(2,1fr);}.rx-head{flex-direction:column;align-items:flex-start;}}
+  </style>
+</head>
+<body>
+<div id="lo"><div class="bsp"></div><p style="font-size:13px;color:var(--t3);font-weight:600;">جاري التحميل...</p></div>
+<div id="tc"></div>
+
+<!-- PRINTABLE RX -->
+<div class="rx-print-page" id="rxPrintPage">
+  <div style="border-bottom:3px solid #1a6fce;padding-bottom:16px;margin-bottom:20px;">
+    <div style="font-size:22px;font-weight:900;color:#1a6fce;">عيادة د. أحمد المنصوري</div>
+    <div style="font-size:14px;font-weight:600;color:#4a5568;">استشاري جراحة العظام والمفاصل</div>
+    <div style="font-size:12px;color:#718096;">تليفون: 01001234567 · المعادي، القاهرة</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;" id="pxInfo"></div>
+  <div style="font-size:36px;font-weight:900;color:#1a6fce;margin-bottom:14px;">Rx</div>
+  <div id="pxMeds"></div>
+  <div style="border-top:1px solid #e2e8f0;margin-top:16px;padding-top:14px;" id="pxInstr"></div>
+  <div style="margin-top:12px;background:#eff6ff;border-radius:8px;padding:12px 16px;font-weight:700;color:#1e40af;" id="pxFollowup"></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;border-top:2px solid #e2e8f0;padding-top:20px;">
+    <div style="font-size:12px;color:#718096;">العيادة: 01001234567 · المعادي، القاهرة</div>
+    <div style="text-align:center;"><div style="border-bottom:1px solid #718096;width:160px;height:50px;margin-bottom:6px;"></div><div style="font-size:12px;color:#718096;">توقيع الطبيب</div></div>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="logo-ic">🦴</div><div class="logo-tx"><strong>عيادة العظام</strong><span>Ortho Clinic</span></div></div>
+    <nav class="sb-nav">
+      <div class="sb-sec">الرئيسية</div><a href="dashboard.html" class="nv"><span class="ni">📊</span><span>لوحة التحكم</span></a>
+      <div class="sb-sec">الحجوزات</div>
+      <a href="book.html" class="nv" target="_blank"><span class="ni">🌐</span><span>الحجز الإلكتروني</span></a>
+      <a href="booking-requests.html" class="nv"><span class="ni">📥</span><span>طلبات الحجز</span><span class="nb">3</span></a>
+      <a href="appointments.html" class="nv"><span class="ni">📅</span><span>المواعيد</span></a>
+      <div class="sb-sec">المرضى والزيارات</div>
+      <a href="patients.html" class="nv"><span class="ni">👥</span><span>المرضى</span></a>
+      <a href="doctor-visit.html" class="nv"><span class="ni">🩺</span><span>زيارة الطبيب</span></a>
+      <div class="sb-sec">التشخيص والعلاج</div>
+      <a href="result-upload.html" class="nv"><span class="ni">🔬</span><span>رفع النتائج</span></a>
+      <a href="patient-progress.html" class="nv"><span class="ni">📈</span><span>تقدم المريض</span></a>
+      <a href="prescriptions.html" class="nv active"><span class="ni">💊</span><span>الوصفات الطبية</span></a>
+      <div class="sb-sec">الإدارة</div>
+      <a href="payments.html" class="nv"><span class="ni">💰</span><span>المدفوعات</span></a>
+      <a href="messages.html" class="nv"><span class="ni">💬</span><span>الرسائل</span></a>
+      <a href="reports.html" class="nv"><span class="ni">📋</span><span>التقارير</span></a>
+      <a href="settings.html" class="nv"><span class="ni">⚙️</span><span>الإعدادات</span></a>
+    </nav>
+    <div class="sb-foot"><div class="sb-usr"><div class="av-sb" id="sbAv">م</div><div><div class="un" id="sbNm">مدير النظام</div><div class="ur" id="sbRl">Admin</div></div></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <span class="tb-title">الوصفات الطبية</span>
+      <div class="flex1"></div>
+      <div class="srch-wrap"><span class="si">🔍</span><input class="srch" id="searchInput" placeholder="ابحث باسم المريض..." oninput="render()" /></div>
+      <button class="tb-btn" onclick="logout()">🚪</button>
+    </header>
+
+    <div class="pg">
+      <div class="ph">
+        <div><h1>💊 الوصفات الطبية</h1><p>سجل جميع الوصفات الطبية الصادرة من العيادة</p></div>
+        <a href="doctor-visit.html" class="btn btn-p">🩺 زيارة جديدة (وصفة)</a>
+      </div>
+
+      <div class="ssg">
+        <div class="ssc"><div class="ssc-ic" style="background:#f5f3ff;">💊</div><div><div class="ssc-v" id="st-total">0</div><div class="ssc-l">إجمالي الوصفات</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#ecfdf5;">📅</div><div><div class="ssc-v" id="st-today">0</div><div class="ssc-l">وصفات اليوم</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#e8f1fb;">👥</div><div><div class="ssc-v" id="st-patients">0</div><div class="ssc-l">مرضى هذا الشهر</div></div></div>
+        <div class="ssc"><div class="ssc-ic" style="background:#fffbeb;">💊</div><div><div class="ssc-v" id="st-meds">0</div><div class="ssc-l">أدوية صُرفت</div></div></div>
+      </div>
+
+      <div class="filter-row">
+        <button class="fb active" onclick="setFilter('all',this)">الكل</button>
+        <button class="fb" onclick="setFilter('today',this)">اليوم</button>
+        <button class="fb" onclick="setFilter('week',this)">هذا الأسبوع</button>
+        <button class="fb" onclick="setFilter('month',this)">هذا الشهر</button>
+        <div class="flex1"></div>
+        <select style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'Cairo',sans-serif;background:#fff;" onchange="filterByDoctor(this.value)">
+          <option value="">جميع الأطباء</option>
+          <option value="dr1">د. أحمد المنصوري</option>
+          <option value="dr2">د. سارة الخولي</option>
+          <option value="dr3">د. محمود رضا</option>
+        </select>
+      </div>
+
+      <div id="rxList"></div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const cfg={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT_ID.firebaseapp.com",projectId:"YOUR_PROJECT_ID",storageBucket:"YOUR_PROJECT_ID.appspot.com",messagingSenderId:"YOUR_MESSAGING_SENDER_ID",appId:"YOUR_APP_ID"};
+  let db,auth,allRx=[],currentFilter='all',currentDoctor='';
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const DEMO_RX = [
+    {id:'rx1',patientName:'أحمد محمد علي',  patientId:'pt1',doctorId:'dr1',doctorName:'د. أحمد المنصوري',date:today,visitType:'متابعة',
+      medications:[{name:'سيليكوكسيب 200 مجم',freq:'مرة يومياً',dur:'أسبوعين',instr:'بعد الأكل'},{name:'ميوريلاكس 4 مجم',freq:'مرتين يومياً',dur:'أسبوع',instr:'بعد الأكل'},{name:'أوميبرازول 20 مجم',freq:'مرة يومياً',dur:'أسبوعين',instr:'قبل الأكل'}],
+      instructions:['راحة نسبية','كمادات ثلج','تمارين الرباعية'],followUpDate:'2026-05-30',diagnoses:['Knee osteoarthritis Grade 3']},
+    {id:'rx2',patientName:'فاطمة إبراهيم',  patientId:'pt2',doctorId:'dr1',doctorName:'د. أحمد المنصوري',date:today,visitType:'كشف',
+      medications:[{name:'ليريكا 75 مجم',freq:'مرتين يومياً',dur:'شهر',instr:'قبل النوم'},{name:'فولتارين 50 مجم',freq:'مرتين يومياً',dur:'5 أيام',instr:'بعد الأكل'}],
+      instructions:['راحة تامة','تجنب الجلوس الطويل'],followUpDate:'2026-05-28',diagnoses:['Lumbar disc prolapse','Sciatica']},
+    {id:'rx3',patientName:'نورا خالد',       patientId:'pt4',doctorId:'dr1',doctorName:'د. أحمد المنصوري',date:'2026-05-14',visitType:'علاج طبيعي',
+      medications:[{name:'بروفين 600 مجم',freq:'3 مرات يومياً',dur:'5 أيام',instr:'بعد الأكل'}],
+      instructions:['كمادات ثلج 15 دقيقة كل 6 ساعات','راحة نسبية'],followUpDate:'2026-05-30',diagnoses:['MCL sprain']},
+    {id:'rx4',patientName:'عمر عبدالله',     patientId:'pt5',doctorId:'dr2',doctorName:'د. سارة الخولي', date:'2026-05-12',visitType:'متابعة',
+      medications:[{name:'أركوكسيا 90 مجم',freq:'مرة يومياً',dur:'شهر',instr:'بعد الأكل'},{name:'فيتامين د3 50000 وحدة',freq:'مرة أسبوعياً',dur:'3 أشهر',instr:'مع الأكل الدسم'}],
+      instructions:['راحة تامة','علاج طبيعي 3x أسبوعياً'],followUpDate:'2026-06-01',diagnoses:['Knee osteoarthritis Grade 4']},
+    {id:'rx5',patientName:'محمد السيد حسن',  patientId:'pt3',doctorId:'dr2',doctorName:'د. سارة الخولي', date:'2026-05-10',visitType:'كشف',
+      medications:[{name:'سيليكوكسيب 200 مجم',freq:'مرة يومياً',dur:'أسبوع',instr:'بعد الأكل'},{name:'ميوريلاكس 4 مجم',freq:'مرتين يومياً',dur:'5 أيام',instr:'بعد الأكل'}],
+      instructions:['راحة نسبية','تمارين الكتف'],followUpDate:'2026-06-07',diagnoses:['Rotator cuff tendinopathy']},
+  ];
+
+  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
+
+  async function boot(){
+    const nm=localStorage.getItem('demo_name')||'مدير النظام',rl=localStorage.getItem('demo_role')||'admin';
+    document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);document.getElementById('sbRl').textContent=roleAr(rl);
+    try{
+      if(db){const snap=await getDocs(query(collection(db,'prescriptions'),orderBy('createdAt','desc')));allRx=snap.docs.map(d=>({id:d.id,...d.data()}));if(!allRx.length)allRx=DEMO_RX;}
+      else allRx=DEMO_RX;
+    }catch(e){allRx=DEMO_RX;}
+    updateStats(); render();
+    document.getElementById('lo').style.display='none';
+  }
+
+  function updateStats(){
+    const todayRx=allRx.filter(r=>r.date===today);
+    const monthPats=[...new Set(allRx.filter(r=>r.date?.startsWith('2026-05')).map(r=>r.patientId))];
+    const totalMeds=allRx.reduce((a,r)=>a+(r.medications?.length||0),0);
+    document.getElementById('st-total').textContent=allRx.length;
+    document.getElementById('st-today').textContent=todayRx.length;
+    document.getElementById('st-patients').textContent=monthPats.length;
+    document.getElementById('st-meds').textContent=totalMeds;
+  }
+
+  window.setFilter=(f,btn)=>{ currentFilter=f; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); render(); };
+  window.filterByDoctor=v=>{ currentDoctor=v; render(); };
+
+  window.render=function(){
+    const search=document.getElementById('searchInput').value.toLowerCase();
+    const weekAgo=new Date(); weekAgo.setDate(weekAgo.getDate()-7); const weekStr=weekAgo.toISOString().split('T')[0];
+    let list=allRx.filter(r=>{
+      if(currentDoctor&&r.doctorId!==currentDoctor) return false;
+      if(search&&!(r.patientName||'').toLowerCase().includes(search)) return false;
+      if(currentFilter==='today'&&r.date!==today) return false;
+      if(currentFilter==='week'&&r.date<weekStr) return false;
+      if(currentFilter==='month'&&!r.date?.startsWith('2026-05')) return false;
+      return true;
+    });
+    list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    const el=document.getElementById('rxList');
+    if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">💊</div><h3>لا توجد وصفات</h3></div>`;return;}
+    el.innerHTML=list.map(rx=>`
+      <div class="rx-card">
+        <div class="rx-head">
+          <div class="rx-av" style="background:${ac(rx.patientName)}">${(rx.patientName||'?').charAt(0)}</div>
+          <div class="rx-info">
+            <div class="rx-patient">${rx.patientName}</div>
+            <div class="rx-meta">
+              <span>👨‍⚕️ ${rx.doctorName||'—'}</span>
+              <span>📅 ${rx.date}</span>
+              <span>🩺 ${rx.visitType||'—'}</span>
+              <span>💊 ${rx.medications?.length||0} أدوية</span>
+            </div>
+            ${rx.diagnoses?.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${rx.diagnoses.map(d=>`<span class="bdg b-blue">${d}</span>`).join('')}</div>`:''}
+          </div>
+          <div class="rx-actions">
+            <button class="btn btn-o btn-sm" onclick="printRx('${rx.id}')">🖨️ طباعة</button>
+            <a href="patient-profile.html?id=${rx.patientId||''}" class="btn btn-o btn-sm">👤 الملف</a>
+          </div>
+        </div>
+        <div class="rx-body">
+          ${rx.medications?.map((m,i)=>`
+            <div class="med-row">
+              <div class="med-num2">${i+1}</div>
+              <div>
+                <div class="med-name">${m.name}</div>
+                <div class="med-detail">${m.freq} — ${m.dur} — ${m.instr}</div>
+              </div>
+            </div>`).join('')||''}
+          ${rx.instructions?.length?`<div class="instr-box">📋 التعليمات: ${rx.instructions.join(' · ')}</div>`:''}
+          ${rx.followUpDate?`<div class="followup-box">📅 موعد المتابعة: ${rx.followUpDate}</div>`:''}
+        </div>
+      </div>`).join('');
+  };
+
+  window.printRx = (id) => {
+    const rx = allRx.find(r=>r.id===id);
+    if(!rx) return;
+    document.getElementById('pxInfo').innerHTML=`
+      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">اسم المريض</div><div style="font-size:15px;font-weight:800;">${rx.patientName}</div></div>
+      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التاريخ</div><div style="font-size:15px;font-weight:800;">${rx.date}</div></div>
+      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">الطبيب</div><div style="font-size:15px;font-weight:800;">${rx.doctorName||'—'}</div></div>
+      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التشخيص</div><div style="font-size:13px;font-weight:700;">${rx.diagnoses?.join(' · ')||'—'}</div></div>`;
+    document.getElementById('pxMeds').innerHTML=rx.medications?.map((m,i)=>`
+      <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:800;">${i+1}. ${m.name}</div>
+        <div style="font-size:13px;color:#4a5568;margin-top:3px;">${m.freq} — ${m.dur} — ${m.instr}</div>
+      </div>`).join('')||'';
+    document.getElementById('pxInstr').innerHTML=rx.instructions?.length
+      ? `<div style="font-size:14px;font-weight:800;margin-bottom:10px;">تعليمات:</div>${rx.instructions.map(i=>`<div style="font-size:13px;margin-bottom:5px;">• ${i}</div>`).join('')}` : '';
+    document.getElementById('pxFollowup').textContent=rx.followUpDate?`📅 موعد المتابعة: ${rx.followUpDate}`:'';
+    window.print();
+  };
+
+  window.logout=async()=>{try{if(auth)await signOut(auth);}catch(e){}localStorage.clear();window.location.href='login.html';};
+  function roleAr(r){return{admin:'مدير النظام',doctor:'طبيب',receptionist:'استقبال',finance:'حسابات'}[r]||r;}
+  function ac(n=''){const c=['#1a6fce','#7c3aed','#059669','#d97706','#e53e3e','#0ec4a2','#6366f1'];let s=0;for(const ch of n)s+=ch.charCodeAt(0);return c[s%c.length];}
+</script>
+<script>
+  window.showToast=(msg,type='ok')=>{const c=document.getElementById('tc'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${{ok:'✅',err:'❌',wrn:'⚠️'}[type]||'ℹ️'}</span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3000);setTimeout(()=>t.remove(),3400);};
+</script>
+</body>
+</html>
