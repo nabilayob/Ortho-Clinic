@@ -132,6 +132,20 @@
   </style>
 </head>
 <body>
+<script>
+// AUTO OFFLINE DETECTION — if opened from file:// set demo mode automatically
+(function() {
+  if (window.location.protocol === 'file:') {
+    if (!localStorage.getItem('demo_role')) {
+      localStorage.setItem('demo_role', 'admin');
+      localStorage.setItem('demo_name', 'د. أحمد المنصوري');
+      localStorage.setItem('demo_offline', 'true');
+    }
+    // Always ensure offline for file:// 
+    localStorage.setItem('demo_offline', 'true');
+  }
+})();
+</script>
 <div id="lo"><div class="bsp"></div><p style="font-size:13px;color:var(--t3);font-weight:600;">جاري تحميل ملف المريض...</p></div>
 <div id="tc"></div>
 <div class="shell">
@@ -589,5 +603,20 @@
 <script>
   window.showToast=(msg,type='ok')=>{const c=document.getElementById('tc'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${{ok:'✅',err:'❌',wrn:'⚠️'}[type]||'ℹ️'}</span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';},3000);setTimeout(()=>t.remove(),3400);};
 </script>
+
+<script>
+// EMERGENCY LOADING FIX — guarantees loader hides within 1.5 seconds
+(function() {
+  function hideLoader() {
+    var lo = document.getElementById('lo');
+    if (lo) lo.style.display = 'none';
+  }
+  // Always hide after 1.5s maximum
+  setTimeout(hideLoader, 1500);
+  // Also hide immediately if demo_offline is set
+  if (localStorage.getItem('demo_offline') || localStorage.getItem('demo_role')) {
+    setTimeout(hideLoader, 400);
+  }
+})();
+</script>
 </body>
-</html>
