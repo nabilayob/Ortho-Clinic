@@ -1,150 +1,283 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تسجيل الدخول - نظام عيادة العظام</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تسجيل الدخول — نظام عيادة العظام</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #12305a;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #1f2937;
-    }
-    .card {
-      background: #fff;
-      width: 90%;
-      max-width: 500px;
-      border-radius: 20px;
-      padding: 35px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,.25);
-    }
-    h1 {
-      margin-bottom: 8px;
-      font-size: 28px;
-    }
-    .subtitle {
-      color: #64748b;
-      margin-bottom: 30px;
-    }
-    .roles {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .role {
-      border: 1px solid #dbe3ef;
-      border-radius: 20px;
-      padding: 10px 18px;
-      cursor: pointer;
-      background: #fff;
-    }
-    .role.active {
-      background: #1e88e5;
-      color: white;
-      border-color: #1e88e5;
-    }
-    button.demo {
-      width: 100%;
-      border: 0;
-      border-radius: 12px;
-      padding: 18px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #fff;
-      background: linear-gradient(90deg, #1976d2, #14b8a6);
-      cursor: pointer;
-      margin: 15px 0;
-    }
-    input {
-      width: 100%;
-      padding: 16px;
-      margin: 8px 0;
-      border: 1px solid #dbe3ef;
-      border-radius: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    button.login {
-      width: 100%;
-      background: #111827;
-      color: white;
-      border: 0;
-      padding: 16px;
-      border-radius: 10px;
-      margin-top: 10px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .note {
-      margin-top: 20px;
-      padding: 15px;
-      background: #eef6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
-      color: #1d4ed8;
-      line-height: 1.7;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--primary:#1a6fce;--primary-dk:#1358a8;--ok:#059669;--bg:#f0f4f8;--border:#e2e8f0;--text:#1a202c;--t2:#4a5568;--t3:#718096;--t4:#a0aec0;}
+    html,body{height:100%;}
+    body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#0f1f3d 0%,#1a3a6b 50%,#0f1f3d 100%);display:flex;align-items:center;justify-content:center;min-height:100vh;direction:rtl;position:relative;overflow:hidden;}
+    body::before{content:'';position:fixed;top:-150px;right:-150px;width:400px;height:400px;border-radius:50%;background:rgba(26,111,206,.15);pointer-events:none;}
+    body::after{content:'';position:fixed;bottom:-100px;left:-100px;width:320px;height:320px;border-radius:50%;background:rgba(14,196,162,.1);pointer-events:none;}
+    .card{background:rgba(255,255,255,.97);border-radius:24px;box-shadow:0 24px 80px rgba(0,0,0,.4);width:100%;max-width:440px;padding:44px 40px;position:relative;z-index:10;animation:fadeUp .5s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+    .logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:32px;}
+    .logo-icon{width:72px;height:72px;background:linear-gradient(135deg,#1a6fce,#0ec4a2);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:14px;box-shadow:0 8px 32px rgba(26,111,206,.4);}
+    h1{font-size:21px;font-weight:900;color:var(--text);text-align:center;margin-bottom:4px;}
+    .subtitle{font-size:13px;color:var(--t3);text-align:center;}
+    .role-label{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;}
+    .role-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+    .role-chip{padding:6px 14px;border-radius:99px;border:1.5px solid var(--border);background:#f7f9fc;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .18s;font-family:'Cairo',sans-serif;}
+    .role-chip:hover{border-color:var(--primary);color:var(--primary);background:#e8f1fb;}
+    .role-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .demo-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1a6fce,#0ec4a2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 4px 20px rgba(26,111,206,.35);margin-bottom:20px;}
+    .demo-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(26,111,206,.45);}
+    .demo-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .divider{display:flex;align-items:center;gap:12px;margin-bottom:18px;color:var(--t4);font-size:12px;font-weight:600;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .inp-wrap{position:relative;margin-bottom:14px;}
+    .inp-wrap .ic{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;}
+    .inp-wrap input{width:100%;padding:11px 40px 11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;font-family:'Cairo',sans-serif;color:var(--text);background:#f7f9fc;transition:all .18s;}
+    .inp-wrap input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(26,111,206,.1);}
+    .login-btn{width:100%;padding:12px;background:#1a202c;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .18s;margin-bottom:16px;}
+    .login-btn:hover{background:#2d3748;}
+    .note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;font-size:12px;color:#1e40af;display:flex;gap:8px;align-items:flex-start;}
+    .spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spn .7s linear infinite;display:inline-block;}
+    @keyframes spn{to{transform:rotate(360deg)}}
+    .version{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);font-family:'Cairo',sans-serif;}
   </style>
 </head>
 <body>
-  <div class="card">
+
+<div class="card">
+  <div class="logo-wrap">
+    <div class="logo-icon">🦴</div>
     <h1>نظام عيادة العظام</h1>
-    <div class="subtitle">Ortho Clinic Management System</div>
-
-    <p>اختر الدور للعرض التجريبي:</p>
-
-    <div class="roles">
-      <button class="role active" data-role="admin">مدير النظام</button>
-      <button class="role" data-role="doctor">طبيب</button>
-      <button class="role" data-role="reception">استقبال</button>
-      <button class="role" data-role="accountant">حسابات</button>
-    </div>
-
-    <button type="button" class="demo" onclick="demoLogin()">🚀 دخول تجريبي فوري</button>
-
-    <p>أو سجّل دخولك بحسابك</p>
-
-    <input id="email" type="email" placeholder="البريد الإلكتروني">
-    <input id="password" type="password" placeholder="كلمة المرور">
-
-    <button type="button" class="login" onclick="normalLogin()">تسجيل الدخول</button>
-
-    <div class="note">
-      وضع العرض التجريبي: اضغط "دخول تجريبي فوري" للوصول الفوري. يعمل بدون Firebase.
-    </div>
+    <p class="subtitle">Ortho Clinic Management System</p>
   </div>
 
-  <script>
-    let selectedRole = "admin";
+  <p class="role-label">اختر الدور للعرض التجريبي:</p>
+  <div class="role-chips" id="roleChips">
+    <button class="role-chip active" data-role="admin"        data-name="مدير النظام">مدير النظام</button>
+    <button class="role-chip"        data-role="doctor"       data-name="د. أحمد المنصوري">طبيب</button>
+    <button class="role-chip"        data-role="receptionist" data-name="فاطمة إبراهيم">استقبال</button>
+    <button class="role-chip"        data-role="finance"      data-name="محمد السيد">حسابات</button>
+  </div>
 
-    document.querySelectorAll(".role").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        document.querySelectorAll(".role").forEach(function(b) {
-          b.classList.remove("active");
-        });
-        btn.classList.add("active");
-        selectedRole = btn.getAttribute("data-role");
-      });
+  <button class="demo-btn" id="demoBtn" onclick="demoLogin()">
+    <span>🚀</span><span>دخول تجريبي فوري</span>
+  </button>
+
+  <div class="divider">أو سجّل دخولك بحسابك</div>
+
+  <div class="inp-wrap">
+    <span class="ic">✉️</span>
+    <input type="email" placeholder="البريد الإلكتروني" id="emailInp"/>
+  </div>
+  <div class="inp-wrap">
+    <span class="ic">🔒</span>
+    <input type="password" placeholder="كلمة المرور" id="passInp" onkeydown="if(event.key==='Enter')emailLogin()"/>
+  </div>
+  <button class="login-btn" onclick="emailLogin()">تسجيل الدخول</button>
+
+  <div class="note">
+    <span>ℹ️</span>
+    <div><strong>وضع العرض التجريبي:</strong> اضغط "دخول تجريبي فوري" للوصول الفوري. يعمل بدون Firebase.</div>
+  </div>
+</div>
+
+<p class="version">نظام عيادة العظام — نسخة تجريبية v1.0</p>
+
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ================================================================
+  // 🔥 FIREBASE CONFIG — Replace with your Firebase project values
+  // ================================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyAO0Kjay5YR_CX9rMuCGge9EaFrON6_M2o",
+    authDomain: "ortho-clinic-d7ade.firebaseapp.com",
+    databaseURL: "https://ortho-clinic-d7ade-default-rtdb.firebaseio.com",
+    projectId: "ortho-clinic-d7ade",
+    storageBucket: "ortho-clinic-d7ade.firebasestorage.app",
+    messagingSenderId: "1065724251309",
+    appId: "1:1065724251309:web:30ea501844c6f5b4b20a24",
+    measurementId: "G-YVPMFRY9B8"
+  };
+  // ================================================================
+
+  let auth = null;
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    // If already logged in → redirect
+    onAuthStateChanged(auth, user => {
+      if (user && localStorage.getItem('demo_role')) {
+        window.location.href = 'dashboard.html';
+      }
     });
+  } catch(e) {
+    console.warn('Firebase not configured — demo mode only');
+  }
 
-    function demoLogin() {
-      localStorage.setItem("ortho_demo_mode", "true");
-      localStorage.setItem("ortho_user_role", selectedRole);
-      localStorage.setItem("ortho_logged_in", "true");
-      window.location.href = "dashboard.html";
+  // Role chips
+  document.querySelectorAll('.role-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  // Demo login
+  window.demoLogin = async function() {
+    const btn  = document.getElementById('demoBtn') || document.getElementById('demoLoginBtn');
+    const chip = document.querySelector('.role-chip.active');
+    const role = chip?.dataset.role || 'admin';
+    const name = chip?.dataset.name || 'مدير النظام';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span><span>جاري الدخول...</span>'; }
+
+    // Save a valid local demo session first. This prevents the login/dashboard redirect flashing.
+    localStorage.setItem('demo_role', role);
+    localStorage.setItem('demo_name', name);
+    localStorage.setItem('demo_offline', 'true');
+    localStorage.setItem('demo_login_ok', 'true');
+
+    // Try Firebase Anonymous Auth in the background, but do not block demo login.
+    try {
+      if (auth) {
+        const result = await Promise.race([
+          signInAnonymously(auth),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase login timeout')), 2500))
+        ]);
+        if (result && result.user) {
+          localStorage.setItem('demo_uid', result.user.uid);
+          localStorage.removeItem('demo_offline');
+        }
+      }
+    } catch (e) {
+      console.warn('Firebase anonymous login skipped; continuing demo mode:', e.message);
+      localStorage.setItem('demo_offline', 'true');
     }
 
-    function normalLogin() {
-      alert("تسجيل الدخول بالبريد يحتاج Firebase. استخدم زر دخول تجريبي فوري الآن.");
+    window.location.assign('dashboard.html');
+  };
+
+  // Email login
+  window.emailLogin = async function() {
+    const email = document.getElementById('emailInp').value.trim();
+    const pass  = document.getElementById('passInp').value;
+    if (!email || !pass) { alert('أدخل البريد الإلكتروني وكلمة المرور'); return; }
+    if (!auth) {
+      alert('تعذر تحميل Firebase. تأكد من اتصال الإنترنت أو استخدم الدخول التجريبي.'); return;
     }
-  </script>
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      localStorage.setItem('demo_role', 'admin');
+      localStorage.setItem('demo_name', email.split('@')[0]);
+      localStorage.removeItem('demo_offline');
+      localStorage.setItem('demo_login_ok', 'true');
+      window.location.href = 'dashboard.html';
+    } catch(e) {
+      alert('خطأ في تسجيل الدخول: ' + e.message);
+    }
+  };
+</script>
+
+
+
+<script>
+// Safe fallback: if Firebase module fails to load, login still works.
+window.demoLogin = window.demoLogin || function(){
+  const chip = document.querySelector('.role-chip.active');
+  localStorage.setItem('demo_role', chip?.dataset.role || 'admin');
+  localStorage.setItem('demo_name', chip?.dataset.name || 'مدير النظام');
+  localStorage.setItem('demo_offline','true');
+  localStorage.setItem('demo_login_ok','true');
+  window.location.assign('dashboard.html');
+};
+window.emailLogin = window.emailLogin || function(){ window.demoLogin(); };
+</script>
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/dropdowns-senior-fix.js"></script>
 </body>
 </html>
