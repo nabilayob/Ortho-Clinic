@@ -1,0 +1,15 @@
+Fixes applied:
+- Login redirect flashing fixed: demo login now saves a valid local session before redirecting.
+- Existing Firebase const config values were preserved; no Firebase credentials were changed.
+- All protected pages now allow demo_role session, so they no longer bounce back to login.
+- Settings doctors edit/delete/activate/add now have local fallback when Firebase write is denied.
+- Patient add page continues working with local fallback.
+- Result upload keeps a local demo file URL if Firebase Storage upload fails.
+- AI read button now works as a demo extractor without external API/CORS and fills lab/imaging values automatically.
+- General search fallback added for pages with search input.
+
+V3 patient registration fix:
+- Fixed JavaScript syntax error in patients.html table rendering.
+- Fixed missing loader null check.
+- Added non-module safety fallback for Add New Patient so the button works even if Firebase CDN/import fails.
+- Added localStorage save fallback for patient registration.

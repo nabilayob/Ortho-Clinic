@@ -300,9 +300,7 @@
         <!-- Doctor filter -->
         <select id="drFilter" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:13px;font-family:'Cairo',sans-serif;background:#fff;cursor:pointer;" onchange="render()">
           <option value="">جميع الأطباء</option>
-          <option value="dr1">د. أحمد المنصوري</option>
-          <option value="dr2">د. سارة الخولي</option>
-          <option value="dr3">د. محمود رضا</option>
+          <!-- populated by clinic-data-v7.js -->
         </select>
       </div>
 
@@ -351,11 +349,9 @@
         <div class="fg">
           <label>الطبيب <span class="req">*</span></label>
           <select id="f-doctor">
-            <option value="">اختر الطبيب...</option>
-            <option value="dr1">د. أحمد المنصوري</option>
-            <option value="dr2">د. سارة الخولي</option>
-            <option value="dr3">د. محمود رضا</option>
-          </select>
+          <option value="">اختر الطبيب...</option>
+          <!-- populated by clinic-data-v7.js -->
+        </select>
         </div>
         <div class="fg">
           <label>الفرع</label>
@@ -487,7 +483,7 @@
 
   try {
     const app=initializeApp(cfg); auth=getAuth(app); db=getFirestore(app);
-    onAuthStateChanged(auth,u=>{ if(!u&&!localStorage.getItem('demo_offline')){window.location.href='login.html';return;} boot(); });
+    onAuthStateChanged(auth,u=>{ if(!u&&!localStorage.getItem('demo_offline')&&!localStorage.getItem('demo_role')){window.location.href='login.html';return;} boot(); });
   } catch(e){ boot(); }
 
   async function boot() {
@@ -725,4 +721,163 @@
   }
 })();
 </script>
+
+<script>
+// General search fallback for demo pages: filters visible cards/rows/list items by text.
+(function(){
+  function attach(){
+    const inputs=[...document.querySelectorAll('input[type="search"], input[id*="search"], input[placeholder*="بحث"], .srch')];
+    inputs.forEach(inp=>{
+      if(inp.dataset.searchFallbackAttached) return;
+      inp.dataset.searchFallbackAttached='1';
+      inp.addEventListener('input',()=>{
+        const q=(inp.value||'').trim().toLowerCase();
+        const scope=document.querySelector('.pg')||document.querySelector('main')||document.body;
+        const items=[...scope.querySelectorAll('.pat-card,.req-card,.doc-card,.branch-row,.ai,.msg-item,.rx-card,.pay-card,tbody tr')];
+        if(!items.length) return;
+        items.forEach(el=>{ el.style.display = (!q || el.innerText.toLowerCase().includes(q)) ? '' : 'none'; });
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+})();
+</script>
+
+<script>
+// PATIENT SYNC PATCH v4 — keeps newly added patients visible in payments, uploads, messages, profiles and search.
+(function(){
+  const DEMO_PATS = [
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function safeParse(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []} }
+  window.OrthoPatients = window.OrthoPatients || {};
+  window.OrthoPatients.getAll = function(){
+    const local=safeParse('ortho_patients');
+    const map=new Map();
+    DEMO_PATS.concat(local).forEach(p=>{ if(p && p.id) map.set(String(p.id), p); });
+    return Array.from(map.values());
+  };
+  window.OrthoPatients.upsert = function(p){
+    if(!p || !p.id) return;
+    const list=safeParse('ortho_patients');
+    const idx=list.findIndex(x=>String(x.id)===String(p.id));
+    if(idx>=0) list[idx]=Object.assign({}, list[idx], p); else list.unshift(p);
+    localStorage.setItem('ortho_patients', JSON.stringify(list));
+    try{ window.dispatchEvent(new CustomEvent('orthoPatientsChanged')); }catch(e){}
+  };
+  window.OrthoPatients.nameById = function(id){ const p=window.OrthoPatients.getAll().find(x=>String(x.id)===String(id)); return p ? (p.name||'') : ''; };
+  window.OrthoPatients.populateSelect = function(sel, opts){
+    if(!sel) return;
+    opts=opts||{}; const current=sel.value; const first=opts.first || 'اختر المريض...';
+    const rows=window.OrthoPatients.getAll();
+    sel.innerHTML='<option value="">'+first+'</option>'+rows.map(p=>'<option value="'+p.id+'">'+(p.name||'بدون اسم')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+    if(current) sel.value=current;
+  };
+  window.OrthoPatients.populateAllControls = function(){
+    window.OrthoPatients.populateSelect(document.getElementById('pay-patient'), {withBalance:true});
+    window.OrthoPatients.populateSelect(document.getElementById('patientSel'));
+    window.OrthoPatients.populateSelect(document.getElementById('msg-patient'));
+    const dl=document.getElementById('patientsList');
+    if(dl) dl.innerHTML=window.OrthoPatients.getAll().map(p=>'<option value="'+(p.name||'')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  };
+  function run(){ window.OrthoPatients.populateAllControls(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('orthoPatientsChanged', run);
+  setTimeout(run, 800); setTimeout(run, 1800);
+})();
+</script>
+
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/dropdowns-senior-fix.js"></script>
 </body>

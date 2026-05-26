@@ -135,8 +135,7 @@
 <script>
 // Firebase is configured — remove offline mode
 (function() {
-  localStorage.removeItem('demo_offline');
-  if (!localStorage.getItem('demo_role')) {
+    if (!localStorage.getItem('demo_role')) {
     localStorage.setItem('demo_role', 'admin');
     localStorage.setItem('demo_name', 'د. أحمد المنصوري');
   }
@@ -204,7 +203,7 @@
           <a href="payments.html" class="ph-btn ph-btn-outline">💰 إضافة دفع</a>
           <a href="result-upload.html" class="ph-btn ph-btn-outline">🔬 رفع نتيجة</a>
           <button class="ph-btn ph-btn-outline" onclick="sendMsg()">💬 إرسال رسالة</button>
-          <button class="ph-btn ph-btn-outline" onclick="window.print()">🖨️ طباعة الملخص</button>
+          <button class="ph-btn ph-btn-outline" onclick="printMedHistory()">🖨️ التقرير الطبي الكامل</button>
         </div>
       </div>
 
@@ -243,7 +242,10 @@
         <div class="card">
           <div class="ch">
             <h2>🩺 سجل الزيارات</h2>
-            <a id="newVisitBtn2" href="doctor-visit.html" class="btn btn-p btn-sm">🩺 زيارة جديدة</a>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-o btn-sm" onclick="printMedHistory()">🖨️ طباعة السجل</button>
+              <a id="newVisitBtn2" href="doctor-visit.html" class="btn btn-p btn-sm">🩺 زيارة جديدة</a>
+            </div>
           </div>
           <div class="cb">
             <div class="timeline" id="visitsTimeline"></div>
@@ -254,7 +256,7 @@
       <!-- TAB: PRESCRIPTIONS -->
       <div class="tab-content" id="tab-prescriptions">
         <div class="card">
-          <div class="ch"><h2>💊 الوصفات الطبية</h2><a href="prescriptions.html" class="btn btn-ghost btn-sm">عرض الكل</a></div>
+          <div class="ch"><h2>💊 الوصفات الطبية</h2><div style="display:flex;gap:8px;"><button class="btn btn-o btn-sm" onclick="printRx(null)">🖨️ طباعة الوصفات</button><a href="prescriptions.html" class="btn btn-ghost btn-sm">عرض الكل</a></div></div>
           <div class="cb" id="rxList"></div>
         </div>
       </div>
@@ -386,12 +388,13 @@
     {type:'result_ready',channel:'sms',msg:'تم استلام نتائج تحاليلك. برجاء التواصل مع العيادة أو حجز متابعة.',time:'2026-05-12',status:'mock_sent'},
   ];
 
-  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
+  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')&&!localStorage.getItem('demo_role')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
 
   async function boot(){
     const nm=localStorage.getItem('demo_name')||'مدير النظام',rl=localStorage.getItem('demo_role')||'admin';
     document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);document.getElementById('sbRl').textContent=roleAr(rl);
     let patient=DEMO_PATIENT;
+    try{const lp=(window.OrthoPatients?window.OrthoPatients.getAll():JSON.parse(localStorage.getItem('ortho_patients')||'[]')).find(p=>String(p.id)===String(patientId)); if(lp) patient={...DEMO_PATIENT,...lp};}catch(e){}
     try{
       if(db&&patientId){
         const snap=await getDoc(doc(db,'patients',patientId));
@@ -460,21 +463,49 @@
     el.innerHTML=visits.map((v,i)=>`
       <div class="tl-item">
         <div class="tl-dot ${v.status==='completed'?'ok':''}"></div>
-        <div class="tl-date">${v.date} · ${v.doctorName||'—'}</div>
-        <div class="tl-card">
-          <div class="tl-title">${v.visitType} — ${v.chiefComplaint}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-            <span class="bdg b-blue">درجة الألم: ${v.painScore}/10</span>
-            ${v.diagnoses?.map(d=>`<span class="bdg b-purple">${d}</span>`).join('')||''}
-            <span class="bdg ${v.status==='completed'?'b-ok':'b-blue'}">${v.status==='completed'?'اكتمل':'جاري'}</span>
+        <div class="tl-date">📅 ${v.date} &nbsp;·&nbsp; 👨‍⚕️ ${v.doctorName||'—'}</div>
+        <div class="tl-card" style="border:1.5px solid var(--border);border-radius:12px;overflow:hidden;">
+          <!-- Visit card header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,#f0f4f8,#e8f1fb);border-bottom:1px solid var(--border);">
+            <div>
+              <div class="tl-title" style="margin-bottom:3px;">${v.visitType} — <span style="color:var(--t2);font-weight:600;">${v.chiefComplaint}</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <span style="background:${v.painScore>=7?'var(--danger-lt)':v.painScore>=4?'var(--warn-lt)':'var(--ok-lt)'};color:${v.painScore>=7?'var(--danger)':v.painScore>=4?'var(--warn)':'var(--ok)'};padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:700;">
+                  درجة الألم: ${v.painScore||'—'}/10
+                </span>
+                <span style="background:${v.status==='completed'?'var(--ok-lt)':'var(--primary-lt)'};color:${v.status==='completed'?'var(--ok)':'var(--primary)'};padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:700;">
+                  ${v.status==='completed'?'✅ مكتملة':'🔄 '+v.status}
+                </span>
+              </div>
+            </div>
+            <button class="btn btn-o btn-sm" onclick="printSingleVisit(${i})">🖨️</button>
           </div>
-          ${v.treatmentPlan?.length?`<div style="font-size:12.5px;color:var(--t2);margin-bottom:8px;">📋 خطة العلاج: ${v.treatmentPlan.join(' · ')}</div>`:''}
-          ${v.doctorNotes?`<div style="background:#fff;border-radius:8px;padding:10px;font-size:13px;color:var(--t2);border:1px solid var(--border-lt);">📝 ${v.doctorNotes}</div>`:''}
-          <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
-            <span style="font-size:12.5px;"><strong>الزيارة:</strong> ${v.visitCost} ج</span>
-            <span style="font-size:12.5px;color:var(--ok);"><strong>مدفوع:</strong> ${v.paid} ج</span>
-            ${v.remaining>0?`<span style="font-size:12.5px;color:var(--danger);"><strong>متبقي:</strong> ${v.remaining} ج</span>`:''}
-            ${v.followUpDate?`<span style="font-size:12.5px;color:var(--purple);">📅 متابعة: ${v.followUpDate}</span>`:''}
+          <!-- Visit body -->
+          <div style="padding:14px 16px;">
+            ${(v.diagnoses||[]).length?`
+              <div style="margin-bottom:10px;">
+                <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">التشخيص</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  ${v.diagnoses.map(d=>`<span style="background:var(--purple-lt);color:var(--purple);border:1px solid #c4b5fd;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;">${d}</span>`).join('')}
+                </div>
+              </div>` : ''}
+            ${(v.treatmentPlan||[]).length?`
+              <div style="margin-bottom:10px;">
+                <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">خطة العلاج</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                  ${v.treatmentPlan.map(t=>`<span style="background:var(--teal-lt);color:var(--teal);border:1px solid rgba(14,196,162,.3);border-radius:6px;padding:2px 9px;font-size:12px;font-weight:600;">${t}</span>`).join('')}
+                </div>
+              </div>` : ''}
+            ${v.doctorNotes?`
+              <div style="background:#f7f9fc;border-right:3px solid var(--primary);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:var(--t2);">
+                <span style="font-weight:700;color:var(--primary);">📝 ملاحظات الطبيب: </span>${v.doctorNotes}
+              </div>` : ''}
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-lt);">
+              <span style="font-size:12.5px;"><strong>💰 تكلفة الزيارة:</strong> ${v.visitCost||0} ج</span>
+              <span style="font-size:12.5px;color:var(--ok);"><strong>مدفوع:</strong> ${v.paid||0} ج</span>
+              ${(v.remaining||0)>0?`<span style="font-size:12.5px;color:var(--danger);font-weight:700;">💸 متبقي: ${v.remaining} ج</span>`:''}
+              ${v.followUpDate?`<span style="font-size:12.5px;color:var(--purple);">📅 متابعة: <strong>${v.followUpDate}</strong></span>`:''}
+            </div>
           </div>
         </div>
       </div>`).join('');
@@ -483,19 +514,26 @@
   function renderRx(rxs,p){
     const el=document.getElementById('rxList');
     if(!rxs.length){el.innerHTML=`<div class="empty"><div class="ei">💊</div><p>لا توجد وصفات</p></div>`;return;}
-    el.innerHTML=rxs.map(rx=>`
-      <div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    el.innerHTML=rxs.map((rx,ri)=>`
+      <div style="border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,#f0f4f8,#e8f1fb);border-bottom:1px solid var(--border);">
           <div>
-            <div style="font-size:14px;font-weight:800;">وصفة ${rx.date}</div>
-            <div style="font-size:12px;color:var(--t3);">د. ${rx.doctor} · متابعة: ${rx.followUpDate}</div>
+            <div style="font-size:14px;font-weight:800;">وصفة طبية — ${rx.date||'—'}</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:2px;">👨‍⚕️ ${rx.doctor||'—'} · متابعة: ${rx.followUpDate||'—'}</div>
           </div>
-          <button class="btn btn-o btn-sm" onclick="printRx('${rx.id}')">🖨️ طباعة</button>
+          <button class="btn btn-p btn-sm" onclick="printRx('${rx.id}')">🖨️ طباعة</button>
         </div>
-        <div style="display:grid;gap:8px;margin-bottom:10px;">
-          ${rx.medications.map((m,i)=>`<div style="background:var(--bg);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;"><span style="background:var(--primary);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;">${i+1}</span><div><div style="font-size:13.5px;font-weight:700;">${m.name}</div><div style="font-size:12px;color:var(--t3);">${m.freq} — ${m.dur}</div></div></div>`).join('')}
+        <div style="padding:14px 18px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:12px;">
+            ${(rx.medications||[]).map((m,i)=>`
+              <div style="background:var(--bg);border-radius:9px;padding:10px 12px;border:1px solid var(--border-lt);">
+                <div style="font-size:13px;font-weight:800;">${i+1}. ${m.name||''}</div>
+                <div style="font-size:11.5px;color:var(--t3);margin-top:3px;">${m.freq||''} · ${m.dur||''}</div>
+              </div>`).join('')}
+          </div>
+          ${(rx.instructions||[]).length?`<div style="background:var(--ok-lt);border:1px solid #a7f3d0;border-radius:8px;padding:10px 14px;font-size:12.5px;"><span style="font-weight:800;color:var(--ok);">📋 تعليمات: </span>${rx.instructions.join(' · ')}</div>`:''}
+          ${rx.followUpDate?`<div style="margin-top:8px;background:var(--primary-lt);border:1px solid #bfdbfe;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--primary);">📅 موعد المتابعة: ${rx.followUpDate}</div>`:''}
         </div>
-        ${rx.instructions?.length?`<div style="background:var(--ok-lt);border-radius:8px;padding:10px 14px;"><div style="font-size:12px;font-weight:700;color:var(--ok);margin-bottom:4px;">تعليمات:</div>${rx.instructions.map(i=>`<div style="font-size:12.5px;">• ${i}</div>`).join('')}</div>`:''}
       </div>`).join('');
   }
 
@@ -545,17 +583,27 @@
     const paid=invoices.reduce((a,i)=>a+i.paid,0);
     const outstanding=invoices.reduce((a,i)=>a+i.remaining,0);
     document.getElementById('paySummary').innerHTML=`
-      <div class="pay-box" style="background:var(--primary-lt);"><div class="pay-box-v" style="color:var(--primary);">${total} ج</div><div class="pay-box-l" style="color:var(--primary);">إجمالي الفواتير</div></div>
-      <div class="pay-box" style="background:var(--ok-lt);"><div class="pay-box-v" style="color:var(--ok);">${paid} ج</div><div class="pay-box-l" style="color:var(--ok);">إجمالي المدفوع</div></div>
-      <div class="pay-box" style="background:${outstanding>0?'var(--danger-lt)':'var(--ok-lt)'};"><div class="pay-box-v" style="color:${outstanding>0?'var(--danger)':'var(--ok)'};">${outstanding} ج</div><div class="pay-box-l" style="color:${outstanding>0?'var(--danger)':'var(--ok)'};">المستحقات</div></div>`;
-    document.getElementById('payTable').innerHTML=invoices.map(inv=>`
+      <div class="pay-box" style="background:var(--primary-lt);">
+        <div class="pay-box-v" style="color:var(--primary);">${total} ج</div>
+        <div class="pay-box-l" style="color:var(--primary);">إجمالي الفواتير</div>
+      </div>
+      <div class="pay-box" style="background:var(--ok-lt);">
+        <div class="pay-box-v" style="color:var(--ok);">${paid} ج</div>
+        <div class="pay-box-l" style="color:var(--ok);">إجمالي المدفوع</div>
+      </div>
+      <div class="pay-box" style="background:${outstanding>0?'var(--danger-lt)':'var(--ok-lt)'};">
+        <div class="pay-box-v" style="color:${outstanding>0?'var(--danger)':'var(--ok)'};">${outstanding} ج</div>
+        <div class="pay-box-l" style="color:${outstanding>0?'var(--danger)':'var(--ok)'};">المستحقات</div>
+      </div>`;
+    document.getElementById('payTable').innerHTML=invoices.map((inv,i)=>`
       <tr>
-        <td>${inv.date}</td>
+        <td style="font-weight:600;">${inv.date}</td>
         <td>${inv.desc}</td>
-        <td style="font-weight:700;">${inv.total} ج</td>
+        <td style="font-weight:900;">${inv.total} ج</td>
         <td style="color:var(--ok);font-weight:700;">${inv.paid} ج</td>
-        <td style="color:${inv.remaining>0?'var(--danger)':'var(--t3)'};font-weight:${inv.remaining>0?700:400};">${inv.remaining} ج</td>
+        <td style="color:${inv.remaining>0?'var(--danger)':'var(--t3)'};font-weight:${inv.remaining>0?800:400};">${inv.remaining} ج</td>
         <td><span class="bdg ${inv.status==='paid'?'b-ok':inv.status==='partially_paid'?'b-warn':'b-danger'}">${inv.status==='paid'?'مدفوع':inv.status==='partially_paid'?'جزئي':'غير مدفوع'}</span></td>
+        <td><button class="btn btn-o btn-sm" onclick="printProfileInvoice(${i})">🖨️</button></td>
       </tr>`).join('');
   }
 
@@ -597,7 +645,195 @@
     btn.classList.add('active');
   };
 
-  window.printRx=id=>{ showToast('فتح نافذة الطباعة...','ok'); setTimeout(()=>window.print(),500); };
+  /* ── Print: single prescription from profile ─────────────── */
+  window.printRx = function(rxId) {
+    if (window.Orthoprint) window.Orthoprint.injectCSS();
+    const rxArr   = DEMO_RX;   // uses page-level demo data
+    const patient = patientData || DEMO_PATIENT;
+    const rxList  = rxId ? rxArr.filter(r => r.id === rxId) : rxArr;
+    if (!rxList.length) { showToast('لا توجد وصفات للطباعة', 'wrn'); return; }
+
+    const hdr = window.Orthoprint ? window.Orthoprint.header('وصفة طبية') : '<div><b>وصفة طبية</b></div>';
+    const ftr = window.Orthoprint ? window.Orthoprint.footer('RX-' + Date.now().toString().slice(-6)) : '';
+
+    const today = new Date().toLocaleDateString('ar-EG', {year:'numeric',month:'long',day:'numeric'});
+
+    const rxHTML = rxList.map((rx, ri) => `
+      <div style="break-inside:avoid;${ri > 0 ? 'margin-top:32px;padding-top:24px;border-top:2px dashed #e2e8f0;' : ''}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="prnt-rx-symbol">Rx</div>
+          <div style="font-size:10pt;color:#718096;">التاريخ: ${rx.date||today} · الطبيب: ${rx.doctor||'—'}</div>
+        </div>
+        ${(rx.medications||[]).map((m,i) => `
+          <div class="prnt-med-item">
+            <div class="prnt-med-num">${i+1}</div>
+            <div>
+              <div class="prnt-med-name">${m.name||''}</div>
+              <div class="prnt-med-detail">${m.freq||''} · ${m.dur||''}</div>
+            </div>
+          </div>`).join('')}
+        ${(rx.instructions||[]).length ? `
+          <div class="prnt-instructions">
+            <div class="prnt-instructions-title">📋 تعليمات للمريض</div>
+            <ul>${(rx.instructions||[]).map(i=>'<li>'+i+'</li>').join('')}</ul>
+          </div>` : ''}
+        ${rx.followUpDate ? `<div class="prnt-followup">📅 موعد المتابعة: <strong>${rx.followUpDate}</strong></div>` : ''}
+      </div>`).join('');
+
+    document.getElementById('profilePrintContent').innerHTML = `
+      ${hdr}
+      <div class="prnt-patient-band">
+        <div class="pf"><div class="pf-label">اسم المريض</div><div class="pf-value">${patient.name}</div></div>
+        <div class="pf"><div class="pf-label">العمر</div><div class="pf-value">${patient.age} سنة</div></div>
+        <div class="pf"><div class="pf-label">رقم الهاتف</div><div class="pf-value">${patient.phone}</div></div>
+        <div class="pf"><div class="pf-label">الجنس</div><div class="pf-value">${patient.gender==='male'?'ذكر':'أنثى'}</div></div>
+        <div class="pf"><div class="pf-label">الحساسية</div><div class="pf-value" style="color:var(--danger);">${(patient.allergies||[]).join('، ')||'لا يوجد'}</div></div>
+        <div class="pf"><div class="pf-label">أمراض مزمنة</div><div class="pf-value">${(patient.chronicDiseases||[]).join('، ')||'لا يوجد'}</div></div>
+      </div>
+      ${rxHTML}
+      <div class="prnt-sig-row">
+        <div class="prnt-sig-col"><div class="prnt-sig-line"></div><div class="prnt-sig-label">توقيع الطبيب</div></div>
+        <div class="prnt-sig-col" style="text-align:center;"><div style="width:80px;height:80px;border:1px dashed #cbd5e0;border-radius:50%;margin:0 auto 6px;"></div><div style="font-size:10pt;color:#718096;">ختم العيادة</div></div>
+        <div class="prnt-sig-col"><div class="prnt-sig-line"></div><div class="prnt-sig-label">توقيع المريض</div></div>
+      </div>
+      ${ftr}`;
+
+    window.print();
+  };
+
+  /* ── Print: full medical history (visits + prescriptions + payments) ── */
+  window.printMedHistory = function() {
+    if (window.Orthoprint) window.Orthoprint.injectCSS();
+    const patient  = patientData || DEMO_PATIENT;
+    const visits   = DEMO_VISITS;
+    const rxs      = DEMO_RX;
+    const invoices = DEMO_INVOICES;
+
+    const hdr = window.Orthoprint ? window.Orthoprint.header('التقرير الطبي الشامل') : '<div><b>التقرير الطبي</b></div>';
+    const ftr = window.Orthoprint ? window.Orthoprint.footer('MH-' + Date.now().toString().slice(-6)) : '';
+
+    const today   = new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+    const totalPaid = invoices.reduce((a,i)=>a+(i.paid||0), 0);
+    const totalOB   = invoices.reduce((a,i)=>a+(i.remaining||0), 0);
+    const totalInv  = invoices.reduce((a,i)=>a+(i.total||0), 0);
+
+    /* Visits HTML */
+    const visitsHTML = visits.map((v, vi) => `
+      <div class="prnt-visit-card">
+        <div class="prnt-visit-header">
+          <div>
+            <div class="prnt-visit-date">📅 ${v.date}</div>
+            <div style="font-size:10pt;color:#718096;margin-top:2px;">👨‍⚕️ ${v.doctorName||'—'} · درجة الألم: ${v.painScore||'—'}/10</div>
+          </div>
+          <span class="prnt-visit-type">${v.visitType}</span>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10pt;font-weight:700;color:#718096;margin-bottom:4px;">الشكوى الرئيسية</div>
+          <div style="font-size:11.5pt;">${v.chiefComplaint||'—'}</div>
+        </div>
+        ${(v.diagnoses||[]).length ? `
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10pt;font-weight:700;color:#718096;margin-bottom:6px;">التشخيص</div>
+            <div>${v.diagnoses.map(d=>`<span class="prnt-diag-chip">${d}</span>`).join('')}</div>
+          </div>` : ''}
+        ${(v.treatmentPlan||[]).length ? `
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10pt;font-weight:700;color:#718096;margin-bottom:4px;">خطة العلاج</div>
+            <div style="font-size:11pt;">${v.treatmentPlan.join(' · ')}</div>
+          </div>` : ''}
+        ${v.doctorNotes ? `
+          <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;border-right:3px solid #1a6fce;">
+            <div style="font-size:10pt;font-weight:700;color:#718096;margin-bottom:3px;">ملاحظات الطبيب</div>
+            <div style="font-size:11pt;">${v.doctorNotes}</div>
+          </div>` : ''}
+        ${v.followUpDate ? `<div style="margin-top:8px;font-size:10.5pt;color:#7c3aed;font-weight:700;">📅 متابعة: ${v.followUpDate}</div>` : ''}
+        <div style="display:flex;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;font-size:10pt;color:#718096;">
+          <span>💰 تكلفة الزيارة: <strong style="color:#1a202c;">${v.visitCost||0} ج</strong></span>
+          <span style="color:var(--ok);">مدفوع: <strong>${v.paid||0} ج</strong></span>
+          ${(v.remaining||0)>0?`<span style="color:var(--danger);">متبقي: <strong>${v.remaining} ج</strong></span>`:''}
+        </div>
+      </div>`).join('');
+
+    /* Financial summary */
+    const finHTML = `
+      <div class="prnt-financial">
+        <div class="prnt-fin-box" style="background:#e8f1fb;">
+          <div class="prnt-fin-v" style="color:#1a6fce;">${totalInv} ج</div>
+          <div class="prnt-fin-l" style="color:#1a6fce;">إجمالي الفواتير</div>
+        </div>
+        <div class="prnt-fin-box" style="background:#ecfdf5;">
+          <div class="prnt-fin-v" style="color:#059669;">${totalPaid} ج</div>
+          <div class="prnt-fin-l" style="color:#059669;">إجمالي المدفوع</div>
+        </div>
+        <div class="prnt-fin-box" style="background:${totalOB>0?'#fff5f5':'#ecfdf5'};">
+          <div class="prnt-fin-v" style="color:${totalOB>0?'#e53e3e':'#059669'};">${totalOB} ج</div>
+          <div class="prnt-fin-l" style="color:${totalOB>0?'#e53e3e':'#059669'};">المستحقات</div>
+        </div>
+      </div>
+      <table class="prnt-table" style="margin-top:14px;">
+        <thead><tr><th>التاريخ</th><th>الخدمة</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th></tr></thead>
+        <tbody>${invoices.map(inv=>`
+          <tr>
+            <td>${inv.date||'—'}</td>
+            <td>${inv.desc||'—'}</td>
+            <td style="font-weight:800;">${inv.total} ج</td>
+            <td style="color:#059669;font-weight:700;">${inv.paid} ج</td>
+            <td style="color:${inv.remaining>0?'#e53e3e':'#718096'};font-weight:${inv.remaining>0?800:400};">${inv.remaining} ج</td>
+            <td>${inv.status==='paid'?'✅ مدفوع':inv.status==='partially_paid'?'⚠️ جزئي':'❌ غير مدفوع'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+
+    document.getElementById('profilePrintContent').innerHTML = `
+      ${hdr}
+
+      <!-- Patient info band -->
+      <div class="prnt-patient-band">
+        <div class="pf"><div class="pf-label">اسم المريض</div><div class="pf-value">${patient.name}</div></div>
+        <div class="pf"><div class="pf-label">العمر / الجنس</div><div class="pf-value">${patient.age} سنة · ${patient.gender==='male'?'ذكر':'أنثى'}</div></div>
+        <div class="pf"><div class="pf-label">رقم الهاتف</div><div class="pf-value">${patient.phone}</div></div>
+        <div class="pf"><div class="pf-label">العنوان</div><div class="pf-value">${patient.address||'—'}</div></div>
+        <div class="pf"><div class="pf-label">الحساسية</div><div class="pf-value" style="color:#e53e3e;">${(patient.allergies||[]).join('، ')||'لا يوجد'}</div></div>
+        <div class="pf"><div class="pf-label">أمراض مزمنة</div><div class="pf-value">${(patient.chronicDiseases||[]).join('، ')||'لا يوجد'}</div></div>
+      </div>
+
+      <!-- Medical history summary bar -->
+      <div style="display:flex;gap:12px;background:#f0f4f8;border-radius:10px;padding:14px 18px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="text-align:center;flex:1;min-width:80px;"><div style="font-size:18pt;font-weight:900;color:#1a6fce;">${patient.totalVisits||visits.length}</div><div style="font-size:9pt;color:#718096;">إجمالي الزيارات</div></div>
+        <div style="text-align:center;flex:1;min-width:80px;"><div style="font-size:18pt;font-weight:900;color:#059669;">${rxs.length}</div><div style="font-size:9pt;color:#718096;">الوصفات</div></div>
+        <div style="text-align:center;flex:1;min-width:80px;"><div style="font-size:18pt;font-weight:900;color:#7c3aed;">${visits.filter(v=>v.status==='completed').length||visits.length}</div><div style="font-size:9pt;color:#718096;">زيارات مكتملة</div></div>
+        <div style="text-align:center;flex:1;min-width:80px;"><div style="font-size:18pt;font-weight:900;color:${totalOB>0?'#e53e3e':'#059669'};">${totalOB} ج</div><div style="font-size:9pt;color:#718096;">المستحقات</div></div>
+      </div>
+
+      <!-- Visit history -->
+      <div class="prnt-sec-title">📋 سجل الزيارات</div>
+      ${visitsHTML}
+
+      <!-- Prescriptions summary -->
+      <div class="prnt-sec-title" style="margin-top:24px;">💊 ملخص الوصفات الطبية</div>
+      ${rxs.map((rx,ri) => `
+        <div style="border:1px solid #e2e8f0;border-radius:9px;padding:14px;margin-bottom:10px;break-inside:avoid;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:12pt;font-weight:800;">وصفة ${rx.date||'—'}</div>
+            <div style="font-size:10pt;color:#718096;">👨‍⚕️ ${rx.doctor||'—'}</div>
+          </div>
+          ${(rx.medications||[]).map((m,i)=>`<div style="font-size:11pt;margin-bottom:4px;">${i+1}. <strong>${m.name||''}</strong> — ${m.freq||''} — ${m.dur||''}</div>`).join('')}
+        </div>`).join('')}
+
+      <!-- Financial -->
+      <div class="prnt-sec-title" style="margin-top:24px;">💰 الملخص المالي</div>
+      ${finHTML}
+
+      <!-- Signature -->
+      <div class="prnt-sig-row">
+        <div class="prnt-sig-col"><div class="prnt-sig-line"></div><div class="prnt-sig-label">توقيع الطبيب المعالج</div></div>
+        <div class="prnt-sig-col" style="text-align:center;"><div style="width:80px;height:80px;border:1px dashed #cbd5e0;border-radius:50%;margin:0 auto 6px;"></div><div style="font-size:10pt;color:#718096;">ختم العيادة</div></div>
+        <div class="prnt-sig-col"><div class="prnt-sig-line"></div><div class="prnt-sig-label">توقيع المريض / ولي الأمر</div></div>
+      </div>
+      ${ftr}`;
+
+    window.print();
+  };
   window.sendMsg=()=>{ window.location.href=`messages.html?patient=${patientId}`; };
   window.logout=async()=>{try{if(auth)await signOut(auth);}catch(e){}localStorage.clear();window.location.href='login.html';};
 
@@ -624,4 +860,168 @@
   }
 })();
 </script>
+
+<script>
+// General search fallback for demo pages: filters visible cards/rows/list items by text.
+(function(){
+  function attach(){
+    const inputs=[...document.querySelectorAll('input[type="search"], input[id*="search"], input[placeholder*="بحث"], .srch')];
+    inputs.forEach(inp=>{
+      if(inp.dataset.searchFallbackAttached) return;
+      inp.dataset.searchFallbackAttached='1';
+      inp.addEventListener('input',()=>{
+        const q=(inp.value||'').trim().toLowerCase();
+        const scope=document.querySelector('.pg')||document.querySelector('main')||document.body;
+        const items=[...scope.querySelectorAll('.pat-card,.req-card,.doc-card,.branch-row,.ai,.msg-item,.rx-card,.pay-card,tbody tr')];
+        if(!items.length) return;
+        items.forEach(el=>{ el.style.display = (!q || el.innerText.toLowerCase().includes(q)) ? '' : 'none'; });
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+})();
+</script>
+
+<script>
+// PATIENT SYNC PATCH v4 — keeps newly added patients visible in payments, uploads, messages, profiles and search.
+(function(){
+  const DEMO_PATS = [
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function safeParse(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []} }
+  window.OrthoPatients = window.OrthoPatients || {};
+  window.OrthoPatients.getAll = function(){
+    const local=safeParse('ortho_patients');
+    const map=new Map();
+    DEMO_PATS.concat(local).forEach(p=>{ if(p && p.id) map.set(String(p.id), p); });
+    return Array.from(map.values());
+  };
+  window.OrthoPatients.upsert = function(p){
+    if(!p || !p.id) return;
+    const list=safeParse('ortho_patients');
+    const idx=list.findIndex(x=>String(x.id)===String(p.id));
+    if(idx>=0) list[idx]=Object.assign({}, list[idx], p); else list.unshift(p);
+    localStorage.setItem('ortho_patients', JSON.stringify(list));
+    try{ window.dispatchEvent(new CustomEvent('orthoPatientsChanged')); }catch(e){}
+  };
+  window.OrthoPatients.nameById = function(id){ const p=window.OrthoPatients.getAll().find(x=>String(x.id)===String(id)); return p ? (p.name||'') : ''; };
+  window.OrthoPatients.populateSelect = function(sel, opts){
+    if(!sel) return;
+    opts=opts||{}; const current=sel.value; const first=opts.first || 'اختر المريض...';
+    const rows=window.OrthoPatients.getAll();
+    sel.innerHTML='<option value="">'+first+'</option>'+rows.map(p=>'<option value="'+p.id+'">'+(p.name||'بدون اسم')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+    if(current) sel.value=current;
+  };
+  window.OrthoPatients.populateAllControls = function(){
+    window.OrthoPatients.populateSelect(document.getElementById('pay-patient'), {withBalance:true});
+    window.OrthoPatients.populateSelect(document.getElementById('patientSel'));
+    window.OrthoPatients.populateSelect(document.getElementById('msg-patient'));
+    const dl=document.getElementById('patientsList');
+    if(dl) dl.innerHTML=window.OrthoPatients.getAll().map(p=>'<option value="'+(p.name||'')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  };
+  function run(){ window.OrthoPatients.populateAllControls(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('orthoPatientsChanged', run);
+  setTimeout(run, 800); setTimeout(run, 1800);
+})();
+</script>
+
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/dropdowns-senior-fix.js"></script>
+
+<!-- ══ PRINT DOCUMENT — hidden on screen, shown on print ══ -->
+<div class="prnt-doc" id="profilePrintDoc">
+  <div id="profilePrintContent"><!-- filled by printMedHistory() --></div>
+</div>
 </body>

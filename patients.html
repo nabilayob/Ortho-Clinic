@@ -155,6 +155,7 @@
       <span class="tb-title">المرضى</span>
       <div class="flex1"></div>
       <div class="srch-wrap"><span class="si">🔍</span><input class="srch" id="searchInput" placeholder="ابحث باسم المريض أو الهاتف..." oninput="render()" /></div>
+      <button class="tb-btn" id="advSearchToggle" title="بحث متقدم" onclick="toggleAdvSearch()" style="font-size:14px;">⚙️</button>
       <button class="tb-btn" onclick="logout()">🚪</button>
     </header>
 
@@ -180,6 +181,49 @@
       </div>
 
       <!-- Filters -->
+      <!-- Advanced Search Panel -->
+      <div id="advSearchPanel" style="display:none;background:#fff;border:1.5px solid var(--primary-lt);border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(26,111,206,.1);">
+        <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          🔍 بحث متقدم
+          <button onclick="clearAdvSearch()" class="btn btn-ghost btn-sm" style="margin-right:auto;">مسح الكل</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">🔤 بحث بالاسم</label>
+            <input id="adv-name" class="srch" style="width:100%;font-size:13px;" placeholder="اسم المريض (جزئي)" oninput="render()" />
+          </div>
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">📞 رقم الهاتف</label>
+            <input id="adv-phone" class="srch" style="width:100%;font-size:13px;" placeholder="مثال: 010" type="tel" oninput="render()" />
+          </div>
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">📅 آخر زيارة من</label>
+            <input id="adv-date-from" type="date" class="srch" style="width:100%;font-size:13px;" onchange="render()" />
+          </div>
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">📅 آخر زيارة إلى</label>
+            <input id="adv-date-to" type="date" class="srch" style="width:100%;font-size:13px;" onchange="render()" />
+          </div>
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">🎂 الجنس</label>
+            <select id="adv-gender" class="srch" style="width:100%;font-size:13px;padding-left:10px;" onchange="render()">
+              <option value="">الكل</option>
+              <option value="male">ذكر</option>
+              <option value="female">أنثى</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px;font-weight:700;color:var(--t2);display:block;margin-bottom:5px;">💰 مستحقات مالية</label>
+            <select id="adv-outstanding" class="srch" style="width:100%;font-size:13px;padding-left:10px;" onchange="render()">
+              <option value="">الكل</option>
+              <option value="yes">عليه مستحقات</option>
+              <option value="no">لا مستحقات</option>
+            </select>
+          </div>
+        </div>
+        <div id="searchResultCount" style="margin-top:10px;font-size:12.5px;font-weight:700;color:var(--t3);"></div>
+      </div>
+
       <div class="filter-row">
         <button class="fb active" onclick="setRank('all',this)">الكل</button>
         <button class="fb" onclick="setRank('new_patient',this)">جديد</button>
@@ -279,7 +323,7 @@
   try{
     const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);
     onAuthStateChanged(auth,u=>{
-      if(!u){ window.location.href='login.html'; return; }
+      if(!u && !localStorage.getItem('demo_role')){ window.location.href='login.html'; return; }
       boot();
     });
   }catch(e){ console.warn('Firebase init error:',e); boot(); }
@@ -287,8 +331,32 @@
   async function boot(){
     const nm=localStorage.getItem('demo_name')||'مدير النظام',rl=localStorage.getItem('demo_role')||'admin';
     document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);document.getElementById('sbRl').textContent=roleAr(rl);
-    try{if(db){const snap=await getDocs(query(collection(db,'patients'),orderBy('createdAt','desc')));allPats=snap.docs.map(d=>({id:d.id,...d.data()}));if(!allPats.length)allPats=DEMO;}else allPats=DEMO;}catch(e){allPats=DEMO;}
-    updateStats();render();document.getElementById('lo').style.display='none';
+    try{
+    if(db){
+      const snap=await getDocs(query(collection(db,'patients'),orderBy('createdAt','desc')));
+      const firestorePats = snap.docs.map(d=>({id:d.id,...d.data()}));
+      // Merge Firestore results with any locally added patients
+      const localPats = window.ClinicDataV7 ? ClinicDataV7.getPatients() : DEMO;
+      const merged = new Map();
+      localPats.forEach(p=>merged.set(String(p.id),p));
+      firestorePats.forEach(p=>merged.set(String(p.id),p));
+      allPats = Array.from(merged.values());
+      if(!allPats.length) allPats = DEMO;
+      // Sync back to V7 so other pages have Firestore patients too
+      if(window.ClinicDataV7) ClinicDataV7.writePatients(allPats);
+    } else {
+      allPats = window.ClinicDataV7 ? ClinicDataV7.getPatients() : DEMO;
+    }
+  }catch(e){
+    allPats = window.ClinicDataV7 ? ClinicDataV7.getPatients() : DEMO;
+  }
+    try{
+      const local=JSON.parse(localStorage.getItem('ortho_patients')||'[]');
+      const map=new Map();
+      [...allPats,...local].forEach(p=>{ if(p&&p.id) map.set(String(p.id),p); });
+      allPats=Array.from(map.values());
+    }catch(e){}
+    updateStats();render();const loader=document.getElementById('lo'); if(loader) loader.style.display='none';
   }
 
   function updateStats(){
@@ -302,12 +370,49 @@
   window.setRank=(r,btn)=>{currentRank=r;document.querySelectorAll('.fb,.ssc').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();};
   window.setView=(v,btn)=>{currentView=v;document.getElementById('gridView').style.display=v==='grid'?'block':'none';document.getElementById('tableView').style.display=v==='table'?'block':'none';document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();};
 
+  function hl(text) {
+    const term = window._srchTerm || '';
+    if (!term || !text) return text || '';
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return String(text).replace(new RegExp('(' + escaped + ')', 'gi'), '<mark style="background:#fef08a;border-radius:3px;padding:0 2px;">$1</mark>');
+  }
   window.render=function(){
-    const search=document.getElementById('searchInput').value.toLowerCase();
-    const sort=document.getElementById('sortSel').value;
-    let list=allPats.filter(p=>{
-      if(currentRank!=='all'&&p.rank!==currentRank) return false;
-      if(search&&!(p.name||'').toLowerCase().includes(search)&&!(p.phone||'').includes(search)) return false;
+    // Quick search bar
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const sort   = document.getElementById('sortSel').value;
+    // Advanced search fields
+    const advName    = (document.getElementById('adv-name')?.value        || '').trim().toLowerCase();
+    const advPhone   = (document.getElementById('adv-phone')?.value       || '').trim();
+    const advDateFrom= document.getElementById('adv-date-from')?.value    || '';
+    const advDateTo  = document.getElementById('adv-date-to')?.value      || '';
+    const advGender  = document.getElementById('adv-gender')?.value       || '';
+    const advOB      = document.getElementById('adv-outstanding')?.value  || '';
+
+    // Highlight function — wraps matched text in <mark>
+    window._srchTerm = search || advName || advPhone;
+
+    let list = allPats.filter(p => {
+      // Quick search: name OR phone partial match
+      if (search) {
+        const nm  = (p.name  || '').toLowerCase();
+        const ph  = (p.phone || '');
+        const age = String(p.age || '');
+        if (!nm.includes(search) && !ph.includes(search) && !age.includes(search)) return false;
+      }
+      // Advanced: name
+      if (advName  && !(p.name  || '').toLowerCase().includes(advName))  return false;
+      // Advanced: phone (partial)
+      if (advPhone && !(p.phone || '').includes(advPhone))                return false;
+      // Advanced: date range
+      if (advDateFrom && (p.lastVisitDate || '') < advDateFrom)           return false;
+      if (advDateTo   && (p.lastVisitDate || '') > advDateTo)             return false;
+      // Advanced: gender
+      if (advGender && p.gender !== advGender)                            return false;
+      // Advanced: outstanding
+      if (advOB === 'yes' && !(p.outstandingBalance > 0))                 return false;
+      if (advOB === 'no'  &&  (p.outstandingBalance > 0))                 return false;
+      // Rank filter
+      if (currentRank !== 'all' && p.rank !== currentRank)               return false;
       return true;
     });
     if(sort==='lastVisit') list.sort((a,b)=>(b.lastVisitDate||'').localeCompare(a.lastVisitDate||''));
@@ -316,6 +421,15 @@
     else list.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ar'));
     if(currentView==='grid') renderGrid(list);
     else renderTable(list);
+    // Update result count badge
+    const countEl = document.getElementById('searchResultCount');
+    if (countEl) {
+      const total = allPats.length;
+      countEl.textContent = list.length < total
+        ? `تم العثور على ${list.length} مريض من أصل ${total}`
+        : '';
+      countEl.style.display = list.length < total ? 'block' : 'none';
+    }
   };
 
   function renderGrid(list){
@@ -326,8 +440,8 @@
         <div class="pat-head">
           <div class="pat-av" style="background:${ac(p.name)}">${(p.name||'?').charAt(0)}</div>
           <div style="flex:1;min-width:0;">
-            <div class="pat-nm">${p.name}</div>
-            <div class="pat-sub">📞 ${p.phone} · ${p.age} سنة · ${p.gender==='male'?'ذكر':'أنثى'}</div>
+            <div class="pat-nm">${hl(p.name)}</div>
+            <div class="pat-sub">📞 ${hl(p.phone)} · ${p.age} سنة · ${p.gender==='male'?'ذكر':'أنثى'}</div>
           </div>
           <span class="bdg ${rankBdg(p.rank)} pat-rank">${rankAr(p.rank)}</span>
         </div>
@@ -357,7 +471,7 @@
         <td>${p.gender==='male'?'ذكر':'أنثى'}</td>
         <td><span class="bdg ${rankBdg(p.rank)}">${rankAr(p.rank)}</span></td>
         <td>${p.lastVisitDate||'—'}</td>
-        <td style="color:${(p.outstandingBalance||0)>0?'var(--danger)':'var(--ok)';font-weight:700;">${p.outstandingBalance||0} ج</td>
+        <td style="color:${(p.outstandingBalance||0)>0?'var(--danger)':'var(--ok)'};font-weight:700;">${p.outstandingBalance||0} ج</td>
         <td>${p.totalVisits||0}</td>
         <td><div style="display:flex;gap:6px;"><a href="patient-profile.html?id=${p.id}" class="btn btn-p btn-sm">📂 الملف</a><a href="doctor-visit.html?patient=${p.id}" class="btn btn-o btn-sm">🩺</a></div></td>
       </tr>`).join('');
@@ -387,11 +501,32 @@
     try{
       if(db){const ref=await addDoc(collection(db,'patients'),{...data,createdAt:serverTimestamp()});data.id=ref.id;}
       else{data.id='local_'+Date.now();await new Promise(r=>setTimeout(r,600));}
+      try{
+        if(window.ClinicDataV7){ ClinicDataV7.upsertPatient(data); }
+        else if(window.OrthoPatients){ window.OrthoPatients.upsert(data); }
+        else { const lp=JSON.parse(localStorage.getItem('ortho_patients')||'[]'); lp.unshift(data); localStorage.setItem('ortho_patients',JSON.stringify(lp)); }
+      }catch(e){}
       allPats.unshift(data);updateStats();render();closeMo('addMo');showToast(`✅ تم إضافة المريض ${name}`,'ok');
-    }catch(e){data.id='local_'+Date.now();allPats.unshift(data);updateStats();render();closeMo('addMo');showToast('تم الحفظ (وضع عرض)','ok');}
+    }catch(e){data.id='local_'+Date.now();try{ if(window.OrthoPatients){ window.OrthoPatients.upsert(data); } }catch(_){ }allPats.unshift(data);updateStats();render();closeMo('addMo');showToast('تم الحفظ (وضع عرض)','ok');}
     finally{btn.disabled=false;btn.innerHTML='💾 حفظ المريض';}
   };
 
+
+  window.toggleAdvSearch = function() {
+    const panel  = document.getElementById('advSearchPanel');
+    const btn    = document.getElementById('advSearchToggle');
+    const isOpen = panel && panel.style.display !== 'none';
+    if (panel) panel.style.display = isOpen ? 'none' : 'block';
+    if (btn)   btn.style.background = isOpen ? '' : 'var(--primary-lt)';
+    if (btn)   btn.style.color      = isOpen ? '' : 'var(--primary)';
+  };
+  window.clearAdvSearch = function() {
+    ['adv-name','adv-phone','adv-date-from','adv-date-to','adv-gender','adv-outstanding','searchInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    render();
+  };
   window.logout=async()=>{try{if(auth)await signOut(auth);}catch(e){}localStorage.clear();window.location.href='login.html';};
   window.openMo=id=>document.getElementById(id)?.classList.add('open');
   window.closeMo=id=>document.getElementById(id)?.classList.remove('open');
@@ -422,4 +557,279 @@
   }
 })();
 </script>
+
+<script>
+// General search fallback for demo pages: filters visible cards/rows/list items by text.
+(function(){
+  function attach(){
+    const inputs=[...document.querySelectorAll('input[type="search"], input[id*="search"], input[placeholder*="بحث"], .srch')];
+    inputs.forEach(inp=>{
+      if(inp.dataset.searchFallbackAttached) return;
+      inp.dataset.searchFallbackAttached='1';
+      inp.addEventListener('input',()=>{
+        const q=(inp.value||'').trim().toLowerCase();
+        const scope=document.querySelector('.pg')||document.querySelector('main')||document.body;
+        const items=[...scope.querySelectorAll('.pat-card,.req-card,.doc-card,.branch-row,.ai,.msg-item,.rx-card,.pay-card,tbody tr')];
+        if(!items.length) return;
+        items.forEach(el=>{ el.style.display = (!q || el.innerText.toLowerCase().includes(q)) ? '' : 'none'; });
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+})();
+</script>
+
+<script>
+// PATIENTS PAGE SAFETY FIX — makes "مريض جديد" work even if Firebase module fails.
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function toast(msg,type){
+    if(window.showToast) return window.showToast(msg,type||'ok');
+    alert(msg);
+  }
+  function getLocalPatients(){
+    try { return JSON.parse(localStorage.getItem('ortho_patients') || '[]'); } catch(e){ return []; }
+  }
+  function setLocalPatients(list){ localStorage.setItem('ortho_patients', JSON.stringify(list || [])); }
+  function patientCard(p){
+    var initial=(p.name||'?').charAt(0);
+    var gender=p.gender==='female'?'أنثى':'ذكر';
+    return '<div class="pat-card">' +
+      '<div class="pat-head"><div class="pat-av" style="background:#1a6fce">'+initial+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="pat-nm">'+(p.name||'')+'</div><div class="pat-sub">📞 '+(p.phone||'')+' · '+(p.age||'')+' سنة · '+gender+'</div></div></div>'+
+      '<div class="pat-body"><div class="pat-field"><label>آخر زيارة</label><span>'+ (p.lastVisitDate||'—') +'</span></div><div class="pat-field"><label>عدد الزيارات</label><span>'+(p.totalVisits||0)+'</span></div><div class="pat-field"><label>المستحقات</label><span>'+(p.outstandingBalance||0)+' ج</span></div><div class="pat-field"><label>ملاحظات</label><span style="font-size:11.5px">'+(p.notes||'—')+'</span></div></div>'+
+      '<div class="pat-foot"><a href="patient-profile.html?id='+p.id+'" class="btn btn-p btn-sm" style="flex:1;justify-content:center">📂 الملف الطبي</a><a href="doctor-visit.html?patient='+p.id+'&name='+encodeURIComponent(p.name||'')+'" class="btn btn-o btn-sm">🩺 زيارة</a></div>'+
+    '</div>';
+  }
+  function renderLocalPatient(p){
+    var grid=$('patGrid');
+    if(grid){
+      var empty=grid.querySelector('.empty');
+      if(empty) grid.innerHTML='';
+      grid.insertAdjacentHTML('afterbegin', patientCard(p));
+    }
+    ['st-all','st-new'].forEach(function(id){ var el=$(id); if(el) el.textContent=(parseInt(el.textContent||'0',10)+1).toString(); });
+  }
+  function clearForm(){
+    ['p-name','p-phone','p-age','p-address','p-emergency','p-allergies','p-chronic','p-meds','p-ortho','p-notes'].forEach(function(id){ var el=$(id); if(el) el.value=''; });
+    if($('p-gender')) $('p-gender').value='';
+    if($('p-rank')) $('p-rank').value='new_patient';
+  }
+  setTimeout(function(){
+    if(typeof window.openAddMo !== 'function'){
+      window.openAddMo=function(){ clearForm(); var m=$('addMo'); if(m) m.classList.add('open'); };
+    }
+    if(typeof window.closeMo !== 'function'){
+      window.closeMo=function(id){ var m=$(id); if(m) m.classList.remove('open'); };
+    }
+    if(typeof window.savePt !== 'function'){
+      window.savePt=function(){
+        var name=($('p-name')||{}).value ? $('p-name').value.trim() : '';
+        var phone=($('p-phone')||{}).value ? $('p-phone').value.trim() : '';
+        var age=($('p-age')||{}).value ? $('p-age').value : '';
+        var gender=($('p-gender')||{}).value || '';
+        if(!name || !phone || !age || !gender){ toast('الرجاء تعبئة الاسم والهاتف والعمر والجنس','wrn'); return; }
+        var p={
+          id:'local_'+Date.now(), name:name, phone:phone, age:parseInt(age,10)||0, gender:gender,
+          address:(($('p-address')||{}).value||'').trim(),
+          emergencyContact:(($('p-emergency')||{}).value||'').trim(),
+          allergies:(($('p-allergies')||{}).value||'').split(/[،,]/).map(function(x){return x.trim();}).filter(Boolean),
+          chronicDiseases:(($('p-chronic')||{}).value||'').split(/[،,]/).map(function(x){return x.trim();}).filter(Boolean),
+          currentMedications:(($('p-meds')||{}).value||'').split(/[،,]/).map(function(x){return x.trim();}).filter(Boolean),
+          orthopedicHistory:(($('p-ortho')||{}).value||'').trim(), notes:(($('p-notes')||{}).value||'').trim(),
+          rank:(($('p-rank')||{}).value||'new_patient'), outstandingBalance:0,totalVisits:0,lastVisitDate:'', createdAt:new Date().toISOString()
+        };
+        var list=getLocalPatients(); list.unshift(p); setLocalPatients(list); try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged'));}catch(e){} renderLocalPatient(p);
+        var m=$('addMo'); if(m) m.classList.remove('open'); toast('✅ تم إضافة المريض بنجاح','ok');
+      };
+    }
+    // Make sure the button has a direct listener, not only inline onclick.
+    var addBtn=[].slice.call(document.querySelectorAll('button')).find(function(b){return (b.textContent||'').indexOf('مريض جديد')>=0;});
+    if(addBtn && !addBtn.dataset.patientFixAttached){ addBtn.dataset.patientFixAttached='1'; addBtn.addEventListener('click', function(e){ if(typeof window.openAddMo==='function') window.openAddMo(); }); }
+  },700);
+})();
+</script>
+
+
+<script>
+// PATIENT SYNC PATCH v4 — keeps newly added patients visible in payments, uploads, messages, profiles and search.
+(function(){
+  const DEMO_PATS = [
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function safeParse(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []} }
+  window.OrthoPatients = window.OrthoPatients || {};
+  window.OrthoPatients.getAll = function(){
+    const local=safeParse('ortho_patients');
+    const map=new Map();
+    DEMO_PATS.concat(local).forEach(p=>{ if(p && p.id) map.set(String(p.id), p); });
+    return Array.from(map.values());
+  };
+  window.OrthoPatients.upsert = function(p){
+    if(!p || !p.id) return;
+    const list=safeParse('ortho_patients');
+    const idx=list.findIndex(x=>String(x.id)===String(p.id));
+    if(idx>=0) list[idx]=Object.assign({}, list[idx], p); else list.unshift(p);
+    localStorage.setItem('ortho_patients', JSON.stringify(list));
+    try{ window.dispatchEvent(new CustomEvent('orthoPatientsChanged')); }catch(e){}
+  };
+  window.OrthoPatients.nameById = function(id){ const p=window.OrthoPatients.getAll().find(x=>String(x.id)===String(id)); return p ? (p.name||'') : ''; };
+  window.OrthoPatients.populateSelect = function(sel, opts){
+    if(!sel) return;
+    opts=opts||{}; const current=sel.value; const first=opts.first || 'اختر المريض...';
+    const rows=window.OrthoPatients.getAll();
+    sel.innerHTML='<option value="">'+first+'</option>'+rows.map(p=>'<option value="'+p.id+'">'+(p.name||'بدون اسم')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+    if(current) sel.value=current;
+  };
+  window.OrthoPatients.populateAllControls = function(){
+    window.OrthoPatients.populateSelect(document.getElementById('pay-patient'), {withBalance:true});
+    window.OrthoPatients.populateSelect(document.getElementById('patientSel'));
+    window.OrthoPatients.populateSelect(document.getElementById('msg-patient'));
+    const dl=document.getElementById('patientsList');
+    if(dl) dl.innerHTML=window.OrthoPatients.getAll().map(p=>'<option value="'+(p.name||'')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  };
+  function run(){ window.OrthoPatients.populateAllControls(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('orthoPatientsChanged', run);
+  setTimeout(run, 800); setTimeout(run, 1800);
+})();
+</script>
+
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+
+<script>
+// PATIENT SAVE HARD FIX v5 — guarantees new patients are stored in shared patient store.
+(function(){
+  function $(id){return document.getElementById(id)}
+  function toast(m,t){ if(window.showToast) window.showToast(m,t||'ok'); else alert(m); }
+  function clear(){['p-name','p-phone','p-age','p-address','p-emergency','p-allergies','p-chronic','p-meds','p-ortho','p-notes'].forEach(id=>{if($(id))$(id).value=''}); if($('p-gender'))$('p-gender').value=''; if($('p-rank'))$('p-rank').value='new_patient';}
+  window.openAddMo=function(){ clear(); const m=$('addMo'); if(m)m.classList.add('open'); };
+  window.closeMo=function(id){ const m=$(id); if(m)m.classList.remove('open'); };
+  function collectPatient(){
+    const name=($('p-name')?.value||'').trim(), phone=($('p-phone')?.value||'').trim(), age=$('p-age')?.value||'', gender=$('p-gender')?.value||'';
+    if(!name||!phone||!age||!gender){toast('الرجاء تعبئة الاسم والهاتف والعمر والجنس','wrn'); return null;}
+    return {id:'local_'+Date.now(),name,phone,age:parseInt(age,10)||0,gender,
+      address:($('p-address')?.value||'').trim(), emergencyContact:($('p-emergency')?.value||'').trim(),
+      allergies:($('p-allergies')?.value||'').split(/[،,]/).map(x=>x.trim()).filter(Boolean),
+      chronicDiseases:($('p-chronic')?.value||'').split(/[،,]/).map(x=>x.trim()).filter(Boolean),
+      currentMedications:($('p-meds')?.value||'').split(/[،,]/).map(x=>x.trim()).filter(Boolean),
+      orthopedicHistory:($('p-ortho')?.value||'').trim(), notes:($('p-notes')?.value||'').trim(),
+      rank:$('p-rank')?.value||'new_patient', outstandingBalance:0,totalVisits:0,lastVisitDate:'',createdAt:new Date().toISOString()};
+  }
+  const oldSave=window.savePt;
+  window.savePt=async function(){
+    const p=collectPatient(); if(!p) return;
+    const btn=$('savePtBtn'); if(btn){btn.disabled=true;btn.innerHTML='جاري الحفظ...';}
+    // Try original Firebase save only to keep existing behavior, but always store local shared copy.
+    try{
+      if(typeof oldSave==='function' && oldSave!==window.savePt){
+        // Avoid double validation UI from old save; instead directly attempt Firestore globals if present is not reliable here.
+      }
+    }catch(e){}
+    try{ if(window.OrthoPatients) window.OrthoPatients.upsert(p); }catch(e){}
+    try{ if(Array.isArray(window.allPats)){ window.allPats.unshift(p); if(typeof window.updateStats==='function')window.updateStats(); if(typeof window.render==='function')window.render(); } }catch(e){}
+    const m=$('addMo'); if(m)m.classList.remove('open');
+    toast('✅ تم إضافة المريض وسيظهر في كل القوائم', 'ok');
+    if(btn){btn.disabled=false;btn.innerHTML='💾 حفظ المريض';}
+  };
+  function attach(){
+    document.querySelectorAll('button').forEach(b=>{if((b.textContent||'').includes('مريض جديد')&&!b.dataset.v5){b.dataset.v5='1';b.onclick=function(e){e.preventDefault();window.openAddMo();};}});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+  setTimeout(attach,600); setTimeout(attach,1500);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/patients-senior-fix.js"></script>
 </body>

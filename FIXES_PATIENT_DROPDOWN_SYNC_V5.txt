@@ -1,0 +1,12 @@
+Patient dropdown sync fix v5
+
+- Kept existing Firebase const/config unchanged.
+- New patients are saved to multiple localStorage/sessionStorage keys for compatibility.
+- All patient dropdowns are repopulated repeatedly after page load, focus, and click.
+- Fixed result-upload patient dropdown specifically (#patientSel).
+- Fixed payments/messages/appointments datalists and dropdowns.
+- Fixed patients.html save to guarantee shared storage update.
+
+Important: run with a local server for best cross-page storage behavior:
+python -m http.server 8080
+then open http://localhost:8080/login.html

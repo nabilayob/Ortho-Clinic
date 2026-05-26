@@ -1,0 +1,55 @@
+FIXES v7 — Doctor & Patient Sync
+==================================
+
+ROOT CAUSE ANALYSIS
+-------------------
+Bug 1 (Doctor edits not reflected):
+  - settings.html saved doctors to Firestore + localStorage['clinic_doctors']
+  - appointments.html, prescriptions.html, book.html had HARDCODED <option> elements
+    for dr1/dr2/dr3 — they NEVER read from any storage, so edits were invisible
+
+Bug 2 (New patients not searchable/selectable):
+  - patients.html wrote to: localStorage['ortho_patients'] via OrthoPatients.upsert()
+  - Other pages read from: localStorage['ORTHO_PATIENTS_MASTER'] via clinic-data.js
+  - Different keys → writes were lost between pages
+
+FIXES APPLIED
+-------------
+1. NEW: js/clinic-data-v7.js — canonical shared data layer
+   - Single source of truth: ORTHO_DOCTORS_V7 + ORTHO_PATIENTS_V7
+   - Reads ALL legacy keys for backward compat, writes to canonical + legacy
+   - populateAllDoctorControls() — replaces all doctor <select> options at runtime
+   - populateAllPatientControls() — fills patient selects + datalists at runtime
+   - BroadcastChannel + storage event → syncs across open tabs instantly
+   - Injected into ALL 16 HTML files (before </head>)
+
+2. settings.html — 5 patches:
+   - loadDoctors(): after Firestore load → ClinicDataV7.writeDoctors() sync
+   - saveDoctor() Firestore path: → ClinicDataV7.upsertDoctor() after save
+   - saveDoctor() add Firestore: → ClinicDataV7.upsertDoctor() with real Firestore ID
+   - saveDoctor() localStorage fallback: → ClinicDataV7.upsertDoctor()
+   - deleteDoctor(): → ClinicDataV7.deleteDoctor()
+
+3. patients.html — 3 patches:
+   - savePt(): writes to ClinicDataV7.upsertPatient() (replaces OrthoPatients.upsert)
+   - boot(): merges Firestore + V7 localStorage patients, syncs back to V7
+   - Cross-tab listener: re-reads V7 on orthoPatientsChanged event
+
+4. Doctor dropdowns — hardcoded options removed:
+   - appointments.html: drFilter select + f-doctor select
+   - prescriptions.html: doctor filter select
+   - clinic-data-v7.js populates them at runtime from real doctor data
+
+FLOW AFTER FIX
+--------------
+Edit doctor in settings.html:
+  → ClinicDataV7.upsertDoctor() writes ORTHO_DOCTORS_V7
+  → BroadcastChannel fires
+  → All pages listening call populateAllDoctorControls()
+  → Every doctor <select> is repopulated with updated data ✅
+
+Add patient in patients.html:
+  → ClinicDataV7.upsertPatient() writes ORTHO_PATIENTS_V7 + all legacy keys
+  → BroadcastChannel fires
+  → result-upload, payments, appointments, messages repopulate patient selects ✅
+  → patients.html search renders new patient in list ✅

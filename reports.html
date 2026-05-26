@@ -63,8 +63,7 @@
 <script>
 // Firebase is configured — remove offline mode
 (function() {
-  localStorage.removeItem('demo_offline');
-  if (!localStorage.getItem('demo_role')) {
+    if (!localStorage.getItem('demo_role')) {
     localStorage.setItem('demo_role', 'admin');
     localStorage.setItem('demo_name', 'د. أحمد المنصوري');
   }
@@ -98,70 +97,133 @@
   <main class="main">
     <header class="topbar"><span class="tb-title">التقارير والإحصائيات</span><div class="flex1"></div><button class="tb-btn" onclick="window.print()">🖨️</button><button class="tb-btn" onclick="logout()">🚪</button></header>
     <div class="pg">
-      <div class="ph"><div><h1>📋 التقارير والإحصائيات</h1><p>مايو 2026 — العيادة الرئيسية</p></div></div>
-      <!-- KPIs -->
-      <div class="grid-4">
-        <div class="kpi"><div class="kpi-v" style="color:var(--primary);">247</div><div class="kpi-l">إجمالي الزيارات هذا الشهر</div><div class="kpi-chg" style="color:var(--ok);">↑ 18% عن الشهر الماضي</div></div>
-        <div class="kpi"><div class="kpi-v" style="color:var(--ok);">41,200 ج</div><div class="kpi-l">إجمالي الإيرادات</div><div class="kpi-chg" style="color:var(--ok);">↑ 22% عن الشهر الماضي</div></div>
-        <div class="kpi"><div class="kpi-v" style="color:var(--warn);">14</div><div class="kpi-l">مرضى جدد</div><div class="kpi-chg" style="color:var(--ok);">↑ 8% نمو</div></div>
-        <div class="kpi"><div class="kpi-v" style="color:var(--danger);">8.3%</div><div class="kpi-l">نسبة الغياب بدون إشعار</div><div class="kpi-chg" style="color:var(--ok);">↓ تحسن</div></div>
+      <!-- Page header -->
+      <div class="ph" style="align-items:center;">
+        <div>
+          <h1>📋 التقارير والإحصائيات</h1>
+          <p id="reportPeriod">مايو 2026 — العيادة الرئيسية</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="reportPeriodSel" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'Cairo',sans-serif;background:#fff;" onchange="updatePeriodLabel()">
+            <option value="month">هذا الشهر</option>
+            <option value="quarter">هذا الربع</option>
+            <option value="year">هذه السنة</option>
+            <option value="all">كل الأوقات</option>
+          </select>
+          <button class="btn btn-p" onclick="printReport()">🖨️ طباعة التقرير</button>
+        </div>
       </div>
+
+      <!-- KPIs -->
+      <div class="grid-4" style="margin-bottom:22px;">
+        <div class="kpi" style="border-top:4px solid var(--primary);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="width:42px;height:42px;background:var(--primary-lt);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">📅</div>
+            <div class="kpi-chg" style="color:var(--ok);">↑ 18%</div>
+          </div>
+          <div class="kpi-v" style="color:var(--primary);">247</div>
+          <div class="kpi-l">إجمالي الزيارات</div>
+        </div>
+        <div class="kpi" style="border-top:4px solid var(--ok);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="width:42px;height:42px;background:var(--ok-lt);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
+            <div class="kpi-chg" style="color:var(--ok);">↑ 22%</div>
+          </div>
+          <div class="kpi-v" style="color:var(--ok);">41,200 ج</div>
+          <div class="kpi-l">إجمالي الإيرادات</div>
+        </div>
+        <div class="kpi" style="border-top:4px solid var(--warn);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="width:42px;height:42px;background:var(--warn-lt);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
+            <div class="kpi-chg" style="color:var(--ok);">↑ 8%</div>
+          </div>
+          <div class="kpi-v" style="color:var(--warn);">14</div>
+          <div class="kpi-l">مرضى جدد</div>
+        </div>
+        <div class="kpi" style="border-top:4px solid var(--danger);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="width:42px;height:42px;background:var(--danger-lt);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">⚠️</div>
+            <div class="kpi-chg" style="color:var(--ok);">↓ تحسن</div>
+          </div>
+          <div class="kpi-v" style="color:var(--danger);">8.3%</div>
+          <div class="kpi-l">نسبة الغياب</div>
+        </div>
+      </div>
+
       <div class="grid-2">
         <!-- Top Diagnoses -->
         <div class="card">
-          <div class="ch"><h2>🏥 أكثر التشخيصات شيوعاً</h2></div>
-          <div class="cb">
-            <div class="bar-row"><div class="bar-label"><span>هشاشة الركبة</span><span style="font-weight:800;">42 حالة</span></div><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--primary);"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>انزلاق الغضروف القطني</span><span style="font-weight:800;">31 حالة</span></div><div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--purple);"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>التهاب الوتر الكتفي</span><span style="font-weight:800;">24 حالة</span></div><div class="bar-track"><div class="bar-fill" style="width:49%;background:var(--ok);"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>عرق النسا</span><span style="font-weight:800;">18 حالة</span></div><div class="bar-track"><div class="bar-fill" style="width:37%;background:var(--warn);"></div></div></div>
-            <div class="bar-row"><div class="bar-label"><span>كسور العظام</span><span style="font-weight:800;">15 حالة</span></div><div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--danger);"></div></div></div>
+          <div class="ch" style="background:linear-gradient(135deg,#f0f4f8,#e8f1fb);">
+            <h2>🏥 أكثر التشخيصات شيوعاً</h2>
+            <span style="font-size:12px;color:var(--t3);">هذا الشهر</span>
           </div>
+          <div class="cb" id="diagChart"></div>
         </div>
         <!-- Revenue by Doctor -->
         <div class="card">
-          <div class="ch"><h2>👨‍⚕️ الإيرادات حسب الطبيب</h2></div>
-          <div class="cb">
-            <div class="rep-row"><div><div class="rep-label">د. أحمد المنصوري</div><div style="font-size:12px;color:var(--t3);">122 زيارة</div></div><div class="rep-val" style="color:var(--primary);">19,800 ج</div></div>
-            <div class="rep-row"><div><div class="rep-label">د. سارة الخولي</div><div style="font-size:12px;color:var(--t3);">87 زيارة</div></div><div class="rep-val" style="color:var(--ok);">14,200 ج</div></div>
-            <div class="rep-row"><div><div class="rep-label">د. محمود رضا</div><div style="font-size:12px;color:var(--t3);">38 زيارة</div></div><div class="rep-val" style="color:var(--warn);">7,200 ج</div></div>
+          <div class="ch" style="background:linear-gradient(135deg,#f0f4f8,#e8f1fb);">
+            <h2>👨‍⚕️ الإيرادات حسب الطبيب</h2>
+            <span style="font-size:12px;color:var(--t3);">مايو 2026</span>
           </div>
+          <div class="cb" id="docRevChart"></div>
         </div>
         <!-- Booking Conversion -->
         <div class="card">
-          <div class="ch"><h2>🌐 تحويل الحجز الإلكتروني</h2></div>
+          <div class="ch" style="background:linear-gradient(135deg,#f0f4f8,#e8f1fb);">
+            <h2>🌐 تحويل الحجز الإلكتروني</h2>
+          </div>
           <div class="cb">
-            <div class="rep-row"><span class="rep-label">إجمالي طلبات الحجز</span><span class="rep-val">28</span></div>
-            <div class="rep-row"><span class="rep-label">تم التأكيد</span><span class="rep-val" style="color:var(--ok);">21</span></div>
-            <div class="rep-row"><span class="rep-label">تم الرفض</span><span class="rep-val" style="color:var(--danger);">4</span></div>
-            <div class="rep-row"><span class="rep-label">قيد الانتظار</span><span class="rep-val" style="color:var(--warn);">3</span></div>
-            <div class="rep-row"><span class="rep-label">نسبة التحويل</span><span class="rep-val" style="color:var(--primary);">75%</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+                <div style="font-size:24px;font-weight:900;color:var(--primary);">28</div>
+                <div style="font-size:11.5px;color:var(--t3);font-weight:600;">إجمالي الطلبات</div>
+              </div>
+              <div style="background:var(--ok-lt);border-radius:10px;padding:12px;text-align:center;">
+                <div style="font-size:24px;font-weight:900;color:var(--ok);">75%</div>
+                <div style="font-size:11.5px;color:var(--t3);font-weight:600;">نسبة التحويل</div>
+              </div>
+            </div>
+            <div id="bookingChart"></div>
           </div>
         </div>
         <!-- Appointment Status -->
         <div class="card">
-          <div class="ch"><h2>📅 حالة المواعيد</h2></div>
-          <div class="cb">
-            <div class="rep-row"><span class="rep-label">مكتملة</span><span class="rep-val" style="color:var(--ok);">198</span></div>
-            <div class="rep-row"><span class="rep-label">ملغاة</span><span class="rep-val" style="color:var(--danger);">23</span></div>
-            <div class="rep-row"><span class="rep-label">لم يحضر</span><span class="rep-val" style="color:var(--warn);">26</span></div>
-            <div class="rep-row"><span class="rep-label">نسبة الحضور</span><span class="rep-val" style="color:var(--primary);">80.2%</span></div>
+          <div class="ch" style="background:linear-gradient(135deg,#f0f4f8,#e8f1fb);">
+            <h2>📅 حالة المواعيد</h2>
           </div>
+          <div class="cb" id="apptStatusChart"></div>
         </div>
       </div>
-      <!-- Outstanding Patients -->
+
+      <!-- Outstanding Patients Table -->
       <div class="card">
-        <div class="ch"><h2>💸 تقرير المستحقات</h2></div>
+        <div class="ch" style="background:linear-gradient(135deg,#fff5f5,#fff0f0);">
+          <h2 style="color:var(--danger);">💸 تقرير المستحقات المالية</h2>
+          <span style="font-size:12px;color:var(--danger);">يحتاج متابعة</span>
+        </div>
         <div style="overflow-x:auto;">
-          <table><thead><tr><th>المريض</th><th>الهاتف</th><th>عدد الزيارات</th><th>المستحق</th><th>آخر زيارة</th><th>الحالة</th></tr></thead>
-          <tbody>
-            <tr><td>أحمد محمد علي</td><td>01001234567</td><td>8</td><td style="color:var(--danger);font-weight:800;">500 ج</td><td>10 مايو 2026</td><td><span class="bdg b-warn">معتدل</span></td></tr>
-            <tr><td>عمر عبدالله</td><td>01445678901</td><td>12</td><td style="color:var(--danger);font-weight:800;">1,200 ج</td><td>5 مايو 2026</td><td><span class="bdg" style="background:#fff5f5;color:#e53e3e;">عالي</span></td></tr>
-            <tr><td>سلوى إبراهيم</td><td>01778901234</td><td>7</td><td style="color:var(--danger);font-weight:800;">2,000 ج</td><td>1 مايو 2026</td><td><span class="bdg" style="background:#fff5f5;color:#e53e3e;">عالي جداً</span></td></tr>
-            <tr><td>كريم فاروق</td><td>01667890123</td><td>2</td><td style="color:var(--danger);font-weight:800;">300 ج</td><td>20 أبريل 2026</td><td><span class="bdg b-warn">منخفض</span></td></tr>
-          </tbody></table>
+          <table id="outstandingTable">
+            <thead>
+              <tr>
+                <th>المريض</th>
+                <th>رقم الهاتف</th>
+                <th>عدد الزيارات</th>
+                <th>المستحق</th>
+                <th>آخر زيارة</th>
+                <th>الأولوية</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="outstandingBody"></tbody>
+          </table>
         </div>
       </div>
+
+      <!-- Print Document (hidden) -->
+      <div class="prnt-doc" id="reportPrintDoc">
+        <div id="reportPrintContent"></div>
+      </div>
+
     </div>
   </main>
 </div>
@@ -169,7 +231,146 @@
 const nm=localStorage.getItem('demo_name')||'مدير النظام';
 document.getElementById('sbNm').textContent=nm;document.getElementById('sbAv').textContent=nm.charAt(0);
 document.getElementById('sbRl').textContent={admin:'مدير النظام',doctor:'طبيب',receptionist:'استقبال',finance:'حسابات'}[localStorage.getItem('demo_role')||'admin']||'Admin';
-window.logout=()=>{localStorage.clear();window.location.href='login.html';};
+
+  const DIAG_DATA = [
+    {label:'هشاشة الركبة',        v:42, color:'var(--primary)'},
+    {label:'انزلاق الغضروف',       v:31, color:'var(--purple)'},
+    {label:'التهاب الوتر الكتفي',  v:24, color:'var(--ok)'},
+    {label:'عرق النسا',            v:18, color:'var(--warn)'},
+    {label:'كسور العظام',          v:15, color:'var(--danger)'},
+    {label:'تهاب المفاصل الروماتيزمي',v:11, color:'var(--teal)'},
+  ];
+  const DOC_REV = [
+    {name:'د. أحمد المنصوري', visits:122, rev:19800, color:'var(--primary)'},
+    {name:'د. سارة الخولي',   visits:87,  rev:14200, color:'var(--ok)'},
+    {name:'د. محمود رضا',     visits:38,  rev:7200,  color:'var(--warn)'},
+  ];
+  const BOOKING_DATA = [
+    {label:'مؤكد',      v:21, color:'var(--ok)'},
+    {label:'مرفوض',     v:4,  color:'var(--danger)'},
+    {label:'انتظار',    v:3,  color:'var(--warn)'},
+  ];
+  const APPT_STATUS = [
+    {label:'مكتملة',    v:198, color:'var(--ok)'},
+    {label:'ملغاة',     v:23,  color:'var(--danger)'},
+    {label:'لم يحضر',   v:26,  color:'var(--warn)'},
+    {label:'محجوزة',    v:12,  color:'var(--primary)'},
+  ];
+  const OUTSTANDING_PATS = [
+    {name:'سلوى إبراهيم',  phone:'01778901234', visits:7,  ob:2000, last:'1 مايو 2026',   priority:'عالي جداً', id:'pt8'},
+    {name:'عمر عبدالله',   phone:'01445678901', visits:12, ob:1200, last:'5 مايو 2026',   priority:'عالي',      id:'pt5'},
+    {name:'أحمد محمد علي', phone:'01001234567', visits:8,  ob:500,  last:'10 مايو 2026',  priority:'متوسط',     id:'pt1'},
+    {name:'كريم فاروق',    phone:'01667890123', visits:2,  ob:300,  last:'20 أبريل 2026', priority:'منخفض',     id:'pt7'},
+  ];
+
+  function renderBarChart(containerId, data, maxV) {
+    const max = maxV || Math.max(...data.map(d=>d.v));
+    document.getElementById(containerId).innerHTML = data.map(d=>`
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;">
+          <span style="font-weight:600;">${d.label}</span>
+          <span style="font-weight:800;color:${d.color};">${d.v}${d.suffix||''}</span>
+        </div>
+        <div style="background:var(--bg);border-radius:99px;height:10px;overflow:hidden;">
+          <div style="width:${Math.round(d.v/max*100)}%;height:100%;background:${d.color};border-radius:99px;transition:width 1s ease;"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderDocRevChart() {
+    const maxRev = Math.max(...DOC_REV.map(d=>d.rev));
+    document.getElementById('docRevChart').innerHTML = DOC_REV.map(dr=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:10px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:${dr.color};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;">${dr.name.charAt(3)}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:800;">${dr.name}</div>
+          <div style="font-size:11.5px;color:var(--t3);">${dr.visits} زيارة</div>
+          <div style="background:#fff;border-radius:99px;height:6px;margin-top:6px;overflow:hidden;">
+            <div style="width:${Math.round(dr.rev/maxRev*100)}%;height:100%;background:${dr.color};border-radius:99px;"></div>
+          </div>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:${dr.color};">${(dr.rev/1000).toFixed(1)}k ج</div>
+      </div>`).join('');
+  }
+
+  function renderOutstanding() {
+    document.getElementById('outstandingBody').innerHTML = OUTSTANDING_PATS.map(p=>{
+      const pColor = p.ob>=2000?'var(--danger)':p.ob>=1000?'var(--warn)':'var(--t2)';
+      const prColor= p.priority==='عالي جداً'?'var(--danger)':p.priority==='عالي'?'var(--warn)':p.priority==='متوسط'?'var(--primary)':'var(--ok)';
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:34px;height:34px;border-radius:50%;background:${ac(p.name)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">${p.name.charAt(0)}</div><div style="font-weight:700;">${p.name}</div></div></td>
+        <td style="direction:ltr;text-align:right;">${p.phone}</td>
+        <td style="text-align:center;font-weight:700;">${p.visits}</td>
+        <td><span style="font-size:15px;font-weight:900;color:${pColor};">${p.ob} ج</span></td>
+        <td style="color:var(--t3);">${p.last}</td>
+        <td><span style="background:${prColor};color:#fff;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${p.priority}</span></td>
+        <td><a href="patient-profile.html?id=${p.id}" class="btn btn-o btn-sm">الملف</a></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updatePeriodLabel() {
+    const val = document.getElementById('reportPeriodSel').value;
+    const labels = {month:'مايو 2026',quarter:'الربع الثاني 2026',year:'السنة المالية 2026',all:'كل الأوقات'};
+    document.getElementById('reportPeriod').textContent = labels[val] + ' — العيادة الرئيسية';
+  }
+
+  window.printReport = function() {
+    if(window.Orthoprint) window.Orthoprint.injectCSS();
+    const today = new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+    const period = document.getElementById('reportPeriodSel').value;
+    const periodLabels = {month:'مايو 2026',quarter:'الربع الثاني 2026',year:'السنة 2026',all:'كل الأوقات'};
+    const hdr = window.Orthoprint ? window.Orthoprint.header('تقرير إحصائي') : '<div><b>تقرير</b></div>';
+    const ftr = window.Orthoprint ? window.Orthoprint.footer('RPT-'+Date.now().toString().slice(-6)) : '';
+
+    document.getElementById('reportPrintContent').innerHTML = `
+      ${hdr}
+      <div style="background:#f0f4f8;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:11pt;color:var(--t2);">
+        الفترة: <strong>${periodLabels[period]}</strong> &nbsp;|&nbsp; طُبع: <strong>${today}</strong>
+      </div>
+      <div class="prnt-kpi-grid">
+        <div class="prnt-kpi-box"><div class="prnt-kpi-v" style="color:var(--primary);">247</div><div class="prnt-kpi-l">إجمالي الزيارات</div></div>
+        <div class="prnt-kpi-box"><div class="prnt-kpi-v" style="color:var(--ok);">41,200 ج</div><div class="prnt-kpi-l">إجمالي الإيرادات</div></div>
+        <div class="prnt-kpi-box"><div class="prnt-kpi-v" style="color:var(--warn);">14</div><div class="prnt-kpi-l">مرضى جدد</div></div>
+        <div class="prnt-kpi-box"><div class="prnt-kpi-v" style="color:var(--danger);">8.3%</div><div class="prnt-kpi-l">نسبة الغياب</div></div>
+      </div>
+      <div class="prnt-sec-title">أكثر التشخيصات شيوعاً</div>
+      <div>${DIAG_DATA.map(d=>`
+        <div class="prnt-bar-row">
+          <div class="prnt-bar-label">${d.label}</div>
+          <div class="prnt-bar-track"><div class="prnt-bar-fill" style="width:${Math.round(d.v/42*100)}%;background:${d.color};"></div></div>
+          <div class="prnt-bar-val">${d.v} حالة</div>
+        </div>`).join('')}</div>
+      <div class="prnt-sec-title">الإيرادات حسب الطبيب</div>
+      <table class="prnt-table">
+        <thead><tr><th>الطبيب</th><th>عدد الزيارات</th><th>الإيرادات</th></tr></thead>
+        <tbody>${DOC_REV.map(dr=>`<tr><td style="font-weight:700;">${dr.name}</td><td style="text-align:center;">${dr.visits}</td><td style="font-weight:800;color:${dr.color};">${dr.rev.toLocaleString()} ج</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="prnt-sec-title">المستحقات المالية</div>
+      <table class="prnt-table">
+        <thead><tr><th>المريض</th><th>الهاتف</th><th>المستحق</th><th>آخر زيارة</th><th>الأولوية</th></tr></thead>
+        <tbody>${OUTSTANDING_PATS.map(p=>`<tr><td style="font-weight:700;">${p.name}</td><td>${p.phone}</td><td style="font-weight:900;color:var(--danger);">${p.ob} ج</td><td>${p.last}</td><td>${p.priority}</td></tr>`).join('')}</tbody>
+      </table>
+      ${ftr}`;
+
+    window.print();
+  };
+
+  // ── Render all charts ──
+  function renderAll() {
+    renderBarChart('diagChart', DIAG_DATA);
+    renderDocRevChart();
+    renderBarChart('bookingChart', BOOKING_DATA, 28);
+    renderBarChart('apptStatusChart', APPT_STATUS);
+    renderOutstanding();
+  }
+
+  function ac(n){const cols=['#1a6fce','#7c3aed','#059669','#d97706','#e53e3e','#0ec4a2'];let s=0;for(const ch of n)s+=ch.charCodeAt(0);return cols[s%cols.length];}
+
+  document.addEventListener('DOMContentLoaded', renderAll);
+  setTimeout(renderAll, 200);
+
+  window.logout=()=>{localStorage.clear();window.location.href='login.html';};
 document.getElementById('lo').style.display='none';
 </script>
 
@@ -186,4 +387,163 @@ document.getElementById('lo').style.display='none';
   }
 })();
 </script>
+
+<script>
+// General search fallback for demo pages: filters visible cards/rows/list items by text.
+(function(){
+  function attach(){
+    const inputs=[...document.querySelectorAll('input[type="search"], input[id*="search"], input[placeholder*="بحث"], .srch')];
+    inputs.forEach(inp=>{
+      if(inp.dataset.searchFallbackAttached) return;
+      inp.dataset.searchFallbackAttached='1';
+      inp.addEventListener('input',()=>{
+        const q=(inp.value||'').trim().toLowerCase();
+        const scope=document.querySelector('.pg')||document.querySelector('main')||document.body;
+        const items=[...scope.querySelectorAll('.pat-card,.req-card,.doc-card,.branch-row,.ai,.msg-item,.rx-card,.pay-card,tbody tr')];
+        if(!items.length) return;
+        items.forEach(el=>{ el.style.display = (!q || el.innerText.toLowerCase().includes(q)) ? '' : 'none'; });
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+})();
+</script>
+
+<script>
+// PATIENT SYNC PATCH v4 — keeps newly added patients visible in payments, uploads, messages, profiles and search.
+(function(){
+  const DEMO_PATS = [
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function safeParse(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []} }
+  window.OrthoPatients = window.OrthoPatients || {};
+  window.OrthoPatients.getAll = function(){
+    const local=safeParse('ortho_patients');
+    const map=new Map();
+    DEMO_PATS.concat(local).forEach(p=>{ if(p && p.id) map.set(String(p.id), p); });
+    return Array.from(map.values());
+  };
+  window.OrthoPatients.upsert = function(p){
+    if(!p || !p.id) return;
+    const list=safeParse('ortho_patients');
+    const idx=list.findIndex(x=>String(x.id)===String(p.id));
+    if(idx>=0) list[idx]=Object.assign({}, list[idx], p); else list.unshift(p);
+    localStorage.setItem('ortho_patients', JSON.stringify(list));
+    try{ window.dispatchEvent(new CustomEvent('orthoPatientsChanged')); }catch(e){}
+  };
+  window.OrthoPatients.nameById = function(id){ const p=window.OrthoPatients.getAll().find(x=>String(x.id)===String(id)); return p ? (p.name||'') : ''; };
+  window.OrthoPatients.populateSelect = function(sel, opts){
+    if(!sel) return;
+    opts=opts||{}; const current=sel.value; const first=opts.first || 'اختر المريض...';
+    const rows=window.OrthoPatients.getAll();
+    sel.innerHTML='<option value="">'+first+'</option>'+rows.map(p=>'<option value="'+p.id+'">'+(p.name||'بدون اسم')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+    if(current) sel.value=current;
+  };
+  window.OrthoPatients.populateAllControls = function(){
+    window.OrthoPatients.populateSelect(document.getElementById('pay-patient'), {withBalance:true});
+    window.OrthoPatients.populateSelect(document.getElementById('patientSel'));
+    window.OrthoPatients.populateSelect(document.getElementById('msg-patient'));
+    const dl=document.getElementById('patientsList');
+    if(dl) dl.innerHTML=window.OrthoPatients.getAll().map(p=>'<option value="'+(p.name||'')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  };
+  function run(){ window.OrthoPatients.populateAllControls(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('orthoPatientsChanged', run);
+  setTimeout(run, 800); setTimeout(run, 1800);
+})();
+</script>
+
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/dropdowns-senior-fix.js"></script>
 </body>

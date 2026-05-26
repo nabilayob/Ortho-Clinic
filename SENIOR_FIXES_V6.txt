@@ -1,0 +1,7 @@
+Senior fixes v6:
+- Existing Firebase config/constants in HTML files were not changed.
+- Added shared data layer js/clinic-data.js for reliable local demo storage across pages, including file:// fallback using window.name.
+- patients.html: add/edit/delete patients, search, card/table rendering, shared patient sync.
+- New patients populate all patient dropdowns/search lists across result-upload, payments, appointments, messages, etc.
+- result-upload.html: patient name search, lab templates, apply/append templates, any file type upload metadata, save result works.
+- AI read is demo-safe and fills extracted values automatically without external API/CORS.

@@ -102,21 +102,20 @@
 <div id="tc"></div>
 
 <!-- PRINTABLE RX -->
-<div class="rx-print-page" id="rxPrintPage">
-  <div style="border-bottom:3px solid #1a6fce;padding-bottom:16px;margin-bottom:20px;">
-    <div style="font-size:22px;font-weight:900;color:#1a6fce;">عيادة د. أحمد المنصوري</div>
-    <div style="font-size:14px;font-weight:600;color:#4a5568;">استشاري جراحة العظام والمفاصل</div>
-    <div style="font-size:12px;color:#718096;">تليفون: 01001234567 · المعادي، القاهرة</div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;" id="pxInfo"></div>
-  <div style="font-size:36px;font-weight:900;color:#1a6fce;margin-bottom:14px;">Rx</div>
+<div class="prnt-doc" id="rxPrintPage">
+  <!-- Header filled by printRx() -->
+  <div id="pxHeader"></div>
+  <!-- Patient band -->
+  <div id="pxPatientBand"></div>
+  <!-- RX symbol + meds -->
   <div id="pxMeds"></div>
-  <div style="border-top:1px solid #e2e8f0;margin-top:16px;padding-top:14px;" id="pxInstr"></div>
-  <div style="margin-top:12px;background:#eff6ff;border-radius:8px;padding:12px 16px;font-weight:700;color:#1e40af;" id="pxFollowup"></div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;border-top:2px solid #e2e8f0;padding-top:20px;">
-    <div style="font-size:12px;color:#718096;">العيادة: 01001234567 · المعادي، القاهرة</div>
-    <div style="text-align:center;"><div style="border-bottom:1px solid #718096;width:160px;height:50px;margin-bottom:6px;"></div><div style="font-size:12px;color:#718096;">توقيع الطبيب</div></div>
-  </div>
+  <!-- Instructions -->
+  <div id="pxInstr"></div>
+  <!-- Follow-up -->
+  <div id="pxFollowup"></div>
+  <!-- Signature + footer -->
+  <div id="pxSig"></div>
+  <div id="pxFooter"></div>
 </div>
 
 <div class="shell">
@@ -173,9 +172,7 @@
         <div class="flex1"></div>
         <select style="border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'Cairo',sans-serif;background:#fff;" onchange="filterByDoctor(this.value)">
           <option value="">جميع الأطباء</option>
-          <option value="dr1">د. أحمد المنصوري</option>
-          <option value="dr2">د. سارة الخولي</option>
-          <option value="dr3">د. محمود رضا</option>
+          <!-- populated by clinic-data-v7.js -->
         </select>
       </div>
 
@@ -222,7 +219,7 @@
       instructions:['راحة نسبية','تمارين الكتف'],followUpDate:'2026-06-07',diagnoses:['Rotator cuff tendinopathy']},
   ];
 
-  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
+  try{const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);onAuthStateChanged(auth,u=>{if(!u&&!localStorage.getItem('demo_offline')&&!localStorage.getItem('demo_role')){window.location.href='login.html';return;}boot();});}catch(e){boot();}
 
   async function boot(){
     const nm=localStorage.getItem('demo_name')||'مدير النظام',rl=localStorage.getItem('demo_role')||'admin';
@@ -263,35 +260,37 @@
     const el=document.getElementById('rxList');
     if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">💊</div><h3>لا توجد وصفات</h3></div>`;return;}
     el.innerHTML=list.map(rx=>`
-      <div class="rx-card">
+      <div class="rx-card" style="border-right:4px solid #1a6fce;">
         <div class="rx-head">
           <div class="rx-av" style="background:${ac(rx.patientName)}">${(rx.patientName||'?').charAt(0)}</div>
-          <div class="rx-info">
-            <div class="rx-patient">${rx.patientName}</div>
-            <div class="rx-meta">
-              <span>👨‍⚕️ ${rx.doctorName||'—'}</span>
+          <div class="rx-info" style="flex:1;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div class="rx-patient">${rx.patientName}</div>
+              ${rx.diagnoses?.length ? rx.diagnoses.map(d=>`<span style="background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;border-radius:6px;padding:2px 9px;font-size:11px;font-weight:700;">${d}</span>`).join('') : ''}
+            </div>
+            <div class="rx-meta" style="margin-top:5px;">
+              <span style="font-weight:700;color:var(--primary);">👨‍⚕️ ${rx.doctorName||'—'}</span>
               <span>📅 ${rx.date}</span>
               <span>🩺 ${rx.visitType||'—'}</span>
-              <span>💊 ${rx.medications?.length||0} أدوية</span>
+              <span style="background:var(--primary-lt);color:var(--primary);padding:2px 8px;border-radius:99px;font-weight:700;">💊 ${rx.medications?.length||0} أدوية</span>
             </div>
-            ${rx.diagnoses?.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${rx.diagnoses.map(d=>`<span class="bdg b-blue">${d}</span>`).join('')}</div>`:''}
           </div>
           <div class="rx-actions">
-            <button class="btn btn-o btn-sm" onclick="printRx('${rx.id}')">🖨️ طباعة</button>
+            <button class="btn btn-p btn-sm" onclick="printRx('${rx.id}')">🖨️ طباعة</button>
             <a href="patient-profile.html?id=${rx.patientId||''}" class="btn btn-o btn-sm">👤 الملف</a>
           </div>
         </div>
         <div class="rx-body">
-          ${rx.medications?.map((m,i)=>`
-            <div class="med-row">
-              <div class="med-num2">${i+1}</div>
-              <div>
-                <div class="med-name">${m.name}</div>
-                <div class="med-detail">${m.freq} — ${m.dur} — ${m.instr}</div>
-              </div>
-            </div>`).join('')||''}
-          ${rx.instructions?.length?`<div class="instr-box">📋 التعليمات: ${rx.instructions.join(' · ')}</div>`:''}
-          ${rx.followUpDate?`<div class="followup-box">📅 موعد المتابعة: ${rx.followUpDate}</div>`:''}
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:10px;">
+          ${(rx.medications||[]).map((m,i)=>`
+            <div style="background:var(--bg);border-radius:9px;padding:10px 12px;border:1px solid var(--border-lt);">
+              <div style="font-size:12.5px;font-weight:800;color:var(--text);">${i+1}. ${m.name||''}</div>
+              <div style="font-size:11.5px;color:var(--t3);margin-top:3px;">${m.freq||''} · ${m.dur||''}</div>
+              <div style="font-size:11px;color:var(--t4);">${m.instr||''}</div>
+            </div>`).join('')}
+          </div>
+          ${rx.instructions?.length?`<div class="instr-box">📋 ${rx.instructions.join(' · ')}</div>`:''}
+          ${rx.followUpDate?`<div class="followup-box">📅 موعد المتابعة: <strong>${rx.followUpDate}</strong></div>`:''}
         </div>
       </div>`).join('');
   };
@@ -299,19 +298,81 @@
   window.printRx = (id) => {
     const rx = allRx.find(r=>r.id===id);
     if(!rx) return;
-    document.getElementById('pxInfo').innerHTML=`
-      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">اسم المريض</div><div style="font-size:15px;font-weight:800;">${rx.patientName}</div></div>
-      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التاريخ</div><div style="font-size:15px;font-weight:800;">${rx.date}</div></div>
-      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">الطبيب</div><div style="font-size:15px;font-weight:800;">${rx.doctorName||'—'}</div></div>
-      <div style="background:#f7f9fc;border-radius:8px;padding:10px 14px;"><div style="font-size:11px;font-weight:700;color:#718096;">التشخيص</div><div style="font-size:13px;font-weight:700;">${rx.diagnoses?.join(' · ')||'—'}</div></div>`;
-    document.getElementById('pxMeds').innerHTML=rx.medications?.map((m,i)=>`
-      <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:10px;">
-        <div style="font-size:15px;font-weight:800;">${i+1}. ${m.name}</div>
-        <div style="font-size:13px;color:#4a5568;margin-top:3px;">${m.freq} — ${m.dur} — ${m.instr}</div>
-      </div>`).join('')||'';
-    document.getElementById('pxInstr').innerHTML=rx.instructions?.length
-      ? `<div style="font-size:14px;font-weight:800;margin-bottom:10px;">تعليمات:</div>${rx.instructions.map(i=>`<div style="font-size:13px;margin-bottom:5px;">• ${i}</div>`).join('')}` : '';
-    document.getElementById('pxFollowup').textContent=rx.followUpDate?`📅 موعد المتابعة: ${rx.followUpDate}`:'';
+    if(window.Orthoprint) window.Orthoprint.injectCSS();
+
+    const rxNum = 'RX-' + (rx.id||id).toString().slice(-6).toUpperCase();
+    const today = new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+
+    // Header
+    const hdr = window.Orthoprint ? window.Orthoprint.header('وصفة طبية') : '<div><b>وصفة طبية</b></div>';
+    document.getElementById('pxHeader').innerHTML = hdr;
+
+    // Patient band
+    document.getElementById('pxPatientBand').innerHTML = `
+      <div class="prnt-patient-band">
+        <div class="pf"><div class="pf-label">اسم المريض</div><div class="pf-value">${rx.patientName||'—'}</div></div>
+        <div class="pf"><div class="pf-label">الطبيب المعالج</div><div class="pf-value">${rx.doctorName||'—'}</div></div>
+        <div class="pf"><div class="pf-label">تاريخ الوصفة</div><div class="pf-value">${rx.date||today}</div></div>
+        <div class="pf"><div class="pf-label">نوع الزيارة</div><div class="pf-value">${rx.visitType||'كشف'}</div></div>
+        <div class="pf"><div class="pf-label">رقم الوصفة</div><div class="pf-value">${rxNum}</div></div>
+        <div class="pf"><div class="pf-label">التشخيص</div><div class="pf-value" style="font-size:11pt;">${(rx.diagnoses||[]).join(' · ')||'—'}</div></div>
+      </div>`;
+
+    // Rx symbol + meds
+    const meds = (rx.medications||[]).map((m,i)=>`
+      <div class="prnt-med-item">
+        <div class="prnt-med-num">${i+1}</div>
+        <div>
+          <div class="prnt-med-name">${m.name||''}</div>
+          <div class="prnt-med-detail">
+            ${m.dose?'الجرعة: '+m.dose+' &nbsp;·&nbsp; ':''} 
+            التكرار: ${m.freq||''} &nbsp;·&nbsp; 
+            المدة: ${m.dur||''} &nbsp;·&nbsp; 
+            ${m.instr||''}
+          </div>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('pxMeds').innerHTML =
+      '<div class="prnt-rx-symbol">Rx</div>' +
+      (meds || '<p style="color:#718096;font-size:11pt;">لا توجد أدوية</p>');
+
+    // Instructions
+    const instrList = (rx.instructions||[]);
+    document.getElementById('pxInstr').innerHTML = instrList.length ? `
+      <div class="prnt-instructions">
+        <div class="prnt-instructions-title">📋 تعليمات للمريض</div>
+        <ul>${instrList.map(i=>'<li>'+i+'</li>').join('')}</ul>
+      </div>` : '';
+
+    // Follow-up
+    document.getElementById('pxFollowup').innerHTML = rx.followUpDate ? `
+      <div class="prnt-followup">
+        📅 موعد المتابعة: <strong>${rx.followUpDate}</strong>
+        ${rx.followUpReason ? ' — ' + rx.followUpReason : ''}
+      </div>` : '';
+
+    // Signature
+    document.getElementById('pxSig').innerHTML = `
+      <div class="prnt-sig-row">
+        <div class="prnt-sig-col">
+          <div class="prnt-sig-line"></div>
+          <div class="prnt-sig-label">توقيع الطبيب</div>
+        </div>
+        <div class="prnt-sig-col" style="text-align:center;">
+          <div style="font-size:10pt;color:#718096;">ختم العيادة</div>
+          <div style="width:80px;height:80px;border:1px dashed #cbd5e0;border-radius:50%;margin:6px auto;"></div>
+        </div>
+        <div class="prnt-sig-col">
+          <div class="prnt-sig-line"></div>
+          <div class="prnt-sig-label">توقيع المريض / استلام</div>
+        </div>
+      </div>`;
+
+    // Footer
+    const ftr = window.Orthoprint ? window.Orthoprint.footer(rxNum) : '';
+    document.getElementById('pxFooter').innerHTML = ftr;
+
     window.print();
   };
 
@@ -338,4 +399,163 @@
   }
 })();
 </script>
+
+<script>
+// General search fallback for demo pages: filters visible cards/rows/list items by text.
+(function(){
+  function attach(){
+    const inputs=[...document.querySelectorAll('input[type="search"], input[id*="search"], input[placeholder*="بحث"], .srch')];
+    inputs.forEach(inp=>{
+      if(inp.dataset.searchFallbackAttached) return;
+      inp.dataset.searchFallbackAttached='1';
+      inp.addEventListener('input',()=>{
+        const q=(inp.value||'').trim().toLowerCase();
+        const scope=document.querySelector('.pg')||document.querySelector('main')||document.body;
+        const items=[...scope.querySelectorAll('.pat-card,.req-card,.doc-card,.branch-row,.ai,.msg-item,.rx-card,.pay-card,tbody tr')];
+        if(!items.length) return;
+        items.forEach(el=>{ el.style.display = (!q || el.innerText.toLowerCase().includes(q)) ? '' : 'none'; });
+      });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',attach); else attach();
+})();
+</script>
+
+<script>
+// PATIENT SYNC PATCH v4 — keeps newly added patients visible in payments, uploads, messages, profiles and search.
+(function(){
+  const DEMO_PATS = [
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function safeParse(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []} }
+  window.OrthoPatients = window.OrthoPatients || {};
+  window.OrthoPatients.getAll = function(){
+    const local=safeParse('ortho_patients');
+    const map=new Map();
+    DEMO_PATS.concat(local).forEach(p=>{ if(p && p.id) map.set(String(p.id), p); });
+    return Array.from(map.values());
+  };
+  window.OrthoPatients.upsert = function(p){
+    if(!p || !p.id) return;
+    const list=safeParse('ortho_patients');
+    const idx=list.findIndex(x=>String(x.id)===String(p.id));
+    if(idx>=0) list[idx]=Object.assign({}, list[idx], p); else list.unshift(p);
+    localStorage.setItem('ortho_patients', JSON.stringify(list));
+    try{ window.dispatchEvent(new CustomEvent('orthoPatientsChanged')); }catch(e){}
+  };
+  window.OrthoPatients.nameById = function(id){ const p=window.OrthoPatients.getAll().find(x=>String(x.id)===String(id)); return p ? (p.name||'') : ''; };
+  window.OrthoPatients.populateSelect = function(sel, opts){
+    if(!sel) return;
+    opts=opts||{}; const current=sel.value; const first=opts.first || 'اختر المريض...';
+    const rows=window.OrthoPatients.getAll();
+    sel.innerHTML='<option value="">'+first+'</option>'+rows.map(p=>'<option value="'+p.id+'">'+(p.name||'بدون اسم')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+    if(current) sel.value=current;
+  };
+  window.OrthoPatients.populateAllControls = function(){
+    window.OrthoPatients.populateSelect(document.getElementById('pay-patient'), {withBalance:true});
+    window.OrthoPatients.populateSelect(document.getElementById('patientSel'));
+    window.OrthoPatients.populateSelect(document.getElementById('msg-patient'));
+    const dl=document.getElementById('patientsList');
+    if(dl) dl.innerHTML=window.OrthoPatients.getAll().map(p=>'<option value="'+(p.name||'')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  };
+  function run(){ window.OrthoPatients.populateAllControls(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('orthoPatientsChanged', run);
+  setTimeout(run, 800); setTimeout(run, 1800);
+})();
+</script>
+
+
+
+<script>
+// PATIENT DROPDOWN SYNC FIX v5
+// Keeps current Firebase connection unchanged. This script only standardizes local/demo patient sync
+// so newly added patients appear in all dropdowns, datalists, and search controls.
+(function(){
+  const STORAGE_KEYS=['ortho_patients','clinic_patients','patients','orthoClinicPatients','demo_patients'];
+  const DEMO_PATS=[
+    {id:'pt1',name:'أحمد محمد علي',phone:'01001234567',age:45,gender:'male',rank:'follow_up_patient',outstandingBalance:500,totalVisits:8,lastVisitDate:'2026-05-10',complaint:'ألم الركبة'},
+    {id:'pt2',name:'فاطمة إبراهيم',phone:'01112345678',age:38,gender:'female',rank:'vip_patient',outstandingBalance:0,totalVisits:15,lastVisitDate:'2026-05-12',complaint:'آلام الظهر'},
+    {id:'pt3',name:'محمد السيد حسن',phone:'01223456789',age:52,gender:'male',rank:'new_patient',outstandingBalance:800,totalVisits:1,lastVisitDate:'2026-05-16',complaint:'ألم الكتف'},
+    {id:'pt4',name:'نورا خالد',phone:'01334567890',age:29,gender:'female',rank:'physiotherapy_candidate',outstandingBalance:0,totalVisits:5,lastVisitDate:'2026-05-08',complaint:'إصابة رياضية'},
+    {id:'pt5',name:'عمر عبدالله',phone:'01445678901',age:61,gender:'male',rank:'surgery_candidate',outstandingBalance:1200,totalVisits:12,lastVisitDate:'2026-05-05',complaint:'تغيير مفصل الركبة'},
+    {id:'pt6',name:'ريم أحمد',phone:'01556789012',age:34,gender:'female',rank:'regular_patient',outstandingBalance:0,totalVisits:3,lastVisitDate:'2026-04-28',complaint:'تنميل اليد'},
+    {id:'pt7',name:'كريم فاروق',phone:'01667890123',age:25,gender:'male',rank:'new_patient',outstandingBalance:300,totalVisits:2,lastVisitDate:'2026-04-20',complaint:'كسر الترقوة'},
+    {id:'pt8',name:'سلوى إبراهيم',phone:'01778901234',age:58,gender:'female',rank:'high_outstanding_balance',outstandingBalance:2000,totalVisits:7,lastVisitDate:'2026-05-01',complaint:'ألم المفاصل'}
+  ];
+  function readJson(store,key){try{const v=store.getItem(key);if(!v)return [];const x=JSON.parse(v);return Array.isArray(x)?x:[]}catch(e){return []}}
+  function writeJson(store,key,val){try{store.setItem(key,JSON.stringify(val||[]))}catch(e){}}
+  function normalize(p){
+    if(!p) return null;
+    const name=(p.name||p.patientName||p.fullName||p.full_name||'').trim();
+    const phone=(p.phone||p.mobile||p.phoneNumber||'').trim();
+    if(!name && !phone) return null;
+    return Object.assign({},p,{id:String(p.id||p.patientId||('local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7))),name,phone,age:p.age||'',gender:p.gender||'',rank:p.rank||'new_patient'});
+  }
+  function unique(list){
+    const map=new Map();
+    list.map(normalize).filter(Boolean).forEach(p=>{
+      const k=String(p.id||p.phone||p.name);
+      if(!map.has(k)) map.set(k,p); else map.set(k,Object.assign({},map.get(k),p));
+    });
+    return Array.from(map.values());
+  }
+  function getStoredOnly(){
+    let out=[];
+    STORAGE_KEYS.forEach(k=>{out=out.concat(readJson(localStorage,k),readJson(sessionStorage,k));});
+    return unique(out);
+  }
+  function getAll(){return unique(DEMO_PATS.concat(getStoredOnly()));}
+  function saveEverywhere(list){STORAGE_KEYS.forEach(k=>{writeJson(localStorage,k,list);writeJson(sessionStorage,k,list);});}
+  function upsert(p){
+    p=normalize(p); if(!p) return;
+    const local=getStoredOnly();
+    const idx=local.findIndex(x=>String(x.id)===String(p.id) || (p.phone && x.phone===p.phone));
+    if(idx>=0) local[idx]=Object.assign({},local[idx],p); else local.unshift(p);
+    saveEverywhere(local);
+    try{window.dispatchEvent(new CustomEvent('orthoPatientsChanged',{detail:p}))}catch(e){}
+  }
+  function optionHtml(rows,opts){
+    opts=opts||{};
+    return '<option value="">'+(opts.first||'اختر المريض...')+'</option>'+rows.map(p=>'<option value="'+String(p.id).replace(/"/g,'&quot;')+'">'+(p.name||'بدون اسم')+(p.phone?' — '+p.phone:'')+(opts.withBalance?' — مستحق: '+(p.outstandingBalance||0)+' ج':'')+'</option>').join('');
+  }
+  function populateSelect(sel,opts){
+    if(!sel) return;
+    const current=sel.value;
+    sel.innerHTML=optionHtml(getAll(),opts||{});
+    if(current && [...sel.options].some(o=>o.value===current)) sel.value=current;
+  }
+  function populateDatalist(dl){
+    if(!dl) return;
+    dl.innerHTML=getAll().map(p=>'<option value="'+(p.name||'').replace(/"/g,'&quot;')+'" data-id="'+p.id+'">'+(p.phone||'')+'</option>').join('');
+  }
+  function looksLikePatientSelect(sel){
+    if(!sel) return false;
+    const id=(sel.id||'').toLowerCase(), name=(sel.name||'').toLowerCase(), txt=(sel.innerText||'');
+    return ['patientsel','patient','patientid','pay-patient','msg-patient','appointment-patient','visit-patient'].some(x=>id.includes(x)||name.includes(x)) || txt.includes('اختر المريض');
+  }
+  function populateAll(){
+    document.querySelectorAll('select').forEach(sel=>{ if(looksLikePatientSelect(sel)) populateSelect(sel,{withBalance:sel.id==='pay-patient'}); });
+    ['patientsList','patientList','patientDatalist'].forEach(id=>populateDatalist(document.getElementById(id)));
+  }
+  window.OrthoPatients={getAll,upsert,nameById:function(id){const p=getAll().find(x=>String(x.id)===String(id));return p?p.name:'';},populateSelect,populateDatalist,populateAllControls:populateAll};
+  // Populate repeatedly because some pages rebuild controls after boot/Firebase fallback.
+  function schedule(){populateAll();[250,700,1400,2500,4000].forEach(ms=>setTimeout(populateAll,ms));}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  window.addEventListener('focus',schedule); document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();}); window.addEventListener('orthoPatientsChanged',schedule);
+  document.addEventListener('click',e=>{ if(e.target && e.target.tagName==='SELECT' && looksLikePatientSelect(e.target)) populateSelect(e.target,{withBalance:e.target.id==='pay-patient'}); },true);
+})();
+</script>
+
+<script src="js/clinic-data.js"></script>
+<script src="js/clinic-data-v7.js"></script>
+<script src="js/footer-print.js"></script>
+<script src="js/dropdowns-senior-fix.js"></script>
 </body>

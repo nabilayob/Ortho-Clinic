@@ -1,0 +1,14 @@
+Patient sync fix v4
+
+Fixed:
+- New patients are saved into localStorage key ortho_patients even when Firebase is unavailable or slow.
+- Newly added patients appear in Patients list after refresh.
+- Payments patient dropdown is populated from synced patients.
+- Result upload patient dropdown is populated from synced patients.
+- Messages patient dropdown is populated from synced patients.
+- Appointments patient datalist search uses synced patients.
+- Patient profile can open local/new patient IDs.
+- Kept the original Firebase cfg/connection values unchanged in all HTML files.
+
+Run through a local server, for example:
+python -m http.server 8080
